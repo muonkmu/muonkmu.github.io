@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>github on MW Devlog</title>
+        <link>https://muonkmu.github.io/tags/github/</link>
+        <description>Recent content in github on MW Devlog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Tue, 13 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/github/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Github blog 만들기</title>
+        <link>https://muonkmu.github.io/p/github-blog-%EB%A7%8C%EB%93%A4%EA%B8%B0/</link>
+        <pubDate>Tue, 13 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/github-blog-%EB%A7%8C%EB%93%A4%EA%B8%B0/</guid>
+        <description>&lt;h2 id=&#34;목표&#34;&gt;목표&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;개인 기술 정리를 위한 블로그의 생성&lt;/li&gt;
+&lt;li&gt;markdown 사용이 편리한 github.io를 이용하기로 결정&lt;/li&gt;
+&lt;li&gt;빌드가 빠른 HUGO framework을 사용(github에서는 Jekyll가 기본이나 컨텐츠가 쌓이면 빌드가 느려지는 단점)&lt;/li&gt;
+&lt;li&gt;Hugo theme는 STACK을 사용&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;개발-환경&#34;&gt;개발 환경&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Oracle Cloud Arm server&lt;/li&gt;
+&lt;li&gt;Ubuntu 20.40&lt;/li&gt;
+&lt;li&gt;code-server&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;사전-준비&#34;&gt;사전 준비&lt;/h2&gt;
+&lt;h3 id=&#34;go-설치&#34;&gt;GO 설치&lt;/h3&gt;
+&lt;p&gt;Hugo는 GO로 작성되 있으므로 GO를 설치한다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ref : &lt;a class=&#34;link&#34; href=&#34;https://go.dev/doc/install&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://go.dev/doc/install&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;hugo-설치&#34;&gt;Hugo 설치&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;리눅스의 경우 패키지 관리자를 이용하여 설치가 가능하나 이 경우 old 버전이 설치된다.&lt;/li&gt;
+&lt;li&gt;STACK 테마의 경우 최신버전과 hugo extension이 필요하므로 Go를 이용하여 설치한다.&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://gohugo.io/installation/linux/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://gohugo.io/installation/linux/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;go install -tags extended github.com/gohugoio/hugo@latest
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description>
+        </item>
+        
+    </channel>
+</rss>

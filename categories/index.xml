@@ -6,21 +6,21 @@
         <description>Recent content in Categories on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Mon, 12 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Tue, 13 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>DevEnv</title>
+        <link>https://muonkmu.github.io/categories/devenv/</link>
+        <pubDate>Tue, 13 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/categories/devenv/</guid>
+        <description>&lt;img src="https://muonkmu.github.io/categories/devenv/dev-env.jpeg" alt="Featured image of post DevEnv" /&gt;</description>
+        </item>
+        <item>
         <title>CS231n</title>
         <link>https://muonkmu.github.io/categories/cs231n/</link>
         <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/categories/cs231n/</guid>
         <description>&lt;img src="https://muonkmu.github.io/categories/cs231n/CS231n_home.png" alt="Featured image of post CS231n" /&gt;</description>
-        </item>
-        <item>
-        <title>DevEnv</title>
-        <link>https://muonkmu.github.io/categories/devenv/</link>
-        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/categories/devenv/</guid>
-        <description>&lt;img src="https://muonkmu.github.io/categories/devenv/dev-env.jpeg" alt="Featured image of post DevEnv" /&gt;</description>
         </item>
         
     </channel>
