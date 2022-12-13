@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Tags on MW Devlog</title>
+        <link>https://muonkmu.github.io/tags/</link>
+        <description>Recent content in Tags on MW Devlog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Mon, 12 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Computer Vision</title>
+        <link>https://muonkmu.github.io/tags/computer-vision/</link>
+        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/computer-vision/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>CS231n</title>
+        <link>https://muonkmu.github.io/tags/cs231n/</link>
+        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/cs231n/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>DevEnv</title>
+        <link>https://muonkmu.github.io/tags/devenv/</link>
+        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/devenv/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Machine Learning</title>
+        <link>https://muonkmu.github.io/tags/machine-learning/</link>
+        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/machine-learning/</guid>
+        <description></description>
+        </item>
+        
+    </channel>
+</rss>
