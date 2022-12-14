@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Ubuntu 20.04 초기 설정 가이드'>
-<title>Ubuntu 20.04 개인 환경 설정</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='오라클 클라우드를 이용한 원격 개발서버 구축'>
+<title>원격 개발 서버 구축</title>
 
-<link rel='canonical' href='https://muonkmu.github.io/p/ubuntu-20.04-%EA%B0%9C%EC%9D%B8-%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/'>
+<link rel='canonical' href='https://muonkmu.github.io/p/%EC%9B%90%EA%B2%A9-%EA%B0%9C%EB%B0%9C-%EC%84%9C%EB%B2%84-%EA%B5%AC%EC%B6%95/'>
 
-<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='Ubuntu 20.04 개인 환경 설정'>
-<meta property='og:description' content='Ubuntu 20.04 초기 설정 가이드'>
-<meta property='og:url' content='https://muonkmu.github.io/p/ubuntu-20.04-%EA%B0%9C%EC%9D%B8-%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='원격 개발 서버 구축'>
+<meta property='og:description' content='오라클 클라우드를 이용한 원격 개발서버 구축'>
+<meta property='og:url' content='https://muonkmu.github.io/p/%EC%9B%90%EA%B2%A9-%EA%B0%9C%EB%B0%9C-%EC%84%9C%EB%B2%84-%EA%B5%AC%EC%B6%95/'>
 <meta property='og:site_name' content='MW Devlog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='ubuntu' /><meta property='article:published_time' content='2022-12-12T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-12T00:00:00&#43;00:00'/>
-<meta name="twitter:title" content="Ubuntu 20.04 개인 환경 설정">
-<meta name="twitter:description" content="Ubuntu 20.04 초기 설정 가이드">
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='oracle cloud' /><meta property='article:published_time' content='2022-12-12T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-12T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="원격 개발 서버 구축">
+<meta name="twitter:description" content="오라클 클라우드를 이용한 원격 개발서버 구축">
     </head>
     <body class="
     article-page
@@ -221,14 +221,12 @@
             <nav id="TableOfContents">
   <ol>
     <li><a href="#목적">목적</a></li>
-    <li><a href="#유의사항">유의사항</a></li>
-    <li><a href="#개인-설정">개인 설정</a>
+    <li><a href="#최종-목표">최종 목표</a></li>
+    <li><a href="#서버-구축">서버 구축</a>
       <ol>
-        <li><a href="#nvidia-그래픽-카드-설정">Nvidia 그래픽 카드 설정</a></li>
-        <li><a href="#한영키-동작-설정">한영키 동작 설정</a></li>
-        <li><a href="#vnc-설치">VNC 설치</a></li>
-        <li><a href="#ssh-설치">SSH 설치</a></li>
-        <li><a href="#zshom-my-zsh-설치-및-설정">ZSH/om-my-zsh 설치 및 설정</a></li>
+        <li><a href="#클라우드-서버-구축">클라우드 서버 구축</a></li>
+        <li><a href="#클라우드-서버-환경-설정">클라우드 서버 환경 설정</a></li>
+        <li><a href="#code-server-설치">code-server 설치</a></li>
       </ol>
     </li>
   </ol>
@@ -258,12 +256,12 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/p/ubuntu-20.04-%EA%B0%9C%EC%9D%B8-%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/">Ubuntu 20.04 개인 환경 설정</a>
+            <a href="/p/%EC%9B%90%EA%B2%A9-%EA%B0%9C%EB%B0%9C-%EC%84%9C%EB%B2%84-%EA%B5%AC%EC%B6%95/">원격 개발 서버 구축</a>
         </h2>
     
         
         <h3 class="article-subtitle">
-            Ubuntu 20.04 초기 설정 가이드
+            오라클 클라우드를 이용한 원격 개발서버 구축
         </h3>
         
     </div>
@@ -316,339 +314,155 @@
     
     <h2 id="목적">목적</h2>
 <ul>
-<li>Ubuntu 20.04 LTS 설치 후 나에게 맞는 설정 및 설정 방법 정리</li>
+<li>클라우드 서버를 이용하여 원격으로 접속 가능한 개발 서버의 구축</li>
 </ul>
-<h2 id="유의사항">유의사항</h2>
-<ul>
-<li>설치 시 언어는 영어, 키보드 영어 자판으로 설치를 권장</li>
-</ul>
-<h2 id="개인-설정">개인 설정</h2>
-<h3 id="nvidia-그래픽-카드-설정">Nvidia 그래픽 카드 설정</h3>
+<h2 id="최종-목표">최종 목표</h2>
 <ol>
-<li>설치 가능한 드라이버 확인</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">ubuntu-drivers devices
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="2">
-<li>권장 드라이버 설치</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo ubuntu-drivers autoinstall
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="한영키-동작-설정">한영키 동작 설정</h3>
-<ol>
-<li>입력기 설치 :
+<li>고정 IP를 가진 ubuntu 서버
 <ul>
-<li>setting → Region and Language → Input Source → Korean(Hangul) 추가</li>
+<li>무료 클라우드 서버 중 오라클이 ARM64-4core/24GB ram/200GB storage VM 머신 제공 (타사 대비 월등히 좋음)</li>
 </ul>
 </li>
-<li>1항의 추가된 항목 설정에서 Hangul Toggle Key를 Hangul만 남김(option)</li>
-<li>/usr/share/X11/xkb/symbols/altwin 편집
+<li>원격 개발을 위한 code-server 설치</li>
+</ol>
+<h2 id="서버-구축">서버 구축</h2>
+<h3 id="클라우드-서버-구축">클라우드 서버 구축</h3>
+<ol>
+<li>오라클 클라우드 Free tier 가입
 <ul>
-<li>4행의 <code>key &lt;RALT&gt; ...</code> 부분에서 <code>symbols[Gropu1] = [ Alt_R, Meta_R ]</code> 부분을 <code>[ Hangul ]</code> 로 수정한다.</li>
+<li>리전은 원하는 곳(춘천이 빠르고 ARM 서버 리소스가 남음)</li>
+<li>카드 정보를 기입(실제로 결제가 되지는 않음)</li>
+</ul>
+</li>
+<li>가입 완료 후 하단의 <code>Create a VM instance</code> 시작
+<ul>
+<li>instance Name 입력</li>
+<li>image는 원하는거 선택, ex) <code>canonical Ubuntu 20.04</code></li>
+<li>shape는 <code>Ampere</code> 선택 core는 4, memory는 24GB 까지 무료</li>
+<li>상기 리소스를 나누어 무료 VM를 생성할 수 있다.ex) 2core-12GB 인스턴스 2개 무료</li>
+</ul>
+</li>
+<li>VCN이 없다면 페이지에서 VCN을 생성하여 연결</li>
+<li>본인의 PC에서 SSH를 생성하여 Public키를 업로드 한다.
+<ul>
+<li><a class="link" href="http://taewan.kim/oci_docs/98_misc_tips/ssh_key_pairs/"  target="_blank" rel="noopener"
+    >http://taewan.kim/oci_docs/98_misc_tips/ssh_key_pairs/</a></li>
+</ul>
+</li>
+<li>부트 볼륨 생성
+<ul>
+<li><code>Specify a custom boot volume size</code>을 클릭 후 원하는 볼륨생성</li>
+<li>200GB까지 무료이며 상기 리소스를 나누어 무료 VM생성 가능</li>
+</ul>
+</li>
+<li><code>Create</code>로 생성
+<ul>
+<li>해당 리전의 리소스가 부족하여 생성이 안되는 경우가 있다.</li>
+<li>상기의 경우 리소스가 풀릴 때 까지 기다리거나 유료계정으로 업그레이드 (승인되는데 시간 걸림)</li>
+<li>유료 계정이 되더라도 무료 리소스까지만 쓰면 과금이 되지 않는다.</li>
 </ul>
 </li>
 </ol>
-<h3 id="vnc-설치">VNC 설치</h3>
+<h3 id="클라우드-서버-환경-설정">클라우드 서버 환경 설정</h3>
 <ol>
-<li>tigerVNC 설치</li>
-</ol>
+<li>고정 IP 설정
+<ul>
+<li>Compute &gt; Instances &gt; Instance Details &gt; Attached VNICs &gt; VNIC Details &gt; IPv4 Addresses</li>
+<li>상기 경로에서 <code>NO PUBLIC IP</code> 선택하여 IP 삭제 후 <code>RESERVED PUBLIC IP</code>로 변경</li>
+</ul>
+</li>
+<li>우분터 사용자 계정 생성(option)
+<ul>
+<li>ssh 로그인</li>
+<li>현재 계정 <code>ubuntu</code> 암호 생성</li>
+<li>사용자 계정 생성</li>
+<li>생성 계정에 sudo 권한 부여</li>
+<li>계정 변경</li>
+</ul>
+</li>
+<li>ssh 비번으로 접속 설정
+<ul>
+<li><code>/etc/ssh/sshd_config</code>파일의 <code>PasswordAuthentication</code> 값을 &ldquo;yes&quot;로 변경</li>
+</ul>
+</li>
+<li>클라우드 포트 개방
+<ul>
+<li>Networking &gt; Virtual Cloud Networks &gt; {사용중인 VNC} &gt; Security List Details</li>
+<li>상기 경로에서 포트 개방 추가</li>
+</ul>
+</li>
+<li>우분투 방화벽 포트 개방
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"> sudo apt-get install tigervnc-standalone-server tigervnc-xorg-extension
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo iptables -I INPUT <span class="m">5</span> -p tcp --dport <span class="m">8070</span> -m state --state NEW,ESTABLISHED -j ACCEPT
 </span></span></code></pre></td></tr></table>
 </div>
-</div><ol start="2">
-<li>비밀번호 설정</li>
+</div></li>
 </ol>
+<h3 id="code-server-설치">code-server 설치</h3>
+<ol>
+<li>code-server 다운로드 및 설치
+<ul>
+<li><a class="link" href="https://coder.com/docs/code-server/latest/install"  target="_blank" rel="noopener"
+    >https://coder.com/docs/code-server/latest/install</a></li>
+</ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"> vncpasswd
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -fsSL https://code-server.dev/install.sh <span class="p">|</span> sh
 </span></span></code></pre></td></tr></table>
 </div>
-</div><ol start="3">
-<li>~/.vnc/xstartup 작성</li>
-</ol>
+</div></li>
+<li>서비스로 실행하기 위해 systemctl로 enable
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo systemctl <span class="nb">enable</span> --now code-server@<span class="nv">$USER</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>외부 접속을 위해 <code>.config/code-server/config.yaml</code>파일을 수정한다.
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/sh
-</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="c1"># Start Gnome 3 Desktop</span>
-</span></span><span class="line"><span class="cl"><span class="o">[</span> -x /etc/vnc/xstartup <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">exec</span> /etc/vnc/xstartup
-</span></span><span class="line"><span class="cl"><span class="o">[</span> -r <span class="nv">$HOME</span>/.Xresources <span class="o">]</span> <span class="o">&amp;&amp;</span> xrdb <span class="nv">$HOME</span>/.Xresources
-</span></span><span class="line"><span class="cl">vncconfig -iconic <span class="p">&amp;</span>
-</span></span><span class="line"><span class="cl">dbus-launch --exit-with-session gnome-session <span class="p">&amp;</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">bind-addr</span><span class="p">:</span><span class="w"> </span><span class="m">0.0.0.0</span><span class="p">:</span>{<span class="l">포트번호}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">auth</span><span class="p">:</span><span class="w"> </span><span class="l">password</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">password</span><span class="p">:</span><span class="w"> </span>{<span class="l">비밀번호}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">cert</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
-</div><ol start="4">
-<li>vnc 서버 실행</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">  vncserver -localhost no
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="5">
-<li>vnc 서버 종료</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">  vncserver -kill :2
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="6">
-<li>설정변경 :  $&gt;sudo vim /etc/vnc.conf</li>
-</ol>
+</div></li>
+<li>서비스를 재시작 후 동작을 확인한다.
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">$geometry</span> <span class="o">=</span> <span class="s2">&#34;1920x1080&#34;</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="nv">$depth</span> <span class="o">=</span> <span class="s2">&#34;16&#34;</span><span class="p">;</span>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo systemctl restart --now code-server@<span class="nv">$USER</span>
+</span></span><span class="line"><span class="cl">sudo systemctl status code-server@<span class="nv">$USER</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="ssh-설치">SSH 설치</h3>
-<ol>
-<li>서버 설치</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt install openssh-server
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="2">
-<li>실행여부 확인</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo systemctl status ssh
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="3">
-<li>서버 실행</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo systemctl <span class="nb">enable</span> ssh
-</span></span><span class="line"><span class="cl">sudo systemctl start ssh
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="4">
-<li>xforward 설정 팡일의
+</div></li>
+<li>chrome 브라우저에서 접속 시 이미지가 안보일 경우 하기 세팅을 수행
 <ul>
-<li><code>/etc/ssh/ssh_config</code> 의 <code>x11Forward no → x11Forward yes</code>로 변경</li>
-</ul>
-</li>
-<li>ssh서버 재실행 및 클라언트 실행 시 -X 옵션 추가</li>
-</ol>
-<h3 id="zshom-my-zsh-설치-및-설정">ZSH/om-my-zsh 설치 및 설정</h3>
-<ol>
-<li>zsh 설치</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-get install zsh
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="2">
-<li>설치확인</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat /etc/shells
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="3">
-<li>기본쉘 변경</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">chsh -s <span class="k">$(</span>which zsh<span class="k">)</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="4">
-<li>oh-my-zsh 설치(curl설치필요)</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sh -c <span class="s2">&#34;</span><span class="k">$(</span>curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh<span class="k">)</span><span class="s2">&#34;</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="6">
-<li>테마변경
-<ul>
-<li><code>~/.zshrc</code> 파일 내 <code>ZSH_THEME=&quot;agnoster&quot;</code> 로 변경</li>
-</ul>
-</li>
-<li>글자깨질 시 Powerline폰트 설치</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-get install fonts-powerline
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="7">
-<li>커맨드라인 컴퓨터 이름 감추기
-<ul>
-<li><code>~/.zshrc</code> 하단에 하기 내용 추가</li>
+<li><code>chrome://flags</code> 설정 의 <code>Insecure origins treated as secure</code> Enable 후 <code>http://{접속IP}:{접속Port}</code> 추가</li>
 </ul>
 </li>
 </ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">prompt_context<span class="o">()</span> <span class="o">{</span>
-</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[[</span> <span class="s2">&#34;</span><span class="nv">$USER</span><span class="s2">&#34;</span> !<span class="o">=</span> <span class="s2">&#34;</span><span class="nv">$DEFAULT_USER</span><span class="s2">&#34;</span> <span class="o">||</span> -n <span class="s2">&#34;</span><span class="nv">$SSH_CLIENT</span><span class="s2">&#34;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
-</span></span><span class="line"><span class="cl">prompt_segment black default <span class="s2">&#34;%(!.%{%F{yellow}%}.)</span><span class="nv">$USER</span><span class="s2">&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="k">fi</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="8">
-<li>zsh-autosuggestions 플러그인 설치</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone https://github.com/zsh-users/zsh-autosuggestions.git <span class="nv">$ZSH_CUSTOM</span>/plugins/zsh-autosuggestions
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="9">
-<li>zsh-syntax-highlighting 플러그인 설치</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone https://github.com/zsh-users/zsh-syntax-highlighting.git <span class="nv">$ZSH_CUSTOM</span>/plugins/zsh-syntax-highlighting
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="10">
-<li>autojump 설치</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone https://github.com/wting/autojump.git
-</span></span><span class="line"><span class="cl"><span class="nb">cd</span> autojump
-</span></span><span class="line"><span class="cl">./install.py
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ul>
-<li>사용법 <code>j [디렉토리 명]</code> 또는  <code>j -s</code></li>
-</ul>
-<ol start="11">
-<li>
-<p>플러그인 활성화</p>
-<ul>
-<li><code>~/.zshrc</code> 파일 내 <code>plugins=(git zsh-autosuggestions zsh-syntax-highlighting autojump)</code> 로 변경</li>
-</ul>
-</li>
-<li>
-<p>줄바꿈 적용(멀티라인 입력)</p>
-<ul>
-<li><code>~/.oh-my-zsh/themes/agnoster.zsh-theme</code>파일 수정</li>
-<li><code>prompt_hg</code> 하단에 <code>prompt_newline</code> 추가 후 파일 최하단 하기 프롬프트 추가</li>
-</ul>
-</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">prompt_newline<span class="o">()</span> <span class="o">{</span>
-</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[[</span> -n <span class="nv">$CURRENT_BG</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
-</span></span><span class="line"><span class="cl"><span class="nb">echo</span> -n <span class="s2">&#34;%{%k%F{</span><span class="nv">$CURRENT_BG</span><span class="s2">}%}</span><span class="nv">$SEGMENT_SEPARATOR</span><span class="s2">
-</span></span></span><span class="line"><span class="cl"><span class="s2">%{%k%F{blue}%}</span><span class="nv">$SEGMENT_SEPARATOR</span><span class="s2">&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="k">else</span>
-</span></span><span class="line"><span class="cl"><span class="nb">echo</span> -n <span class="s2">&#34;%{%k%}&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="k">fi</span>
-</span></span><span class="line"><span class="cl"><span class="nb">echo</span> -n <span class="s2">&#34;%{%f%}&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="nv">CURRENT_BG</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div>
+
 </section>
 
 
@@ -656,7 +470,7 @@
     
     <section class="article-tags">
         
-            <a href="/tags/ubuntu/">ubuntu</a>
+            <a href="/tags/oracle-cloud/">oracle cloud</a>
         
     </section>
 
@@ -703,12 +517,12 @@
             
                 
 <article class="">
-    <a href="/p/%EC%9B%90%EA%B2%A9-%EA%B0%9C%EB%B0%9C-%EC%84%9C%EB%B2%84-%EA%B5%AC%EC%B6%95/">
+    <a href="/p/ubuntu-20.04-%EA%B0%9C%EC%9D%B8-%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/">
         
         
 
         <div class="article-details">
-            <h2 class="article-title">원격 개발 서버 구축</h2>
+            <h2 class="article-title">Ubuntu 20.04 개인 환경 설정</h2>
         </div>
     </a>
 </article>

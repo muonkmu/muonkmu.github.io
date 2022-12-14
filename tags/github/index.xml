@@ -31,6 +31,7 @@
 &lt;ul&gt;
 &lt;li&gt;ref : &lt;a class=&#34;link&#34; href=&#34;https://go.dev/doc/install&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;https://go.dev/doc/install&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;필요 시 GO의 설치 경로를 &lt;code&gt;PATH&lt;/code&gt;에 등록한다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3 id=&#34;hugo-설치&#34;&gt;Hugo 설치&lt;/h3&gt;
 &lt;ul&gt;
@@ -47,7 +48,10 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;go install -tags extended github.com/gohugoio/hugo@latest
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;git-repo-생성&#34;&gt;git repo 생성&lt;/h3&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;필요 시 Hugo의 설치 경로를 &lt;code&gt;PATH&lt;/code&gt;에 등록한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;git-repo-생성&#34;&gt;git repo 생성&lt;/h3&gt;
 &lt;ol&gt;
 &lt;li&gt;hosting을 위한 repo를 생성한다.
 &lt;ul&gt;
