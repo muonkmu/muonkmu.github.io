@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Chapter 02 Parallel Architecture 요약'>
+<title>[AI HW Design] Chap03 Parallel Architecture</title>
+
+<link rel='canonical' href='https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[AI HW Design] Chap03 Parallel Architecture'>
+<meta property='og:description' content='Chapter 02 Parallel Architecture 요약'>
+<meta property='og:url' content='https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture/'>
+<meta property='og:site_name' content='MW Devlog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Intel CPU' /><meta property='article:tag' content='Nvidia GPU' /><meta property='article:tag' content='NVDLA' /><meta property='article:tag' content='TPU' /><meta property='article:tag' content='Brainwave' /><meta property='article:published_time' content='2022-12-12T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-12T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="[AI HW Design] Chap03 Parallel Architecture">
+<meta name="twitter:description" content="Chapter 02 Parallel Architecture 요약">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/minwook_large_hu93fbe6c7fccf94bb4165ea496a9d4637_41368_300x0_resize_q75_box.jpg" width="300"
+                            height="246" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MW Devlog</a></h1>
+            <h2 class="site-description">Embedded Engineer (HW,SW,SYSTEM)</h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#intel-central-processing-unit-cpu">Intel Central Processing Unit (CPU)</a>
+      <ol>
+        <li><a href="#skylake-mesh-architecture">Skylake mesh architecture</a></li>
+        <li><a href="#intel-ultra-path-interconnect">Intel Ultra Path Interconnect</a></li>
+        <li><a href="#subnon-unified-memory-access-clustering">SubNon-Unified Memory Access Clustering</a></li>
+        <li><a href="#cache-hierarchy-change">Cache Hierarchy Change</a></li>
+        <li><a href="#singlemultiple-socket-parallel-processing">single/Multiple Socket Parallel Processing</a></li>
+        <li><a href="#advanced-vector-software-extension">Advanced vector software extension</a></li>
+        <li><a href="#math-kernel-library-for-deep-neural-networkmkl-dnn">Math Kernel Library for Deep Neural Network(MKL-DNN)</a></li>
+      </ol>
+    </li>
+    <li><a href="#nvidia-graphics-processing-unit-gpu">NVIDIA Graphics Processing Unit (GPU)</a>
+      <ol>
+        <li><a href="#tensor-core-architecture">Tensor Core Architecture</a></li>
+        <li><a href="#winograd-transform">Winograd Transform</a></li>
+        <li><a href="#simultaneous-multithreading-smt">Simultaneous Multithreading (SMT)</a></li>
+        <li><a href="#high-bandwidth-memory-hbm2">High Bandwidth Memory (HBM2)</a></li>
+        <li><a href="#nvlink2-configuration">NVLink2 Configuration</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/ai-hw-design/" >
+                AI HW Design
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/ai-hw-design-chap03-parallel-architecture/">[AI HW Design] Chap03 Parallel Architecture</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Chapter 02 Parallel Architecture 요약
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Dec 12, 2022</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>본 챕터에서는 몇가지 주요한 Paralle Architecture에 대하여 소개한다</p>
+<h2 id="intel-central-processing-unit-cpu">Intel Central Processing Unit (CPU)</h2>
+<ul>
+<li><a class="link" href="https://www.intel.com/content/www/us/en/developer/articles/technical/xeon-processor-scalable-family-technical-overview.html"  target="_blank" rel="noopener"
+    >https://www.intel.com/content/www/us/en/developer/articles/technical/xeon-processor-scalable-family-technical-overview.html</a></li>
+<li>CPU는 병렬 프로세싱을 위해 Single Instruction Single Data (SISD) architecture에서 Single Instruction Multiple Data (SIMD)로 진화함.</li>
+<li>그러나 이는 딥러닝과 같은 거대 병렬 처리에 적합하지 못하여 2017년 딥러닝 어플리케이션을 위한 Xeon processor scalable family (purley platform) 발표</li>
+<li>Purley platform은 하기 특징을 가짐</li>
+</ul>
+<h3 id="skylake-mesh-architecture">Skylake mesh architecture</h3>
+<ul>
+<li>이전 Grantley platform에서는 Last-Level Chache(LLC)등이 Intel Quick Path Interconnect(QPI) ring achitecture로 연결</li>
+<li>상기 구조는 코어 증가 시 코어 마다 사용가능한 bandwidth가 줄어들어서 메모리 latency가 증가</li>
+<li>Grantley platform에서는 Intel Ultra Path Interconnect(UPI) mesh archictecture로 업그레이드</li>
+<li>Comnined Home Agent(CHA)가 통합, 이는 LLC 등의 주소 정보 지도를 작성하며 이는 mesh 연결에서 목적지까지의 라우팅 정보를 제공
+<img src="https://www.intel.com/content/dam/develop/external/us/en/images/xeon-processor-scalable-family-tech-overview-fig05-737410.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="Intel Xeon processor Scalable family mesh architecture"
+	
+	
+>
+<em>Fig1. Intel Xeon processor Scalable family mesh architecture</em></li>
+</ul>
+<h3 id="intel-ultra-path-interconnect">Intel Ultra Path Interconnect</h3>
+<ul>
+<li>UPI는 어드레스를 공유하는 mutiple processor coherent interconnect</li>
+<li>UPI는 vertical/horizontal path를 통한 한 코어에서 다른 코어로의 최단 경로를 제공</li>
+<li>2소켓, 4소켓 링, 8소켓+크로스바 등 다양한 구조 지원</li>
+</ul>
+<h3 id="subnon-unified-memory-access-clustering">SubNon-Unified Memory Access Clustering</h3>
+<ul>
+<li>플랫폼은 모든 코어/LLC를 반씩 + 메모리 컨트롤를 1개씩 가진 SNC 0,1 도메인을 가짐</li>
+<li>각 도메인은 각 메모리 컨트롤러에 매핑되는 유니크한 LLC 주소를 가지며 이는 LLC access latency를 낮춤</li>
+</ul>
+<h3 id="cache-hierarchy-change">Cache Hierarchy Change</h3>
+<ul>
+<li>하기 그림과 같이 변경, hit rate 증가
+<img src="https://www.intel.com/content/dam/develop/external/us/en/images/xeon-processor-scalable-family-tech-overview-fig11-737410.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="Generational cache comparison"
+	
+	
+>
+<em>Figure 11. Generational cache comparison</em></li>
+</ul>
+<h3 id="singlemultiple-socket-parallel-processing">single/Multiple Socket Parallel Processing</h3>
+<ul>
+<li>UPI와 sub-NUMA의 지원으로 딥러닝 worker process들은 코어셋이나 싱글소켓, 다중소켓에 assign 될 수 있음</li>
+</ul>
+<h3 id="advanced-vector-software-extension">Advanced vector software extension</h3>
+<ul>
+<li>Intel Advanced Vector Extension 512(Intel AVX-512)가 Vector Neural Network Instruction(VNNI)를 지원하는 AVX-512)_VNNI로 발전</li>
+<li>대충 더 빨라지고 8/16/32 FP vector 연산을 지원한다는 듯(자세한 사항은 책 참조)</li>
+</ul>
+<h3 id="math-kernel-library-for-deep-neural-networkmkl-dnn">Math Kernel Library for Deep Neural Network(MKL-DNN)</h3>
+<ul>
+<li>Convolution, pooling, activation, batch normalization으로 구성된 최적화된 MKL-DNN 지원</li>
+<li>key feature는 prefetching, data reuse, cache blocking, data layout, vectorization, register blocking이며 자세한 사항은 책 참조</li>
+</ul>
+<h2 id="nvidia-graphics-processing-unit-gpu">NVIDIA Graphics Processing Unit (GPU)</h2>
+<h3 id="tensor-core-architecture">Tensor Core Architecture</h3>
+<h3 id="winograd-transform">Winograd Transform</h3>
+<h3 id="simultaneous-multithreading-smt">Simultaneous Multithreading (SMT)</h3>
+<h3 id="high-bandwidth-memory-hbm2">High Bandwidth Memory (HBM2)</h3>
+<h3 id="nvlink2-configuration">NVLink2 Configuration</h3>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/intel-cpu/">Intel CPU</a>
+        
+            <a href="/tags/nvidia-gpu/">Nvidia GPU</a>
+        
+            <a href="/tags/nvdla/">NVDLA</a>
+        
+            <a href="/tags/tpu/">TPU</a>
+        
+            <a href="/tags/brainwave/">Brainwave</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 MW Devlog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

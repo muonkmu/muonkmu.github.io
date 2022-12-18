@@ -16,7 +16,7 @@
 &lt;ul&gt;
 &lt;li&gt;개인 기술 정리를 위한 블로그의 생성&lt;/li&gt;
 &lt;li&gt;markdown 사용이 편리한 github.io를 이용하기로 결정&lt;/li&gt;
-&lt;li&gt;빌드가 빠른 HUGO framework을 사용(github에서는 Jekyll framework가 기본이나 컨텐츠가 쌓이면 빌드가 느려지는 단점이 있음)&lt;/li&gt;
+&lt;li&gt;빌드가 빠른 HUGO framework을 사용 (github에서는 Jekyll framework가 기본이나 컨텐츠가 쌓이면 빌드가 느려지는 단점이 있음)&lt;/li&gt;
 &lt;li&gt;Hugo theme는 STACK을 사용&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&#34;개발-환경&#34;&gt;개발 환경&lt;/h2&gt;
@@ -45,7 +45,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;go install -tags extended github.com/gohugoio/hugo@latest
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; go install -tags extended github.com/gohugoio/hugo@latest
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;ul&gt;
@@ -95,8 +95,8 @@
 &lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  git init
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  git submodule add https://github.com/CaiJimmy/hugo-theme-stack.git themes/hugo-theme-stack
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; git init
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; git submodule add https://github.com/CaiJimmy/hugo-theme-stack.git themes/hugo-theme-stack
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;ol start=&#34;3&#34;&gt;
@@ -167,7 +167,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;hugo server -D --bind&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0.0.0.0 -p &lt;span class=&#34;m&#34;&gt;8070&lt;/span&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; hugo server -D --bind&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0.0.0.0 -p &lt;span class=&#34;m&#34;&gt;8070&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;h3 id=&#34;빌드-및-배포&#34;&gt;빌드 및 배포&lt;/h3&gt;
@@ -203,7 +203,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;hugo -t hugo-theme-stack
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; hugo -t hugo-theme-stack
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;ol start=&#34;3&#34;&gt;
@@ -285,6 +285,87 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;</description>
+        </item>
+        <item>
+        <title>[AI HW Design] Chap03 Parallel Architecture</title>
+        <link>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture/</link>
+        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture/</guid>
+        <description>&lt;p&gt;본 챕터에서는 몇가지 주요한 Paralle Architecture에 대하여 소개한다&lt;/p&gt;
+&lt;h2 id=&#34;intel-central-processing-unit-cpu&#34;&gt;Intel Central Processing Unit (CPU)&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.intel.com/content/www/us/en/developer/articles/technical/xeon-processor-scalable-family-technical-overview.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.intel.com/content/www/us/en/developer/articles/technical/xeon-processor-scalable-family-technical-overview.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;CPU는 병렬 프로세싱을 위해 Single Instruction Single Data (SISD) architecture에서 Single Instruction Multiple Data (SIMD)로 진화함.&lt;/li&gt;
+&lt;li&gt;그러나 이는 딥러닝과 같은 거대 병렬 처리에 적합하지 못하여 2017년 딥러닝 어플리케이션을 위한 Xeon processor scalable family (purley platform) 발표&lt;/li&gt;
+&lt;li&gt;Purley platform은 하기 특징을 가짐&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;skylake-mesh-architecture&#34;&gt;Skylake mesh architecture&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;이전 Grantley platform에서는 Last-Level Chache(LLC)등이 Intel Quick Path Interconnect(QPI) ring achitecture로 연결&lt;/li&gt;
+&lt;li&gt;상기 구조는 코어 증가 시 코어 마다 사용가능한 bandwidth가 줄어들어서 메모리 latency가 증가&lt;/li&gt;
+&lt;li&gt;Grantley platform에서는 Intel Ultra Path Interconnect(UPI) mesh archictecture로 업그레이드&lt;/li&gt;
+&lt;li&gt;Comnined Home Agent(CHA)가 통합, 이는 LLC 등의 주소 정보 지도를 작성하며 이는 mesh 연결에서 목적지까지의 라우팅 정보를 제공
+&lt;img src=&#34;https://www.intel.com/content/dam/develop/external/us/en/images/xeon-processor-scalable-family-tech-overview-fig05-737410.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Intel Xeon processor Scalable family mesh architecture&#34;
+	
+	
+&gt;
+&lt;em&gt;Fig1. Intel Xeon processor Scalable family mesh architecture&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;intel-ultra-path-interconnect&#34;&gt;Intel Ultra Path Interconnect&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;UPI는 어드레스를 공유하는 mutiple processor coherent interconnect&lt;/li&gt;
+&lt;li&gt;UPI는 vertical/horizontal path를 통한 한 코어에서 다른 코어로의 최단 경로를 제공&lt;/li&gt;
+&lt;li&gt;2소켓, 4소켓 링, 8소켓+크로스바 등 다양한 구조 지원&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;subnon-unified-memory-access-clustering&#34;&gt;SubNon-Unified Memory Access Clustering&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;플랫폼은 모든 코어/LLC를 반씩 + 메모리 컨트롤를 1개씩 가진 SNC 0,1 도메인을 가짐&lt;/li&gt;
+&lt;li&gt;각 도메인은 각 메모리 컨트롤러에 매핑되는 유니크한 LLC 주소를 가지며 이는 LLC access latency를 낮춤&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;cache-hierarchy-change&#34;&gt;Cache Hierarchy Change&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;하기 그림과 같이 변경, hit rate 증가
+&lt;img src=&#34;https://www.intel.com/content/dam/develop/external/us/en/images/xeon-processor-scalable-family-tech-overview-fig11-737410.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Generational cache comparison&#34;
+	
+	
+&gt;
+&lt;em&gt;Figure 11. Generational cache comparison&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;singlemultiple-socket-parallel-processing&#34;&gt;single/Multiple Socket Parallel Processing&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;UPI와 sub-NUMA의 지원으로 딥러닝 worker process들은 코어셋이나 싱글소켓, 다중소켓에 assign 될 수 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;advanced-vector-software-extension&#34;&gt;Advanced vector software extension&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Intel Advanced Vector Extension 512(Intel AVX-512)가 Vector Neural Network Instruction(VNNI)를 지원하는 AVX-512)_VNNI로 발전&lt;/li&gt;
+&lt;li&gt;대충 더 빨라지고 8/16/32 FP vector 연산을 지원한다는 듯(자세한 사항은 책 참조)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;math-kernel-library-for-deep-neural-networkmkl-dnn&#34;&gt;Math Kernel Library for Deep Neural Network(MKL-DNN)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Convolution, pooling, activation, batch normalization으로 구성된 최적화된 MKL-DNN 지원&lt;/li&gt;
+&lt;li&gt;key feature는 prefetching, data reuse, cache blocking, data layout, vectorization, register blocking이며 자세한 사항은 책 참조&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;nvidia-graphics-processing-unit-gpu&#34;&gt;NVIDIA Graphics Processing Unit (GPU)&lt;/h2&gt;
+&lt;h3 id=&#34;tensor-core-architecture&#34;&gt;Tensor Core Architecture&lt;/h3&gt;
+&lt;h3 id=&#34;winograd-transform&#34;&gt;Winograd Transform&lt;/h3&gt;
+&lt;h3 id=&#34;simultaneous-multithreading-smt&#34;&gt;Simultaneous Multithreading (SMT)&lt;/h3&gt;
+&lt;h3 id=&#34;high-bandwidth-memory-hbm2&#34;&gt;High Bandwidth Memory (HBM2)&lt;/h3&gt;
+&lt;h3 id=&#34;nvlink2-configuration&#34;&gt;NVLink2 Configuration&lt;/h3&gt;
+</description>
         </item>
         <item>
         <title>CS231n Chap 02</title>
