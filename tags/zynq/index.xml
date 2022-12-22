@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Zynq on MW Devlog</title>
+        <link>https://muonkmu.github.io/tags/zynq/</link>
+        <description>Recent content in Zynq on MW Devlog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Thu, 22 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/zynq/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[Petalinux] Petalinux Advance</title>
+        <link>https://muonkmu.github.io/p/petalinux-petalinux-advance/</link>
+        <pubDate>Thu, 22 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/petalinux-petalinux-advance/</guid>
+        <description>&lt;h2 id=&#34;petalinux-booting-and-packaging&#34;&gt;Petalinux Booting and Packaging&lt;/h2&gt;
+&lt;h3 id=&#34;petalinux-packaging&#34;&gt;petalinux Packaging&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;petalinux-package&lt;/code&gt; 명령을 이용하여 하기 내역을 수행 할 수 있다.
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;.BIN&lt;/code&gt; 또는 &lt;code&gt;.MCS&lt;/code&gt;파일을 생성 (&amp;ndash;boot 옵션)&lt;/li&gt;
+&lt;li&gt;BSP (&lt;code&gt;.BSP&lt;/code&gt; 파일) 또는 Package image 생성 (&amp;ndash;bsp, &amp;ndash;image 옵션)&lt;/li&gt;
+&lt;li&gt;prebuilt 디렉토리 생성 (&amp;ndash;prebuilt 옵션)&lt;/li&gt;
+&lt;li&gt;Vitis 를 위한 sysroot 설치 (&amp;ndash;sysroot 옵션)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;petalinux-booting&#34;&gt;petalinux booting&lt;/h3&gt;
+&lt;p&gt;QEMU, SD card, Jtag, TFTP, QSPI에 의한 Booting을 지원한다. (jtag Boot는 속도가 느려 잘 사용안함)&lt;/p&gt;
+&lt;h2 id=&#34;petalinux-debugging&#34;&gt;Petalinux Debugging&lt;/h2&gt;
+&lt;p&gt;상세 내용은 교제의 &lt;code&gt;Petalinux Application Debugging&lt;/code&gt; 및 &lt;code&gt;LAB5&lt;/code&gt; 참조&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Petalinux는 Application Debugging 시 System Debugger(Vitis) 와 GNU Debugger를 지원한다.&lt;/li&gt;
+&lt;li&gt;Vitis는 Target Communication Framework(TCF)와 Xilinx System DBugger(XSDB)를 이용한 Debugging 환경을 제공&lt;/li&gt;
+&lt;li&gt;일반적인 Linux GNU Debugger 지원&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;system-debugger-방법&#34;&gt;System Debugger 방법&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/docs/Introduction/ZynqMPSoC-EDT/ZynqMPSoC-EDT.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/docs/Introduction/ZynqMPSoC-EDT/ZynqMPSoC-EDT.html&lt;/a&gt; 참조&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;petalinux-config -c rootfs&lt;/code&gt;를 이용하여 Root File system에 하기 내역을 포함 시킨다.
+&lt;ul&gt;
+&lt;li&gt;tcf-agent (default enable)&lt;/li&gt;
+&lt;li&gt;openssh-sftp-server&lt;/li&gt;
+&lt;li&gt;dropbear (default disable)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;이미지를 빌드 하고 디버깅하고자 하는 Application을 실행 시킨다.
+&lt;ul&gt;
+&lt;li&gt;QEMU의 경우 GEM0만 연결되어 있으므로 필요 시 GEM3 등의 Device Tree를 추가하여 빌드한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;vitis를 실행 시키고 &lt;code&gt;*.XSA&lt;/code&gt; 파일 등을 이용하여 platform project를 구성한다.&lt;/li&gt;
+&lt;li&gt;platform project에 빈 linux Applicaiton domain을 추가한다.&lt;/li&gt;
+&lt;li&gt;4)항의 항목내 Debug configuration을 이용하여 Single Application Debug를 추가한다.
+&lt;ul&gt;
+&lt;li&gt;target 보드의 debug IP/port를 설정하고 파일 패스를 설정한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;gnu-debuger&#34;&gt;GNU Debuger&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;GNU 디버거를 사용하기 위해서는 Root file System에 gdbserver를 포함하여야 한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;custom-hw-and-driver-development&#34;&gt;Custom HW and Driver Development&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;Xilinx는 Custop IP에 대한 디바이스 제어를 위해 하기의 방법을 제안한다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;Linux Device Driver 제작&lt;/li&gt;
+&lt;li&gt;mmap의 사용 (사용이 쉽다. 인터럽트 핸들링이 안됨)&lt;/li&gt;
+&lt;li&gt;User space I/O (UIO 사용) (간단한 IRQ핸들링이 된다, Latency가 가변적이고 DMA가 지원되지 않는다)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;Petalinux는 빌드 시 Device Tree Generator가 DTSI/DTS파일을 생성하고 DTB를 만든다
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;*.XSA&lt;/code&gt; 파일을 분석하여 기본적인 DTSI/DTS 파일을 만든다&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;{project-root}/components/plnx_workspace/device-tree/device-tree&lt;/code&gt;에 생성되는 DTSI파일은 다음과 같다
+&lt;ul&gt;
+&lt;li&gt;pl.dtsi : memory-mapped PL IP node&lt;/li&gt;
+&lt;li&gt;pcw.dtsi : Dynamic properties of the PS peripheral&lt;/li&gt;
+&lt;li&gt;system-top.dts : boot argument 와 console, memory information&lt;/li&gt;
+&lt;li&gt;zynqmp.dtsi : PS peri and CPU information&lt;/li&gt;
+&lt;li&gt;zynqmp-clk-ccf.dtsi : IP peri를 위한 clock information&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Custop IP 추가 등 Device tree를 업데이트 하기 위해 하기 DTSI를 업데이트 한다.
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;{project-root}/project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;custom-hw-and-petalinux-개발-절차&#34;&gt;Custom HW and Petalinux 개발 절차&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;Custop IP를 개발(RTL 등) 후 Vivado IP Packer를 통하여 IP-XACT Standard Format으로 패키징 한다.&lt;/li&gt;
+&lt;li&gt;Vivado를 이용하여 1)항의 IP와 기타 사용자 IP를 조합하여 &lt;code&gt;*.XSA&lt;/code&gt; 파일을 생성한다.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;petalinux-creat -t project -n {project 이름}&lt;/code&gt;를 이용하여 project를 생성하고 &lt;code&gt;*.XSA&lt;/code&gt; 파일을 import한다.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;petalinux-creat -t module -n {driver 이름}&lt;/code&gt;을 이용하여 모듈을 생성한다.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;{project-root}/project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi&lt;/code&gt;에 Custom IP에 관련된 Device tree를 업데이트한다.
+&lt;ul&gt;
+&lt;li&gt;작성 시 &lt;code&gt;pl.dtsi&lt;/code&gt;를 확인하여 module name 및 address 등을 확인한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;모듈 내부 드라이버 파일을 작성하고 Yocto 레시피를 수정한다.&lt;/li&gt;
+&lt;li&gt;커널에 로딩할 지 모듈로 rootfs에 등록할지 결정한 후 빌드한다.&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        <item>
+        <title>[Petalinux] Petalinux Basic</title>
+        <link>https://muonkmu.github.io/p/petalinux-petalinux-basic/</link>
+        <pubDate>Mon, 19 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/petalinux-petalinux-basic/</guid>
+        <description>&lt;h2 id=&#34;petalinux-basic&#34;&gt;Petalinux Basic&lt;/h2&gt;
+&lt;h3 id=&#34;petalinux-정의&#34;&gt;petalinux 정의&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Petalinux는 xillinx FPGA를 위한 임베디드 리눅스 개발 툴로 YOCTO 프로젝트 Wrapper이다.&lt;/li&gt;
+&lt;li&gt;Hardware description file(*.XSA) 또는 BSP 파일을 입력으로 리눅스 이미지 생성&lt;/li&gt;
+&lt;li&gt;Petalinux 프로젝트의 레이아웃은 프로젝트 생성 시, XSA import 시, build 시 추가/달라짐 (교재 p66을 참조 및 &lt;a class=&#34;link&#34; href=&#34;https://docs.xilinx.com/r/2021.1-English/ug1144-petalinux-tools-reference-guide/Image-Selector?tocId=nfcK0XF5PXQyI2ebTdA8fA&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://docs.xilinx.com/r/2021.1-English/ug1144-petalinux-tools-reference-guide/Image-Selector?tocId=nfcK0XF5PXQyI2ebTdA8fA&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;기본-명령어-및-design-flow&#34;&gt;기본 명령어 및 Design Flow&lt;/h3&gt;
+&lt;p&gt;상세 내용은 교제의 &lt;code&gt;Petalinux Tool : Design Flow&lt;/code&gt; 및 &lt;code&gt;LAB2&lt;/code&gt; 참조&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;프로젝트 생성&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;petalinux-create -t {type} -n {name} &amp;ndash;template {기초 템플릿}&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-create -t project -n test_prj --template zynqMP
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;프로젝트 설정 : Hardware Description 및 boot, rootfs, kernel&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;petalinux-config -c {rootfs/kernel/device-tree/u-boot}&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; test_prj
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-config --get-hw-description&lt;span class=&#34;o&#34;&gt;={&lt;/span&gt;xsa file&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; --silentconfig
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;프로젝트 빌드&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-build
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;프로젝트 패키징&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;.BIN&lt;/code&gt; 또는 &lt;code&gt;.MCS&lt;/code&gt; 생성 ( = fsbl + ssbl + pmu + bitstream)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-package --boot --fsbl zynqmp_fsbl.elf --u-boot u-boot.elf --pmufw pmufw.elf --fpga system.bit
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;부트&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;SD카드에 이미지 복사(BOOT.BIN, Image, rootfs.cpio.gz.u-boot, boot.scr) 후 보드 부팅&lt;/li&gt;
+&lt;li&gt;qemu로 에뮬레이션 가능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-boot --qemu --kernel
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;application-development&#34;&gt;Application development&lt;/h3&gt;
+&lt;p&gt;상세 내용은 교제의 p133 &lt;code&gt;Petalinux Application Development&lt;/code&gt; 및 &lt;code&gt;LAB3&lt;/code&gt; 참조&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Petalinux의 project가 생성된 상태에서 petalinux-create를 사용하여 app을 생성&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;project-spec/meta-user/recipes-apps/{app_name}&lt;/code&gt;에서 생성된 파일(bb 및 source) 확인 가능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-create -t apps --name helloworld --template c
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;source 및 makefile을 생성 또는 복사한다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;project-spec/meta-user/recipes-apps/{app_name}/file&lt;/code&gt;에서 수정한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Yocto Recipe file를 수정한다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;project-spec/meta-user/recipes-apps/{app_name}&lt;/code&gt;의 &lt;code&gt;{app_name}.bb&lt;/code&gt;파일에 관련파일을 등록한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;root filesystem에 등록한다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;petalinux-config -c rootfs&lt;/code&gt; 수행 후 &lt;code&gt;apps&lt;/code&gt; 메뉴에서 등록&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;build 후 &lt;code&gt;/usr/bin&lt;/code&gt;에서 app을 확인 가능하다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;프로젝트-설정&#34;&gt;프로젝트 설정&lt;/h2&gt;
+&lt;p&gt;상세 내용은 교제의 p150 &lt;code&gt;Customizing the project&lt;/code&gt; 참조
+&lt;code&gt;petalinux-config&lt;/code&gt;를 이용하여 하기 설정이 가능하다&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;firmware version 정보&lt;/li&gt;
+&lt;li&gt;root filesystem 종류 : INITRD, INITRAMFS JFFS2, UBI/UBIFS, NFS, EXT4(SD/eMMC&amp;hellip;)&lt;/li&gt;
+&lt;li&gt;U-boot 이미지 저장 위치 : bootenv 조절을 통해 Jtag/DDR, QSPI, NAND의 image offset을 조정할 수 있다.&lt;/li&gt;
+&lt;li&gt;Primary Flash(QSPI?)의 파티션 조절 가능&lt;/li&gt;
+&lt;li&gt;File system package를 조절하여 Kernel image size 및 Root file system 이미지 사이즈를 줄일 수 있다.&lt;/li&gt;
+&lt;li&gt;TFTP 부팅을 위한 pre-built 이미지 위치를 설정할 수 있다&lt;/li&gt;
+&lt;li&gt;NFS 또는 SD card를 통한 Root file system 로딩을 설정 할 수 있다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;root-file-system-customize&#34;&gt;Root file system customize&lt;/h2&gt;
+&lt;p&gt;상세 내용은 교제의 p212 &lt;code&gt;Customizing the Root File System&lt;/code&gt; 참조&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;custom applications, libraries, module을 추가하거나 생성 가능&lt;/li&gt;
+&lt;li&gt;pre-compiled applications, libraries, module을 추가하거나 생성 가능&lt;/li&gt;
+&lt;li&gt;YOCTO layer, recipes 또는 package 추가 가능&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

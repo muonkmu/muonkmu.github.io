@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Chapter 02 Parallel Architecture 요약'>
-<title>[AI HW Design] Chap03 Parallel Architecture</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='wedo soluton Petalinux 교육 내용 요약 2nd'>
+<title>[Petalinux] Petalinux Advance</title>
 
-<link rel='canonical' href='https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture/'>
+<link rel='canonical' href='https://muonkmu.github.io/p/petalinux-petalinux-advance/'>
 
-<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[AI HW Design] Chap03 Parallel Architecture'>
-<meta property='og:description' content='Chapter 02 Parallel Architecture 요약'>
-<meta property='og:url' content='https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture/'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[Petalinux] Petalinux Advance'>
+<meta property='og:description' content='wedo soluton Petalinux 교육 내용 요약 2nd'>
+<meta property='og:url' content='https://muonkmu.github.io/p/petalinux-petalinux-advance/'>
 <meta property='og:site_name' content='MW Devlog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Intel CPU' /><meta property='article:tag' content='Nvidia GPU' /><meta property='article:tag' content='NVDLA' /><meta property='article:tag' content='TPU' /><meta property='article:tag' content='Brainwave' /><meta property='article:published_time' content='2022-12-12T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-12T00:00:00&#43;00:00'/>
-<meta name="twitter:title" content="[AI HW Design] Chap03 Parallel Architecture">
-<meta name="twitter:description" content="Chapter 02 Parallel Architecture 요약">
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Zynq' /><meta property='article:published_time' content='2022-12-22T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-22T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="[Petalinux] Petalinux Advance">
+<meta name="twitter:description" content="wedo soluton Petalinux 교육 내용 요약 2nd">
     </head>
     <body class="
     article-page
@@ -220,24 +220,21 @@
         <div class="widget--toc">
             <nav id="TableOfContents">
   <ol>
-    <li><a href="#intel-central-processing-unit-cpu">Intel Central Processing Unit (CPU)</a>
+    <li><a href="#petalinux-booting-and-packaging">Petalinux Booting and Packaging</a>
       <ol>
-        <li><a href="#skylake-mesh-architecture">Skylake mesh architecture</a></li>
-        <li><a href="#intel-ultra-path-interconnect">Intel Ultra Path Interconnect</a></li>
-        <li><a href="#subnon-unified-memory-access-clustering">SubNon-Unified Memory Access Clustering</a></li>
-        <li><a href="#cache-hierarchy-change">Cache Hierarchy Change</a></li>
-        <li><a href="#singlemultiple-socket-parallel-processing">single/Multiple Socket Parallel Processing</a></li>
-        <li><a href="#advanced-vector-software-extension">Advanced vector software extension</a></li>
-        <li><a href="#math-kernel-library-for-deep-neural-networkmkl-dnn">Math Kernel Library for Deep Neural Network(MKL-DNN)</a></li>
+        <li><a href="#petalinux-packaging">petalinux Packaging</a></li>
+        <li><a href="#petalinux-booting">petalinux booting</a></li>
       </ol>
     </li>
-    <li><a href="#nvidia-graphics-processing-unit-gpu">NVIDIA Graphics Processing Unit (GPU)</a>
+    <li><a href="#petalinux-debugging">Petalinux Debugging</a>
       <ol>
-        <li><a href="#tensor-core-architecture">Tensor Core Architecture</a></li>
-        <li><a href="#winograd-transform">Winograd Transform</a></li>
-        <li><a href="#simultaneous-multithreading-smt">Simultaneous Multithreading (SMT)</a></li>
-        <li><a href="#high-bandwidth-memory-hbm2">High Bandwidth Memory (HBM2)</a></li>
-        <li><a href="#nvlink2-configuration">NVLink2 Configuration</a></li>
+        <li><a href="#system-debugger-방법">System Debugger 방법</a></li>
+        <li><a href="#gnu-debuger">GNU Debuger</a></li>
+      </ol>
+    </li>
+    <li><a href="#custom-hw-and-driver-development">Custom HW and Driver Development</a>
+      <ol>
+        <li><a href="#custom-hw-and-petalinux-개발-절차">Custom HW and Petalinux 개발 절차</a></li>
       </ol>
     </li>
   </ol>
@@ -258,8 +255,8 @@
     
     <header class="article-category">
         
-            <a href="/categories/ai-hw-design/" >
-                AI HW Design
+            <a href="/categories/petalinux/" >
+                Petalinux
             </a>
         
     </header>
@@ -267,12 +264,12 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/p/ai-hw-design-chap03-parallel-architecture/">[AI HW Design] Chap03 Parallel Architecture</a>
+            <a href="/p/petalinux-petalinux-advance/">[Petalinux] Petalinux Advance</a>
         </h2>
     
         
         <h3 class="article-subtitle">
-            Chapter 02 Parallel Architecture 요약
+            wedo soluton Petalinux 교육 내용 요약 2nd
         </h3>
         
     </div>
@@ -293,7 +290,7 @@
   <path d="M3 11h16" />
   <path d="M18 16.496v1.504l1 1" />
 </svg>
-                <time class="article-time--published">Dec 12, 2022</time>
+                <time class="article-time--published">Dec 22, 2022</time>
             </div>
         
 
@@ -323,79 +320,101 @@
     <section class="article-content">
     
     
-    <p>본 챕터에서는 몇가지 주요한 Paralle Architecture에 대하여 소개한다</p>
-<h2 id="intel-central-processing-unit-cpu">Intel Central Processing Unit (CPU)</h2>
+    <h2 id="petalinux-booting-and-packaging">Petalinux Booting and Packaging</h2>
+<h3 id="petalinux-packaging">petalinux Packaging</h3>
+<ol>
+<li><code>petalinux-package</code> 명령을 이용하여 하기 내역을 수행 할 수 있다.
 <ul>
-<li><a class="link" href="https://www.intel.com/content/www/us/en/developer/articles/technical/xeon-processor-scalable-family-technical-overview.html"  target="_blank" rel="noopener"
-    >https://www.intel.com/content/www/us/en/developer/articles/technical/xeon-processor-scalable-family-technical-overview.html</a></li>
-<li>CPU는 병렬 프로세싱을 위해 Single Instruction Single Data (SISD) architecture에서 Single Instruction Multiple Data (SIMD)로 진화함.</li>
-<li>그러나 이는 딥러닝과 같은 거대 병렬 처리에 적합하지 못하여 2017년 딥러닝 어플리케이션을 위한 Xeon processor scalable family (purley platform) 발표</li>
-<li>Purley platform은 하기 특징을 가짐</li>
+<li><code>.BIN</code> 또는 <code>.MCS</code>파일을 생성 (&ndash;boot 옵션)</li>
+<li>BSP (<code>.BSP</code> 파일) 또는 Package image 생성 (&ndash;bsp, &ndash;image 옵션)</li>
+<li>prebuilt 디렉토리 생성 (&ndash;prebuilt 옵션)</li>
+<li>Vitis 를 위한 sysroot 설치 (&ndash;sysroot 옵션)</li>
 </ul>
-<h3 id="skylake-mesh-architecture">Skylake mesh architecture</h3>
+</li>
+</ol>
+<h3 id="petalinux-booting">petalinux booting</h3>
+<p>QEMU, SD card, Jtag, TFTP, QSPI에 의한 Booting을 지원한다. (jtag Boot는 속도가 느려 잘 사용안함)</p>
+<h2 id="petalinux-debugging">Petalinux Debugging</h2>
+<p>상세 내용은 교제의 <code>Petalinux Application Debugging</code> 및 <code>LAB5</code> 참조</p>
 <ul>
-<li>이전 Grantley platform에서는 Last-Level Chache(LLC)등이 Intel Quick Path Interconnect(QPI) ring achitecture로 연결</li>
-<li>상기 구조는 코어 증가 시 코어 마다 사용가능한 bandwidth가 줄어들어서 메모리 latency가 증가</li>
-<li>Grantley platform에서는 Intel Ultra Path Interconnect(UPI) mesh archictecture로 업그레이드</li>
-<li>Comnined Home Agent(CHA)가 통합, 이는 LLC 등의 주소 정보 지도를 작성하며 이는 mesh 연결에서 목적지까지의 라우팅 정보를 제공
-<img src="https://www.intel.com/content/dam/develop/external/us/en/images/xeon-processor-scalable-family-tech-overview-fig05-737410.png"
-	
-	
-	
-	loading="lazy"
-	
-		alt="Intel Xeon processor Scalable family mesh architecture"
-	
-	
->
-<em>Fig1. Intel Xeon processor Scalable family mesh architecture</em></li>
+<li>Petalinux는 Application Debugging 시 System Debugger(Vitis) 와 GNU Debugger를 지원한다.</li>
+<li>Vitis는 Target Communication Framework(TCF)와 Xilinx System DBugger(XSDB)를 이용한 Debugging 환경을 제공</li>
+<li>일반적인 Linux GNU Debugger 지원</li>
 </ul>
-<h3 id="intel-ultra-path-interconnect">Intel Ultra Path Interconnect</h3>
+<h3 id="system-debugger-방법">System Debugger 방법</h3>
 <ul>
-<li>UPI는 어드레스를 공유하는 mutiple processor coherent interconnect</li>
-<li>UPI는 vertical/horizontal path를 통한 한 코어에서 다른 코어로의 최단 경로를 제공</li>
-<li>2소켓, 4소켓 링, 8소켓+크로스바 등 다양한 구조 지원</li>
+<li><a class="link" href="https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/docs/Introduction/ZynqMPSoC-EDT/ZynqMPSoC-EDT.html"  target="_blank" rel="noopener"
+    >https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/docs/Introduction/ZynqMPSoC-EDT/ZynqMPSoC-EDT.html</a> 참조</li>
 </ul>
-<h3 id="subnon-unified-memory-access-clustering">SubNon-Unified Memory Access Clustering</h3>
+<ol>
+<li><code>petalinux-config -c rootfs</code>를 이용하여 Root File system에 하기 내역을 포함 시킨다.
 <ul>
-<li>플랫폼은 모든 코어/LLC를 반씩 + 메모리 컨트롤를 1개씩 가진 SNC 0,1 도메인을 가짐</li>
-<li>각 도메인은 각 메모리 컨트롤러에 매핑되는 유니크한 LLC 주소를 가지며 이는 LLC access latency를 낮춤</li>
+<li>tcf-agent (default enable)</li>
+<li>openssh-sftp-server</li>
+<li>dropbear (default disable)</li>
 </ul>
-<h3 id="cache-hierarchy-change">Cache Hierarchy Change</h3>
+</li>
+<li>이미지를 빌드 하고 디버깅하고자 하는 Application을 실행 시킨다.
 <ul>
-<li>하기 그림과 같이 변경 LLC 및 MLC size 변경으로 hit rate 증가
-<img src="https://www.intel.com/content/dam/develop/external/us/en/images/xeon-processor-scalable-family-tech-overview-fig11-737410.png"
-	
-	
-	
-	loading="lazy"
-	
-		alt="Generational cache comparison"
-	
-	
->
-<em>Figure 11. Generational cache comparison</em></li>
+<li>QEMU의 경우 GEM0만 연결되어 있으므로 필요 시 GEM3 등의 Device Tree를 추가하여 빌드한다.</li>
 </ul>
-<h3 id="singlemultiple-socket-parallel-processing">single/Multiple Socket Parallel Processing</h3>
+</li>
+<li>vitis를 실행 시키고 <code>*.XSA</code> 파일 등을 이용하여 platform project를 구성한다.</li>
+<li>platform project에 빈 linux Applicaiton domain을 추가한다.</li>
+<li>4)항의 항목내 Debug configuration을 이용하여 Single Application Debug를 추가한다.
 <ul>
-<li>UPI와 sub-NUMA의 지원으로 딥러닝 worker process들은 코어셋이나 싱글소켓, 다중소켓에 assign 될 수 있음</li>
+<li>target 보드의 debug IP/port를 설정하고 파일 패스를 설정한다.</li>
 </ul>
-<h3 id="advanced-vector-software-extension">Advanced vector software extension</h3>
+</li>
+</ol>
+<h3 id="gnu-debuger">GNU Debuger</h3>
 <ul>
-<li>Intel Advanced Vector Extension 512(Intel AVX-512)가 Vector Neural Network Instruction(VNNI)를 지원하는 AVX-512)_VNNI로 발전</li>
-<li>대충 더 빨라지고 8/16/32 FP vector 연산을 지원한다는 듯(자세한 사항은 책 참조)</li>
+<li>GNU 디버거를 사용하기 위해서는 Root file System에 gdbserver를 포함하여야 한다.</li>
 </ul>
-<h3 id="math-kernel-library-for-deep-neural-networkmkl-dnn">Math Kernel Library for Deep Neural Network(MKL-DNN)</h3>
+<h2 id="custom-hw-and-driver-development">Custom HW and Driver Development</h2>
+<ol>
+<li>Xilinx는 Custop IP에 대한 디바이스 제어를 위해 하기의 방법을 제안한다.</li>
+</ol>
 <ul>
-<li>Convolution, pooling, activation, batch normalization으로 구성된 최적화된 MKL-DNN 지원</li>
-<li>key feature는 prefetching, data reuse, cache blocking, data layout, vectorization, register blocking이며 자세한 사항은 책 참조</li>
+<li>Linux Device Driver 제작</li>
+<li>mmap의 사용 (사용이 쉽다. 인터럽트 핸들링이 안됨)</li>
+<li>User space I/O (UIO 사용) (간단한 IRQ핸들링이 된다, Latency가 가변적이고 DMA가 지원되지 않는다)</li>
 </ul>
-<h2 id="nvidia-graphics-processing-unit-gpu">NVIDIA Graphics Processing Unit (GPU)</h2>
-<h3 id="tensor-core-architecture">Tensor Core Architecture</h3>
-<h3 id="winograd-transform">Winograd Transform</h3>
-<h3 id="simultaneous-multithreading-smt">Simultaneous Multithreading (SMT)</h3>
-<h3 id="high-bandwidth-memory-hbm2">High Bandwidth Memory (HBM2)</h3>
-<h3 id="nvlink2-configuration">NVLink2 Configuration</h3>
+<ol start="2">
+<li>Petalinux는 빌드 시 Device Tree Generator가 DTSI/DTS파일을 생성하고 DTB를 만든다
+<ul>
+<li><code>*.XSA</code> 파일을 분석하여 기본적인 DTSI/DTS 파일을 만든다</li>
+<li><code>{project-root}/components/plnx_workspace/device-tree/device-tree</code>에 생성되는 DTSI파일은 다음과 같다
+<ul>
+<li>pl.dtsi : memory-mapped PL IP node</li>
+<li>pcw.dtsi : Dynamic properties of the PS peripheral</li>
+<li>system-top.dts : boot argument 와 console, memory information</li>
+<li>zynqmp.dtsi : PS peri and CPU information</li>
+<li>zynqmp-clk-ccf.dtsi : IP peri를 위한 clock information</li>
+</ul>
+</li>
+<li>Custop IP 추가 등 Device tree를 업데이트 하기 위해 하기 DTSI를 업데이트 한다.
+<ul>
+<li><code>{project-root}/project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="custom-hw-and-petalinux-개발-절차">Custom HW and Petalinux 개발 절차</h3>
+<ol>
+<li>Custop IP를 개발(RTL 등) 후 Vivado IP Packer를 통하여 IP-XACT Standard Format으로 패키징 한다.</li>
+<li>Vivado를 이용하여 1)항의 IP와 기타 사용자 IP를 조합하여 <code>*.XSA</code> 파일을 생성한다.</li>
+<li><code>petalinux-creat -t project -n {project 이름}</code>를 이용하여 project를 생성하고 <code>*.XSA</code> 파일을 import한다.</li>
+<li><code>petalinux-creat -t module -n {driver 이름}</code>을 이용하여 모듈을 생성한다.</li>
+<li><code>{project-root}/project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi</code>에 Custom IP에 관련된 Device tree를 업데이트한다.
+<ul>
+<li>작성 시 <code>pl.dtsi</code>를 확인하여 module name 및 address 등을 확인한다.</li>
+</ul>
+</li>
+<li>모듈 내부 드라이버 파일을 작성하고 Yocto 레시피를 수정한다.</li>
+<li>커널에 로딩할 지 모듈로 rootfs에 등록할지 결정한 후 빌드한다.</li>
+</ol>
 
 </section>
 
@@ -404,15 +423,7 @@
     
     <section class="article-tags">
         
-            <a href="/tags/intel-cpu/">Intel CPU</a>
-        
-            <a href="/tags/nvidia-gpu/">Nvidia GPU</a>
-        
-            <a href="/tags/nvdla/">NVDLA</a>
-        
-            <a href="/tags/tpu/">TPU</a>
-        
-            <a href="/tags/brainwave/">Brainwave</a>
+            <a href="/tags/zynq/">Zynq</a>
         
     </section>
 
@@ -438,6 +449,28 @@
     
 
     
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/petalinux-petalinux-basic/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Petalinux] Petalinux Basic</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
 
      
     

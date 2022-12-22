@@ -6,7 +6,15 @@
         <description>Recent content in Categories on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Tue, 13 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Thu, 22 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Petalinux</title>
+        <link>https://muonkmu.github.io/categories/petalinux/</link>
+        <pubDate>Thu, 22 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/categories/petalinux/</guid>
+        <description></description>
+        </item>
+        <item>
         <title>DevEnv</title>
         <link>https://muonkmu.github.io/categories/devenv/</link>
         <pubDate>Tue, 13 Dec 2022 00:00:00 +0000</pubDate>
@@ -37,6 +45,14 @@
         
         <guid>https://muonkmu.github.io/categories/ai_hw_design/</guid>
         <description>&lt;img src="https://muonkmu.github.io/categories/ai_hw_design/book_cover.png" alt="Featured image of post AI HW Design" /&gt;</description>
+        </item>
+        <item>
+        <title>Petalinux</title>
+        <link>https://muonkmu.github.io/categories/zynq_linux/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/categories/zynq_linux/</guid>
+        <description>&lt;img src="https://muonkmu.github.io/categories/zynq_linux/PetaLinux.png" alt="Featured image of post Petalinux" /&gt;</description>
         </item>
         
     </channel>

@@ -52,7 +52,7 @@
 &lt;/ul&gt;
 &lt;h3 id=&#34;cache-hierarchy-change&#34;&gt;Cache Hierarchy Change&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;하기 그림과 같이 변경, hit rate 증가
+&lt;li&gt;하기 그림과 같이 변경 LLC 및 MLC size 변경으로 hit rate 증가
 &lt;img src=&#34;https://www.intel.com/content/dam/develop/external/us/en/images/xeon-processor-scalable-family-tech-overview-fig11-737410.png&#34;
 	
 	

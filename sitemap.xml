@@ -3,10 +3,28 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://muonkmu.github.io/</loc>
-    <lastmod>2022-12-13T00:00:00+00:00</lastmod>
+    <lastmod>2022-12-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/petalinux-petalinux-advance/</loc>
+    <lastmod>2022-12-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/categories/</loc>
-    <lastmod>2022-12-13T00:00:00+00:00</lastmod>
+    <lastmod>2022-12-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/petalinux/</loc>
+    <lastmod>2022-12-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/post/</loc>
+    <lastmod>2022-12-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/</loc>
+    <lastmod>2022-12-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/zynq/</loc>
+    <lastmod>2022-12-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/petalinux-petalinux-basic/</loc>
+    <lastmod>2022-12-19T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/categories/devenv/</loc>
     <lastmod>2022-12-13T00:00:00+00:00</lastmod>
@@ -18,12 +36,6 @@
     <lastmod>2022-12-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/hugo/</loc>
-    <lastmod>2022-12-13T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/post/</loc>
-    <lastmod>2022-12-13T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/tags/</loc>
     <lastmod>2022-12-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture/</loc>
@@ -86,6 +98,8 @@
     <loc>https://muonkmu.github.io/categories/ai_hw_design/</loc>
   </url><url>
     <loc>https://muonkmu.github.io/links/</loc>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/zynq_linux/</loc>
   </url><url>
     <loc>https://muonkmu.github.io/search/</loc>
   </url>
