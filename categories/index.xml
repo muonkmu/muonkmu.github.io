@@ -12,7 +12,7 @@
         <pubDate>Thu, 22 Dec 2022 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/categories/petalinux/</guid>
-        <description></description>
+        <description>&lt;img src="https://muonkmu.github.io/categories/petalinux/PetaLinux.png" alt="Featured image of post Petalinux" /&gt;</description>
         </item>
         <item>
         <title>DevEnv</title>
@@ -39,20 +39,12 @@
         <description>&lt;img src="https://muonkmu.github.io/categories/cs231n/CS231n_home.png" alt="Featured image of post CS231n" /&gt;</description>
         </item>
         <item>
-        <title>AI HW Design</title>
+        <title>AI_HW_Design</title>
         <link>https://muonkmu.github.io/categories/ai_hw_design/</link>
         <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/categories/ai_hw_design/</guid>
-        <description>&lt;img src="https://muonkmu.github.io/categories/ai_hw_design/book_cover.png" alt="Featured image of post AI HW Design" /&gt;</description>
-        </item>
-        <item>
-        <title>Petalinux</title>
-        <link>https://muonkmu.github.io/categories/zynq_linux/</link>
-        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/categories/zynq_linux/</guid>
-        <description>&lt;img src="https://muonkmu.github.io/categories/zynq_linux/PetaLinux.png" alt="Featured image of post Petalinux" /&gt;</description>
+        <description>&lt;img src="https://muonkmu.github.io/categories/ai_hw_design/book_cover.png" alt="Featured image of post AI_HW_Design" /&gt;</description>
         </item>
         
     </channel>

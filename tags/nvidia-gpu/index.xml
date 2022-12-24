@@ -7,12 +7,13 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <lastBuildDate>Mon, 12 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/nvidia-gpu/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>[AI HW Design] Chap03 Parallel Architecture</title>
-        <link>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture/</link>
+        <title>[AI HW Design] Chap03 Parallel Architecture (1/2)</title>
+        <link>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-1/2/</link>
         <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture/</guid>
-        <description>&lt;p&gt;본 챕터에서는 몇가지 주요한 Paralle Architecture에 대하여 소개한다&lt;/p&gt;
+        <guid>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-1/2/</guid>
+        <description>&lt;p&gt;본 챕터에서는 몇가지 주요한 Paralle Architecture에 대하여 소개한다.
+이 페이지에서는 CPU와 GPU에 대해서 우선 기술한다.&lt;/p&gt;
 &lt;h2 id=&#34;intel-central-processing-unit-cpu&#34;&gt;Intel Central Processing Unit (CPU)&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.intel.com/content/www/us/en/developer/articles/technical/xeon-processor-scalable-family-technical-overview.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -80,11 +81,41 @@
 &lt;li&gt;key feature는 prefetching, data reuse, cache blocking, data layout, vectorization, register blocking이며 자세한 사항은 책 참조&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&#34;nvidia-graphics-processing-unit-gpu&#34;&gt;NVIDIA Graphics Processing Unit (GPU)&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;GPU 장점 : 효율적인 floating point 연산, high speed memory support&lt;/li&gt;
+&lt;li&gt;Turing architecture를 개발함 (NVLink2를 위한 HBM2 적용, 캐시 구조 변경 등등)&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&#34;tensor-core-architecture&#34;&gt;Tensor Core Architecture&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;tensor core란 : 행렬연산 및 MAC를 위한 전용 코어&lt;/li&gt;
+&lt;li&gt;Turing Tensor core는 이전(Pascal)이 matrix row by row만 지원했으나 4X4X4 연산을 지원하도록 변경&lt;/li&gt;
+&lt;li&gt;INT8, INT4를 지원하며 정확도를 낮추면 연산 속도 증가&lt;/li&gt;
+&lt;li&gt;Matrix사이즈가 크면 이를 나누어 연산, 다양한 size의 매트릭스 연산에 대응 가능&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.nvidia.com/ko-kr/data-center/tensor-cores/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.nvidia.com/ko-kr/data-center/tensor-cores/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&#34;winograd-transform&#34;&gt;Winograd Transform&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;곱셈 횟수를 줄일 수 있는 Winograd Transform을 지원&lt;/li&gt;
+&lt;li&gt;상기 변환에 대한 연산식은 책과 다른 자료를 참조할 것&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&#34;simultaneous-multithreading-smt&#34;&gt;Simultaneous Multithreading (SMT)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;SMT의 경우 Matrix는 행렬을 여러 그룹으로 나누고 이를 병렬로 처리 (Single Instruction Multiple Thread, SIMT 방식)&lt;/li&gt;
+&lt;li&gt;연산 후 하위 그룹을 재그룹 시킴&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&#34;high-bandwidth-memory-hbm2&#34;&gt;High Bandwidth Memory (HBM2)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Memory Bottleneck해결을 위해 HBM2 적용 (memory die를 TSV로 뚫어서 스택함)&lt;/li&gt;
+&lt;li&gt;HBM2는 GPU와 NVLink2로 연결됨&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&#34;nvlink2-configuration&#34;&gt;NVLink2 Configuration&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;NVLink는 엔비디아가 개발한 와이어 기반 통신 프로토콜 시리얼 멀티 레인 근범위 통신 링크 (PCIE의 속도 문제 해결)&lt;/li&gt;
+&lt;li&gt;Turing 아키텍쳐는 sing MIO를 two×8 bidirectional differential pair NVLink2로 대체&lt;/li&gt;
+&lt;li&gt;CPU/GPU 메모리 간 directly load/store/atomic 가능 (데이터를 GPU메모리에서 바로 읽을 수 있고 CPU cache에 바로 저장 가능)&lt;/li&gt;
+&lt;li&gt;다양한 구성을 지원한다. (책을 참조하자)&lt;/li&gt;
+&lt;/ul&gt;
 </description>
         </item>
         
