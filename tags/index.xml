@@ -6,7 +6,31 @@
         <description>Recent content in Tags on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Thu, 22 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Wed, 28 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>PCB</title>
+        <link>https://muonkmu.github.io/tags/pcb/</link>
+        <pubDate>Wed, 28 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/pcb/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Intel CPU</title>
+        <link>https://muonkmu.github.io/tags/intel-cpu/</link>
+        <pubDate>Sun, 25 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/intel-cpu/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Nvidia GPU</title>
+        <link>https://muonkmu.github.io/tags/nvidia-gpu/</link>
+        <pubDate>Sun, 25 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/nvidia-gpu/</guid>
+        <description></description>
+        </item>
+        <item>
         <title>Zynq</title>
         <link>https://muonkmu.github.io/tags/zynq/</link>
         <pubDate>Thu, 22 Dec 2022 00:00:00 +0000</pubDate>
@@ -31,46 +55,6 @@
         <description></description>
         </item>
         <item>
-        <title>Computer Vision</title>
-        <link>https://muonkmu.github.io/tags/computer-vision/</link>
-        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/tags/computer-vision/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>CS231n</title>
-        <link>https://muonkmu.github.io/tags/cs231n/</link>
-        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/tags/cs231n/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>Intel CPU</title>
-        <link>https://muonkmu.github.io/tags/intel-cpu/</link>
-        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/tags/intel-cpu/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>Machine Learning</title>
-        <link>https://muonkmu.github.io/tags/machine-learning/</link>
-        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/tags/machine-learning/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>Nvidia GPU</title>
-        <link>https://muonkmu.github.io/tags/nvidia-gpu/</link>
-        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/tags/nvidia-gpu/</guid>
-        <description></description>
-        </item>
-        <item>
         <title>oracle cloud</title>
         <link>https://muonkmu.github.io/tags/oracle-cloud/</link>
         <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
@@ -84,6 +68,22 @@
         <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/tags/ubuntu/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Computer Vision</title>
+        <link>https://muonkmu.github.io/tags/computer-vision/</link>
+        <pubDate>Tue, 25 Oct 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/computer-vision/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Machine Learning</title>
+        <link>https://muonkmu.github.io/tags/machine-learning/</link>
+        <pubDate>Tue, 25 Oct 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/machine-learning/</guid>
         <description></description>
         </item>
         

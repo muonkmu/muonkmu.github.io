@@ -6,14 +6,70 @@
         <description>Recent content in CS231n on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Mon, 12 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/cs231n/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>CS231n Chap 02</title>
-        <link>https://muonkmu.github.io/p/cs231n-chap-02/</link>
-        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
+        <lastBuildDate>Tue, 25 Oct 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/cs231n/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[CS231n] Chap 04 Introduction to Neural Networks</title>
+        <link>https://muonkmu.github.io/p/cs231n-chap-04-introduction-to-neural-networks/</link>
+        <pubDate>Tue, 25 Oct 2022 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/cs231n-chap-02/</guid>
-        <description>&lt;h3 id=&#34;test&#34;&gt;TEST&lt;/h3&gt;
-&lt;h2 id=&#34;test-1&#34;&gt;Test&lt;/h2&gt;
+        <guid>https://muonkmu.github.io/p/cs231n-chap-04-introduction-to-neural-networks/</guid>
+        <description>&lt;p&gt;본 chapter에서는 Gradient를 구하기 위한 Backpropagation을 이해하고 Neural Network의 기본에 대해 설명한다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Video : &lt;a class=&#34;link&#34; href=&#34;https://www.youtube.com/watch?v=d14TUNcbn1k&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.youtube.com/watch?v=d14TUNcbn1k&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Slide : &lt;a class=&#34;link&#34; href=&#34;http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture4.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture4.pdf&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;(TODO: 귀차니즘의 압박으로 정리를 안해놓았지만 언젠간 해야지)&lt;/p&gt;
+&lt;h2 id=&#34;backpropagation&#34;&gt;Backpropagation&lt;/h2&gt;
+&lt;h3 id=&#34;chain-rule&#34;&gt;Chain rule&lt;/h3&gt;
+&lt;h3 id=&#34;sigmoid-gate-example&#34;&gt;Sigmoid gate example&lt;/h3&gt;
+&lt;h3 id=&#34;patterns-in-backward-flow&#34;&gt;Patterns in backward flow&lt;/h3&gt;
+&lt;h3 id=&#34;gradients-add-at-branches&#34;&gt;Gradients add at branches&lt;/h3&gt;
+&lt;h3 id=&#34;vectorized-operations&#34;&gt;Vectorized operations&lt;/h3&gt;
+&lt;h2 id=&#34;neural-network&#34;&gt;Neural Network&lt;/h2&gt;
+&lt;h3 id=&#34;artificial-neural-network&#34;&gt;Artificial Neural Network&lt;/h3&gt;
+&lt;h3 id=&#34;activation-function&#34;&gt;Activation Function&lt;/h3&gt;
+&lt;h3 id=&#34;neural-networks-architectures&#34;&gt;Neural networks Architectures&lt;/h3&gt;
+</description>
+        </item>
+        <item>
+        <title>[CS231n] Chap 03 Loss Function and Optimization</title>
+        <link>https://muonkmu.github.io/p/cs231n-chap-03-loss-function-and-optimization/</link>
+        <pubDate>Mon, 17 Oct 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/cs231n-chap-03-loss-function-and-optimization/</guid>
+        <description>&lt;p&gt;본 chapter에서는 딥러닝의 기본 개념인 Loss Function, Regularization, Optization(Gradient Descent)에 대해 다룬다&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Video : &lt;a class=&#34;link&#34; href=&#34;https://www.youtube.com/watch?v=h7iBpEHGVNc&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.youtube.com/watch?v=h7iBpEHGVNc&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Slide : &lt;a class=&#34;link&#34; href=&#34;http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture3.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture3.pdf&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;(TODO: 귀차니즘의 압박으로 정리를 안해놓았지만 언젠간 해야지)&lt;/p&gt;
+&lt;h2 id=&#34;loss-function&#34;&gt;Loss function&lt;/h2&gt;
+&lt;h2 id=&#34;regularization&#34;&gt;Regularization&lt;/h2&gt;
+&lt;h2 id=&#34;softmax-and-svm&#34;&gt;Softmax and SVM&lt;/h2&gt;
+&lt;h2 id=&#34;optimization&#34;&gt;Optimization&lt;/h2&gt;
+&lt;h2 id=&#34;image-feature&#34;&gt;Image Feature&lt;/h2&gt;
+</description>
+        </item>
+        <item>
+        <title>[CS231n] Chap 02 Image classification</title>
+        <link>https://muonkmu.github.io/p/cs231n-chap-02-image-classification/</link>
+        <pubDate>Sat, 08 Oct 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/cs231n-chap-02-image-classification/</guid>
+        <description>&lt;p&gt;본 chapter에서는 Computer Vision의 핵심 Task 중 하나인 Image classification에 대해 이해하고 초기의 방법인 K-Nearest Neighbor Algorithm과 Linear Classification에 대하여 다룬다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Video : &lt;a class=&#34;link&#34; href=&#34;https://www.youtube.com/watch?v=OoUX-nOEjG0&amp;amp;list=PLC1qU-LWwrF64f4QKQT-Vg5Wr4qEE1Zxk&amp;amp;index=2&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;www.youtube.com/watch?v=OoUX-nOEjG0&amp;list=PLC1qU-LWwrF64f4QKQT-Vg5Wr4qEE1Zxk&amp;index=2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Slide : &lt;a class=&#34;link&#34; href=&#34;http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture2.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture2.pdf&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;(TODO: 귀차니즘의 압박으로 정리를 안해놓았지만 언젠간 해야지)&lt;/p&gt;
+&lt;h2 id=&#34;image-classification-개요&#34;&gt;Image Classification 개요&lt;/h2&gt;
+&lt;h2 id=&#34;k-nearest-neighbor-algorithm&#34;&gt;K-Nearest Neighbor Algorithm&lt;/h2&gt;
+&lt;h2 id=&#34;linear-classification&#34;&gt;Linear Classification&lt;/h2&gt;
 </description>
         </item>
         
