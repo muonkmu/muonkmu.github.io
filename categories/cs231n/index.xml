@@ -6,7 +6,23 @@
         <description>Recent content in CS231n on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Tue, 25 Oct 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/cs231n/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 23 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/cs231n/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[CS231n] Chap 04 Introduction to Neural Networks</title>
+        <link>https://muonkmu.github.io/p/cs231n-chap-04-introduction-to-neural-networks/</link>
+        <pubDate>Fri, 23 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/cs231n-chap-04-introduction-to-neural-networks/</guid>
+        <description>&lt;p&gt;본 chapter에서는 Reinforcement Learning에 대해서 알아보자&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Video : &lt;a class=&#34;link&#34; href=&#34;https://www.youtube.com/watch?v=lvoHnicueoE&amp;amp;list=PL3FW7Lu3i5JvHM8ljYj-zLfQRF3EO8sYv&amp;amp;index=15&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.youtube.com/watch?v=lvoHnicueoE&amp;list=PL3FW7Lu3i5JvHM8ljYj-zLfQRF3EO8sYv&amp;index=15&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Slide : &lt;a class=&#34;link&#34; href=&#34;http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture14.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture14.pdf&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;(TODO: 귀차니즘의 압박으로 정리를 안했다.. 근데 강의가 무척 어려워서 잘 이해가 안된다.)&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>[CS231n] Chap 04 Introduction to Neural Networks</title>
         <link>https://muonkmu.github.io/p/cs231n-chap-04-introduction-to-neural-networks/</link>
         <pubDate>Tue, 25 Oct 2022 00:00:00 +0000</pubDate>

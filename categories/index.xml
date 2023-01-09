@@ -23,6 +23,14 @@
         <description>&lt;img src="https://muonkmu.github.io/categories/ai_hw_design/book_cover.png" alt="Featured image of post AI_HW_Design" /&gt;</description>
         </item>
         <item>
+        <title>CS231n</title>
+        <link>https://muonkmu.github.io/categories/cs231n/</link>
+        <pubDate>Fri, 23 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/categories/cs231n/</guid>
+        <description>&lt;img src="https://muonkmu.github.io/categories/cs231n/CS231n_home.png" alt="Featured image of post CS231n" /&gt;</description>
+        </item>
+        <item>
         <title>Petalinux</title>
         <link>https://muonkmu.github.io/categories/petalinux/</link>
         <pubDate>Thu, 22 Dec 2022 00:00:00 +0000</pubDate>
@@ -39,12 +47,12 @@
         <description>&lt;img src="https://muonkmu.github.io/categories/devenv/dev-env.jpeg" alt="Featured image of post DevEnv" /&gt;</description>
         </item>
         <item>
-        <title>CS231n</title>
-        <link>https://muonkmu.github.io/categories/cs231n/</link>
-        <pubDate>Tue, 25 Oct 2022 00:00:00 +0000</pubDate>
+        <title>Coursera_ML</title>
+        <link>https://muonkmu.github.io/categories/coursera_ml/</link>
+        <pubDate>Tue, 25 Jan 2022 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/categories/cs231n/</guid>
-        <description>&lt;img src="https://muonkmu.github.io/categories/cs231n/CS231n_home.png" alt="Featured image of post CS231n" /&gt;</description>
+        <guid>https://muonkmu.github.io/categories/coursera_ml/</guid>
+        <description>&lt;img src="https://muonkmu.github.io/categories/coursera_ml/coursera_ML.png" alt="Featured image of post Coursera_ML" /&gt;</description>
         </item>
         
     </channel>

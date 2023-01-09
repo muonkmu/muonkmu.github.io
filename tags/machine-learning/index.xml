@@ -6,7 +6,23 @@
         <description>Recent content in Machine Learning on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Tue, 25 Oct 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/machine-learning/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 23 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/machine-learning/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[CS231n] Chap 04 Introduction to Neural Networks</title>
+        <link>https://muonkmu.github.io/p/cs231n-chap-04-introduction-to-neural-networks/</link>
+        <pubDate>Fri, 23 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/cs231n-chap-04-introduction-to-neural-networks/</guid>
+        <description>&lt;p&gt;본 chapter에서는 Reinforcement Learning에 대해서 알아보자&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Video : &lt;a class=&#34;link&#34; href=&#34;https://www.youtube.com/watch?v=lvoHnicueoE&amp;amp;list=PL3FW7Lu3i5JvHM8ljYj-zLfQRF3EO8sYv&amp;amp;index=15&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.youtube.com/watch?v=lvoHnicueoE&amp;list=PL3FW7Lu3i5JvHM8ljYj-zLfQRF3EO8sYv&amp;index=15&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Slide : &lt;a class=&#34;link&#34; href=&#34;http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture14.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture14.pdf&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;(TODO: 귀차니즘의 압박으로 정리를 안했다.. 근데 강의가 무척 어려워서 잘 이해가 안된다.)&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>[CS231n] Chap 04 Introduction to Neural Networks</title>
         <link>https://muonkmu.github.io/p/cs231n-chap-04-introduction-to-neural-networks/</link>
         <pubDate>Tue, 25 Oct 2022 00:00:00 +0000</pubDate>
@@ -70,6 +86,50 @@
 &lt;h2 id=&#34;image-classification-개요&#34;&gt;Image Classification 개요&lt;/h2&gt;
 &lt;h2 id=&#34;k-nearest-neighbor-algorithm&#34;&gt;K-Nearest Neighbor Algorithm&lt;/h2&gt;
 &lt;h2 id=&#34;linear-classification&#34;&gt;Linear Classification&lt;/h2&gt;
+</description>
+        </item>
+        <item>
+        <title>[Coursera_ML] Course certificate</title>
+        <link>https://muonkmu.github.io/p/coursera_ml-course-certificate/</link>
+        <pubDate>Tue, 25 Jan 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/coursera_ml-course-certificate/</guid>
+        <description>&lt;p&gt;6개월에 걸쳐 수료를 완료 했다. 3개월 코스라고 하던데&amp;hellip;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.coursera.org/learn/machine-learning&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.coursera.org/learn/machine-learning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;homework repo : &lt;a class=&#34;link&#34; href=&#34;https://github.com/muonkmu/Coursera_AndrewNg_ML_Program.git&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://github.com/muonkmu/Coursera_AndrewNg_ML_Program.git&lt;/a&gt;
+(TODO: 귀차니즘의 압박으로 정리를 안해놓았지만 언젠간 해야지)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://muonkmu.github.io/p/coursera_ml-course-certificate/Coursera_ML_certificate.png&#34;
+	width=&#34;1840&#34;
+	height=&#34;1418&#34;
+	srcset=&#34;https://muonkmu.github.io/p/coursera_ml-course-certificate/Coursera_ML_certificate_hub85ecee238eda8ef117fcde3ffb4434c_1057751_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/coursera_ml-course-certificate/Coursera_ML_certificate_hub85ecee238eda8ef117fcde3ffb4434c_1057751_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;129&#34;
+		data-flex-basis=&#34;311px&#34;
+	
+&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>[Coursera_ML] Week_10) Gradient Descent with Large Datasets</title>
+        <link>https://muonkmu.github.io/p/coursera_ml-week_10-gradient-descent-with-large-datasets/</link>
+        <pubDate>Fri, 07 Jan 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/coursera_ml-week_10-gradient-descent-with-large-datasets/</guid>
+        <description>&lt;p&gt;이번 강의에서는 대규모의 대규모의 데이터가 있을 때, 처리하는 알고리즘에 대해서 알아보자.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.coursera.org/learn/machine-learning&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.coursera.org/learn/machine-learning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;homework repo : &lt;a class=&#34;link&#34; href=&#34;https://github.com/muonkmu/Coursera_AndrewNg_ML_Program.git&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://github.com/muonkmu/Coursera_AndrewNg_ML_Program.git&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;(TODO: 귀차니즘의 압박으로 정리를 안해놓았지만 언젠간 해야지)&lt;/p&gt;
 </description>
         </item>
         

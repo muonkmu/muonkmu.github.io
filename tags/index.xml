@@ -15,19 +15,35 @@
         <description></description>
         </item>
         <item>
-        <title>Intel CPU</title>
-        <link>https://muonkmu.github.io/tags/intel-cpu/</link>
+        <title>NVDLA</title>
+        <link>https://muonkmu.github.io/tags/nvdla/</link>
         <pubDate>Sun, 25 Dec 2022 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/tags/intel-cpu/</guid>
+        <guid>https://muonkmu.github.io/tags/nvdla/</guid>
         <description></description>
         </item>
         <item>
-        <title>Nvidia GPU</title>
-        <link>https://muonkmu.github.io/tags/nvidia-gpu/</link>
+        <title>TPU</title>
+        <link>https://muonkmu.github.io/tags/tpu/</link>
         <pubDate>Sun, 25 Dec 2022 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/tags/nvidia-gpu/</guid>
+        <guid>https://muonkmu.github.io/tags/tpu/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Computer Vision</title>
+        <link>https://muonkmu.github.io/tags/computer-vision/</link>
+        <pubDate>Fri, 23 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/computer-vision/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Machine Learning</title>
+        <link>https://muonkmu.github.io/tags/machine-learning/</link>
+        <pubDate>Fri, 23 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/machine-learning/</guid>
         <description></description>
         </item>
         <item>
@@ -55,6 +71,22 @@
         <description></description>
         </item>
         <item>
+        <title>Intel CPU</title>
+        <link>https://muonkmu.github.io/tags/intel-cpu/</link>
+        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/intel-cpu/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Nvidia GPU</title>
+        <link>https://muonkmu.github.io/tags/nvidia-gpu/</link>
+        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/nvidia-gpu/</guid>
+        <description></description>
+        </item>
+        <item>
         <title>oracle cloud</title>
         <link>https://muonkmu.github.io/tags/oracle-cloud/</link>
         <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
@@ -68,22 +100,6 @@
         <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/tags/ubuntu/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>Computer Vision</title>
-        <link>https://muonkmu.github.io/tags/computer-vision/</link>
-        <pubDate>Tue, 25 Oct 2022 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/tags/computer-vision/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>Machine Learning</title>
-        <link>https://muonkmu.github.io/tags/machine-learning/</link>
-        <pubDate>Tue, 25 Oct 2022 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/tags/machine-learning/</guid>
         <description></description>
         </item>
         

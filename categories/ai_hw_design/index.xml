@@ -13,7 +13,89 @@
         
         <guid>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/2/</guid>
         <description>&lt;p&gt;본 챕터에서는 몇가지 주요한 Paralle Architecture에 대하여 소개한다.
-이 페이지에서는 CPU와 GPU에 대해서 우선 기술한다.&lt;/p&gt;
+이 페이지에서는 NVDLA와 Google TPU에 대해서 기술한다.&lt;/p&gt;
+&lt;h2 id=&#34;nvidia-deep-learning-accelerator-nvdla&#34;&gt;NVIDIA Deep Learning Accelerator (NVDLA)&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;NVDLA는 FPGA로 구성 가능한 추론을 위한 오픈소스 아키텍쳐 (&lt;a class=&#34;link&#34; href=&#34;http://nvdla.org&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;http://nvdla.org&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;Primitive functional blocks으로 CNN을 지원 (convolution, activation, pooling, normalization)&lt;/li&gt;
+&lt;li&gt;각 블럭은 next layer의 active와 configuration을 위한 double buffer를 가짐&lt;/li&gt;
+&lt;li&gt;next layer의 operation은 active operation이 완료되어야 시작&lt;/li&gt;
+&lt;li&gt;independent mode와 pipeline을 사용하는 fused mode가 있음
+&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/2/NVDLA_core_architecture.png&#34;
+	width=&#34;1142&#34;
+	height=&#34;950&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/2/NVDLA_core_architecture_hu2cca1af52d961361ac30bee8eb97a9b7_113988_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/2/NVDLA_core_architecture_hu2cca1af52d961361ac30bee8eb97a9b7_113988_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;NVDLA core architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;120&#34;
+		data-flex-basis=&#34;288px&#34;
+	
+&gt;
+&lt;em&gt;Figure. NVDLA core architecture&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;convolution-operation&#34;&gt;Convolution Operation&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Direct convolution, Image input convolution, winograd convolution, Batch convolution 지원 (상세내역은 책 참조)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;single-data-point-operationsdp&#34;&gt;Single Data Point Operation(SDP)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;SDP는 linear functions와 Look-up Table nonlinear functions을 통해 activation과 normalizatin을 지원 (상세내역은 책 참조)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;planar-data-operationpdp&#34;&gt;Planar Data Operation(PDP)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;PDP는 maximum/minimum/average pooling을 지원&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;multiplane-operation&#34;&gt;Multiplane Operation&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Cross Channel Data Processor(CPD)은 Local Response Normalization(LRN)을 수행&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;data-memory-and-reshape-operations&#34;&gt;Data Memory and Reshape Operations&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;bridge DMA는 외부 메모리와 메모리 인터페이스간 데이터 전송을 담당&lt;/li&gt;
+&lt;li&gt;data reshape engine은 data trasnformations, splitting, slicing, merging, contraction, reshape transpose 를 담당&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;system-configuration&#34;&gt;System Configuration&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;NVDLA는 small/large system model로 구현할 수 있음
+&lt;ul&gt;
+&lt;li&gt;small system model : IoT 기기와 같이 작은 모델을 위한 모델, 복잡도와 storage를 낮추고 single task를 수행&lt;/li&gt;
+&lt;li&gt;large system model : mutiple task를 위한 coprocessor와 메모리 인터페이스 추가&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;external-interface&#34;&gt;External Interface&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;NVDLA는 외부와 통신을 위한 Configuration Space Bus(CSB), Data backbone(DBB), SRAM interface, Interrupt interface를 가짐 (상세내용은 책 참조)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;software-design&#34;&gt;Software Design&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;NVDLA SW는 Trained model을 parser/compiler/optimizer를 통해 loadable로 변환&lt;/li&gt;
+&lt;li&gt;User Mode Driver(UMD)에 의해 Loadalbe이 로딩 되고 Job이 Kernel Mode Driver(KMD)로 제출됨, KMD는 스케줄링 수행&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;google-tensor-processing-unittpu&#34;&gt;Google Tensor Processing Unit(TPU)&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;구글은 speech recognition 수요 해결을 위해 TPU v1(stand alone)과 v2/v3(cloud)를 개발&lt;/li&gt;
+&lt;li&gt;TPU v1은 하기 스펙으로 MLP 0/1, CNN 0/1, RNN 0/1 6가지 neural network application을 수행 가능
+&lt;ul&gt;
+&lt;li&gt;256 × 256 eight bits MAC unit&lt;/li&gt;
+&lt;li&gt;4 Mb on-chip Accumulator Memory (AM)&lt;/li&gt;
+&lt;li&gt;24 Mb Unified Buffer (UB) – activation memory&lt;/li&gt;
+&lt;li&gt;8 Gb off-chip weight DRAM memory&lt;/li&gt;
+&lt;li&gt;Two 2133 MHz DDR3 channels&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;system-architecture&#34;&gt;System Architecture&lt;/h3&gt;
+&lt;h3 id=&#34;multipy-accumulatemac-systolic-array&#34;&gt;Multipy-Accumulate(MAC) Systolic Array&lt;/h3&gt;
+&lt;h3 id=&#34;new-brain-floating-point-format&#34;&gt;New Brain Floating-point Format&lt;/h3&gt;
+&lt;h3 id=&#34;performance-comparision&#34;&gt;Performance Comparision&lt;/h3&gt;
+&lt;h3 id=&#34;cloud-tpu-configuration&#34;&gt;Cloud TPU configuration&lt;/h3&gt;
+&lt;h3 id=&#34;cloud-software-architecture&#34;&gt;Cloud Software Architecture&lt;/h3&gt;
 </description>
         </item>
         <item>
