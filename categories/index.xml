@@ -6,21 +6,21 @@
         <description>Recent content in Categories on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Wed, 28 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 30 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>AI_HW_Design</title>
+        <link>https://muonkmu.github.io/categories/ai_hw_design/</link>
+        <pubDate>Fri, 30 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/categories/ai_hw_design/</guid>
+        <description>&lt;img src="https://muonkmu.github.io/categories/ai_hw_design/book_cover.png" alt="Featured image of post AI_HW_Design" /&gt;</description>
+        </item>
+        <item>
         <title>KiCad</title>
         <link>https://muonkmu.github.io/categories/kicad/</link>
         <pubDate>Wed, 28 Dec 2022 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/categories/kicad/</guid>
         <description>&lt;img src="https://muonkmu.github.io/categories/kicad/KiCad-Logo.svg.png" alt="Featured image of post KiCad" /&gt;</description>
-        </item>
-        <item>
-        <title>AI_HW_Design</title>
-        <link>https://muonkmu.github.io/categories/ai_hw_design/</link>
-        <pubDate>Sun, 25 Dec 2022 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/categories/ai_hw_design/</guid>
-        <description>&lt;img src="https://muonkmu.github.io/categories/ai_hw_design/book_cover.png" alt="Featured image of post AI_HW_Design" /&gt;</description>
         </item>
         <item>
         <title>CS231n</title>

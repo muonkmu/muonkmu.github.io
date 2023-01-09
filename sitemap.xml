@@ -3,15 +3,33 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://muonkmu.github.io/</loc>
-    <lastmod>2022-12-28T00:00:00+00:00</lastmod>
+    <lastmod>2022-12-30T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/2/</loc>
+    <lastmod>2022-12-30T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/ai_hw_design/</loc>
+    <lastmod>2022-12-30T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/</loc>
+    <lastmod>2022-12-30T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/nvdla/</loc>
+    <lastmod>2022-12-30T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/post/</loc>
+    <lastmod>2022-12-30T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/</loc>
+    <lastmod>2022-12-30T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/tpu/</loc>
+    <lastmod>2022-12-30T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/p/kicad-footprint-and-pcb/</loc>
     <lastmod>2022-12-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/p/kicad-symbol-and-schemetic/</loc>
-    <lastmod>2022-12-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/categories/</loc>
     <lastmod>2022-12-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/categories/kicad/</loc>
@@ -20,25 +38,7 @@
     <loc>https://muonkmu.github.io/tags/pcb/</loc>
     <lastmod>2022-12-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://muonkmu.github.io/post/</loc>
-    <lastmod>2022-12-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/tags/</loc>
-    <lastmod>2022-12-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/2/</loc>
-    <lastmod>2022-12-25T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/categories/ai_hw_design/</loc>
-    <lastmod>2022-12-25T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/tags/nvdla/</loc>
-    <lastmod>2022-12-25T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/tags/tpu/</loc>
-    <lastmod>2022-12-25T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/p/cs231n-chap-04-introduction-to-neural-networks/</loc>
+    <loc>https://muonkmu.github.io/p/cs231n-chap-14-reinforcement-learning/</loc>
     <lastmod>2022-12-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/computer-vision/</loc>

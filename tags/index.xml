@@ -6,18 +6,10 @@
         <description>Recent content in Tags on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Wed, 28 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>PCB</title>
-        <link>https://muonkmu.github.io/tags/pcb/</link>
-        <pubDate>Wed, 28 Dec 2022 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/tags/pcb/</guid>
-        <description></description>
-        </item>
-        <item>
+        <lastBuildDate>Fri, 30 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>NVDLA</title>
         <link>https://muonkmu.github.io/tags/nvdla/</link>
-        <pubDate>Sun, 25 Dec 2022 00:00:00 +0000</pubDate>
+        <pubDate>Fri, 30 Dec 2022 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/tags/nvdla/</guid>
         <description></description>
@@ -25,9 +17,17 @@
         <item>
         <title>TPU</title>
         <link>https://muonkmu.github.io/tags/tpu/</link>
-        <pubDate>Sun, 25 Dec 2022 00:00:00 +0000</pubDate>
+        <pubDate>Fri, 30 Dec 2022 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/tags/tpu/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>PCB</title>
+        <link>https://muonkmu.github.io/tags/pcb/</link>
+        <pubDate>Wed, 28 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/pcb/</guid>
         <description></description>
         </item>
         <item>

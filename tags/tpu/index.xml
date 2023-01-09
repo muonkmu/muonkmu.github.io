@@ -6,10 +6,10 @@
         <description>Recent content in TPU on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sun, 25 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/tpu/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 30 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/tpu/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>[AI HW Design] Chap03 Parallel Architecture (2/2)</title>
         <link>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/2/</link>
-        <pubDate>Sun, 25 Dec 2022 00:00:00 +0000</pubDate>
+        <pubDate>Fri, 30 Dec 2022 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/2/</guid>
         <description>&lt;p&gt;본 챕터에서는 몇가지 주요한 Paralle Architecture에 대하여 소개한다.
