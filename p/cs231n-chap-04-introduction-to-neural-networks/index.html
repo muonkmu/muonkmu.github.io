@@ -10,7 +10,7 @@
 <meta property='og:description' content='CS231n Chapter 04 Introduction to Neural Networks summary'>
 <meta property='og:url' content='https://muonkmu.github.io/p/cs231n-chap-04-introduction-to-neural-networks/'>
 <meta property='og:site_name' content='MW Devlog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Machine Learning' /><meta property='article:tag' content='Computer Vision' /><meta property='article:published_time' content='2022-12-23T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-23T00:00:00&#43;00:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Machine Learning' /><meta property='article:tag' content='Computer Vision' /><meta property='article:published_time' content='2022-10-25T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-10-25T00:00:00&#43;00:00'/>
 <meta name="twitter:title" content="[CS231n] Chap 04 Introduction to Neural Networks">
 <meta name="twitter:description" content="CS231n Chapter 04 Introduction to Neural Networks summary">
     </head>
@@ -218,7 +218,53 @@
     </ol>
 </aside>
 
-    
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#backpropagation">Backpropagation</a>
+      <ol>
+        <li><a href="#chain-rule">Chain rule</a></li>
+        <li><a href="#sigmoid-gate-example">Sigmoid gate example</a></li>
+        <li><a href="#patterns-in-backward-flow">Patterns in backward flow</a></li>
+        <li><a href="#gradients-add-at-branches">Gradients add at branches</a></li>
+        <li><a href="#vectorized-operations">Vectorized operations</a></li>
+      </ol>
+    </li>
+    <li><a href="#neural-network">Neural Network</a>
+      <ol>
+        <li><a href="#artificial-neural-network">Artificial Neural Network</a></li>
+        <li><a href="#activation-function">Activation Function</a></li>
+        <li><a href="#neural-networks-architectures">Neural networks Architectures</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
 
             <main class="main full-width">
     <article class="main-article">
@@ -263,7 +309,7 @@
   <path d="M3 11h16" />
   <path d="M18 16.496v1.504l1 1" />
 </svg>
-                <time class="article-time--published">Oct 25, 2022</time>
+                <time class="article-time--published">Dec 23, 2022</time>
             </div>
         
 
@@ -293,14 +339,24 @@
     <section class="article-content">
     
     
-    <p>본 chapter에서는 Reinforcement Learning에 대해서 알아보자</p>
+    <p>본 chapter에서는 Gradient를 구하기 위한 Backpropagation을 이해하고 Neural Network의 기본에 대해 설명한다.</p>
 <ul>
-<li>Video : <a class="link" href="https://www.youtube.com/watch?v=lvoHnicueoE&amp;list=PL3FW7Lu3i5JvHM8ljYj-zLfQRF3EO8sYv&amp;index=15"  target="_blank" rel="noopener"
-    >https://www.youtube.com/watch?v=lvoHnicueoE&list=PL3FW7Lu3i5JvHM8ljYj-zLfQRF3EO8sYv&index=15</a></li>
-<li>Slide : <a class="link" href="http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture14.pdf"  target="_blank" rel="noopener"
-    >http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture14.pdf</a></li>
+<li>Video : <a class="link" href="https://www.youtube.com/watch?v=d14TUNcbn1k"  target="_blank" rel="noopener"
+    >https://www.youtube.com/watch?v=d14TUNcbn1k</a></li>
+<li>Slide : <a class="link" href="http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture4.pdf"  target="_blank" rel="noopener"
+    >http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture4.pdf</a></li>
 </ul>
-<p>(TODO: 귀차니즘의 압박으로 정리를 안했다.. 근데 강의가 무척 어려워서 잘 이해가 안된다.)</p>
+<p>(TODO: 귀차니즘의 압박으로 정리를 안해놓았지만 언젠간 해야지)</p>
+<h2 id="backpropagation">Backpropagation</h2>
+<h3 id="chain-rule">Chain rule</h3>
+<h3 id="sigmoid-gate-example">Sigmoid gate example</h3>
+<h3 id="patterns-in-backward-flow">Patterns in backward flow</h3>
+<h3 id="gradients-add-at-branches">Gradients add at branches</h3>
+<h3 id="vectorized-operations">Vectorized operations</h3>
+<h2 id="neural-network">Neural Network</h2>
+<h3 id="artificial-neural-network">Artificial Neural Network</h3>
+<h3 id="activation-function">Activation Function</h3>
+<h3 id="neural-networks-architectures">Neural networks Architectures</h3>
 
 </section>
 
