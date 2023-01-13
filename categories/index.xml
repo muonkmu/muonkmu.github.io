@@ -6,7 +6,15 @@
         <description>Recent content in Categories on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Tue, 10 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 13 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>DevEnv</title>
+        <link>https://muonkmu.github.io/categories/devenv/</link>
+        <pubDate>Fri, 13 Jan 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/categories/devenv/</guid>
+        <description>&lt;img src="https://muonkmu.github.io/categories/devenv/dev-env.jpeg" alt="Featured image of post DevEnv" /&gt;</description>
+        </item>
+        <item>
         <title>Coursera_CNN</title>
         <link>https://muonkmu.github.io/categories/coursera_cnn/</link>
         <pubDate>Tue, 10 Jan 2023 00:00:00 +0000</pubDate>
@@ -45,14 +53,6 @@
         
         <guid>https://muonkmu.github.io/categories/petalinux/</guid>
         <description>&lt;img src="https://muonkmu.github.io/categories/petalinux/PetaLinux.png" alt="Featured image of post Petalinux" /&gt;</description>
-        </item>
-        <item>
-        <title>DevEnv</title>
-        <link>https://muonkmu.github.io/categories/devenv/</link>
-        <pubDate>Tue, 13 Dec 2022 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/categories/devenv/</guid>
-        <description>&lt;img src="https://muonkmu.github.io/categories/devenv/dev-env.jpeg" alt="Featured image of post DevEnv" /&gt;</description>
         </item>
         <item>
         <title>Coursera_ML</title>

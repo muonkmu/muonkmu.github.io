@@ -3,12 +3,30 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://muonkmu.github.io/</loc>
-    <lastmod>2023-01-10T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/p/cnn-week-03-object-detection/</loc>
-    <lastmod>2023-01-10T00:00:00+00:00</lastmod>
+    <lastmod>2023-01-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/categories/</loc>
+    <lastmod>2023-01-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/cuda/</loc>
+    <lastmod>2023-01-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/devenv/</loc>
+    <lastmod>2023-01-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/dl-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95-cuda-cudnn-conda-pytorch/</loc>
+    <lastmod>2023-01-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/post/</loc>
+    <lastmod>2023-01-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/pytorch/</loc>
+    <lastmod>2023-01-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/</loc>
+    <lastmod>2023-01-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/cnn-week-03-object-detection/</loc>
     <lastmod>2023-01-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/cnn/</loc>
@@ -18,12 +36,6 @@
     <lastmod>2023-01-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/object-detection/</loc>
-    <lastmod>2023-01-10T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/post/</loc>
-    <lastmod>2023-01-10T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/tags/</loc>
     <lastmod>2023-01-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/2/</loc>
@@ -76,9 +88,6 @@
   </url><url>
     <loc>https://muonkmu.github.io/p/petalinux-petalinux-basic/</loc>
     <lastmod>2022-12-19T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/categories/devenv/</loc>
-    <lastmod>2022-12-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/github/</loc>
     <lastmod>2022-12-13T00:00:00+00:00</lastmod>
