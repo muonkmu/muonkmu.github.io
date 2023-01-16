@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='cuda, cudnn, conda, pytorch를 활용한 ML 개발 환경 설정'>
-<title>DL 개발환경 설정 (cuda, cudnn, conda, pytorch)</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Chapter 03 Parallel Architecture 요약 2nd'>
+<title>[AI HW Design] Chap03 Parallel Architecture (2/3)</title>
 
-<link rel='canonical' href='https://muonkmu.github.io/p/dl-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95-cuda-cudnn-conda-pytorch/'>
+<link rel='canonical' href='https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/3/'>
 
-<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='DL 개발환경 설정 (cuda, cudnn, conda, pytorch)'>
-<meta property='og:description' content='cuda, cudnn, conda, pytorch를 활용한 ML 개발 환경 설정'>
-<meta property='og:url' content='https://muonkmu.github.io/p/dl-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95-cuda-cudnn-conda-pytorch/'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[AI HW Design] Chap03 Parallel Architecture (2/3)'>
+<meta property='og:description' content='Chapter 03 Parallel Architecture 요약 2nd'>
+<meta property='og:url' content='https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/3/'>
 <meta property='og:site_name' content='MW Devlog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='cuda' /><meta property='article:tag' content='pytorch' /><meta property='article:published_time' content='2023-01-13T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-01-13T00:00:00&#43;00:00'/>
-<meta name="twitter:title" content="DL 개발환경 설정 (cuda, cudnn, conda, pytorch)">
-<meta name="twitter:description" content="cuda, cudnn, conda, pytorch를 활용한 ML 개발 환경 설정">
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='NVDLA' /><meta property='article:tag' content='TPU' /><meta property='article:published_time' content='2022-12-30T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-12-30T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="[AI HW Design] Chap03 Parallel Architecture (2/3)">
+<meta name="twitter:description" content="Chapter 03 Parallel Architecture 요약 2nd">
     </head>
     <body class="
     article-page
@@ -240,18 +240,28 @@
         <div class="widget--toc">
             <nav id="TableOfContents">
   <ol>
-    <li><a href="#목적">목적</a></li>
-    <li><a href="#환경">환경</a></li>
-    <li><a href="#설치-절차">설치 절차</a>
+    <li><a href="#nvidia-deep-learning-accelerator-nvdla">NVIDIA Deep Learning Accelerator (NVDLA)</a>
       <ol>
-        <li><a href="#nvidia-driver-설치">Nvidia Driver 설치</a></li>
-        <li><a href="#cuda-설치">cuda 설치</a></li>
-        <li><a href="#cudnn-설치">cudnn 설치</a></li>
-        <li><a href="#conda-설치">conda 설치</a></li>
-        <li><a href="#pytorch-설치">pytorch 설치</a></li>
+        <li><a href="#convolution-operation">Convolution Operation</a></li>
+        <li><a href="#single-data-point-operationsdp">Single Data Point Operation(SDP)</a></li>
+        <li><a href="#planar-data-operationpdp">Planar Data Operation(PDP)</a></li>
+        <li><a href="#multiplane-operation">Multiplane Operation</a></li>
+        <li><a href="#data-memory-and-reshape-operations">Data Memory and Reshape Operations</a></li>
+        <li><a href="#system-configuration">System Configuration</a></li>
+        <li><a href="#external-interface">External Interface</a></li>
+        <li><a href="#software-design">Software Design</a></li>
       </ol>
     </li>
-    <li><a href="#설치-확인">설치 확인</a></li>
+    <li><a href="#google-tensor-processing-unittpu">Google Tensor Processing Unit(TPU)</a>
+      <ol>
+        <li><a href="#system-architecture">System Architecture</a></li>
+        <li><a href="#multipy-accumulatemac-systolic-array">Multipy-Accumulate(MAC) Systolic Array</a></li>
+        <li><a href="#new-brain-floating-point-format">New Brain Floating-point Format</a></li>
+        <li><a href="#performance-comparision">Performance Comparision</a></li>
+        <li><a href="#cloud-tpu-configuration">Cloud TPU configuration</a></li>
+        <li><a href="#cloud-software-architecture">Cloud Software Architecture</a></li>
+      </ol>
+    </li>
   </ol>
 </nav>
         </div>
@@ -270,8 +280,8 @@
     
     <header class="article-category">
         
-            <a href="/categories/devenv/" style="background-color: #C594C5; color: #fff;">
-                DevEnv
+            <a href="/categories/ai_hw_design/" style="background-color: #1554C5; color: #fff;">
+                AI_HW_Design
             </a>
         
     </header>
@@ -279,12 +289,12 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/p/dl-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95-cuda-cudnn-conda-pytorch/">DL 개발환경 설정 (cuda, cudnn, conda, pytorch)</a>
+            <a href="/p/ai-hw-design-chap03-parallel-architecture-2/3/">[AI HW Design] Chap03 Parallel Architecture (2/3)</a>
         </h2>
     
         
         <h3 class="article-subtitle">
-            cuda, cudnn, conda, pytorch를 활용한 ML 개발 환경 설정
+            Chapter 03 Parallel Architecture 요약 2nd
         </h3>
         
     </div>
@@ -305,7 +315,7 @@
   <path d="M3 11h16" />
   <path d="M18 16.496v1.504l1 1" />
 </svg>
-                <time class="article-time--published">Jan 13, 2023</time>
+                <time class="article-time--published">Dec 30, 2022</time>
             </div>
         
 
@@ -320,7 +330,7 @@
 
 
                 <time class="article-time--reading">
-                    2 minute read
+                    3 minute read
                 </time>
             </div>
         
@@ -335,210 +345,139 @@
     <section class="article-content">
     
     
-    <p>GPU를 이용하여 Deep learning 모델을 구성하고자 하였으나 다른 기술 블로그에서 기술한대로 수행하여도 동작이 되지 않는다.
-해당 공식 문서들을 참고하여 설치하는 법을 기술한다.</p>
-<h2 id="목적">목적</h2>
+    <p>본 챕터에서는 몇가지 주요한 Paralle Architecture에 대하여 소개한다.
+이 페이지에서는 NVDLA와 Google TPU에 대해서 기술한다.</p>
+<h2 id="nvidia-deep-learning-accelerator-nvdla">NVIDIA Deep Learning Accelerator (NVDLA)</h2>
 <ul>
-<li>GPU 및 pytorch 기반 개발을 위한 PC 개발 환경 구성</li>
-<li>GPU 활용을 위해 nvidia driver, cuda, cudnn 설치와 conda 환경에서 pytorch를 설치하는 방법을 다룬다.</li>
+<li>NVDLA는 FPGA로 구성 가능한 추론을 위한 오픈소스 아키텍쳐 (<a class="link" href="http://nvdla.org"  target="_blank" rel="noopener"
+    >http://nvdla.org</a>)</li>
+<li>Primitive functional blocks으로 CNN을 지원 (convolution, activation, pooling, normalization)</li>
+<li>각 블럭은 next layer의 active와 configuration을 위한 double buffer를 가짐</li>
+<li>next layer의 operation은 active operation이 완료되어야 시작</li>
+<li>independent mode와 pipeline을 사용하는 fused mode가 있음
+<img src="/p/ai-hw-design-chap03-parallel-architecture-2/3/NVDLA_core_architecture.png"
+	width="1142"
+	height="950"
+	srcset="/p/ai-hw-design-chap03-parallel-architecture-2/3/NVDLA_core_architecture_hu2cca1af52d961361ac30bee8eb97a9b7_113988_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap03-parallel-architecture-2/3/NVDLA_core_architecture_hu2cca1af52d961361ac30bee8eb97a9b7_113988_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="NVDLA core architecture"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="120"
+		data-flex-basis="288px"
+	
+>
+<em>Figure. NVDLA core architecture</em></li>
 </ul>
-<h2 id="환경">환경</h2>
+<h3 id="convolution-operation">Convolution Operation</h3>
 <ul>
-<li>OS : ubuntu 20.04 LTS</li>
-<li>GPU : nvidia 1080ti</li>
-<li>python 3.8.10 and GCC 9.4.0</li>
+<li>Direct convolution, Image input convolution, winograd convolution, Batch convolution 지원 (상세내역은 책 참조)</li>
 </ul>
-<h2 id="설치-절차">설치 절차</h2>
-<p>우선 모듈의 dependency를 확인해야 한다. 현재 pytorch에서 우분투 20.04를 지원하는 플랫폼은 CUDA 11.7이므로 CUDA 11.7 버전과 이에 적합한 nvidia driver를 설치 해야한다.
-필요한 nvidia driver는 사실 cuda를 설치 해보면 dependency 체크를 하면서 필요한 버전을 알려준다.(더 좋은 방법이 있을지도)</p>
-<h3 id="nvidia-driver-설치">Nvidia Driver 설치</h3>
-<ol>
-<li>nvidia driver 설치 여부 및 현재 설치된 버전을 확인한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nvidia-smi
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="2">
-<li>필요 시 기존의 nvidia driver를 삭제한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-get remove --purge <span class="s1">&#39;nvidia-.*&#39;</span>
-</span></span><span class="line"><span class="cl">sudo apt-get autoremove
-</span></span><span class="line"><span class="cl">sudo apt-get autoclean
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="3">
-<li>설치가능한 드라이버를 확인한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">ubuntu-drivers devices
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="4">
-<li>만약 필요한 드라이버 목록에서 없다면 저장소를 추가한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo add-apt-repository ppa:graphics-drivers/ppa
-</span></span><span class="line"><span class="cl">sudo apt update
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="5">
-<li>원하는 드라이버를 설치 후 재부팅 한다. 현재 저자의 환경에서는 5.25가 필요하므로 이 버전을 예로 설명한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt install nvidia-driver-525
-</span></span><span class="line"><span class="cl">sudo reboot
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="cuda-설치">cuda 설치</h3>
-<p>cuda 홈페이지에서 현재 내 설정에 맞는 runfile을 다운 가능하나 저자는 이상하게 설치가 안되었다.
-하기 페이지를 활용하여 네트워크 Repo에서 설치하자
-(<a class="link" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#prepare-ubuntu"  target="_blank" rel="noopener"
-    >https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#prepare-ubuntu</a>)</p>
-<ol>
-<li>Remove outdated signing key</li>
-<li>Install the new cuda-keyring package</li>
-<li>Install CUDA SDK</li>
-<li>reboot</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-key del 7fa2af80
-</span></span><span class="line"><span class="cl">wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb
-</span></span><span class="line"><span class="cl">sudo dpkg -i cuda-keyring_1.0-1_all.deb
-</span></span><span class="line"><span class="cl">sudo apt update
-</span></span><span class="line"><span class="cl">sudo apt-get install cuda-11-7
-</span></span><span class="line"><span class="cl">sudo reboot
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="5">
-<li>환경변수를 등록한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span>/usr/local/cuda-11.7/bin<span class="si">${</span><span class="nv">PATH</span><span class="p">:+:</span><span class="si">${</span><span class="nv">PATH</span><span class="si">}}</span>
-</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-11.7/lib64<span class="si">${</span><span class="nv">LD_LIBRARY_PATH</span><span class="p">:+:</span><span class="si">${</span><span class="nv">LD_LIBRARY_PATH</span><span class="si">}}</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="cudnn-설치">cudnn 설치</h3>
-<p>cudnn 역시 package 파일로 설치가 잘 안되서 tar 파일로 설치하였다.
-(<a class="link" href="https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html"  target="_blank" rel="noopener"
-    >https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html</a>)</p>
-<ol>
-<li>필요한 cudnn 라이브러리 tar를 cudnn 홈페이지에서 다운받는다.</li>
-<li>파일의 압축을 풀고 cuda 라이브러리에 파일을 복사한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tar -xvf cudnn-linux-x86_64-8.x.x.x_cudaX.Y-archive.tar.xz
-</span></span><span class="line"><span class="cl">sudo cp cudnn-*-archive/include/cudnn*.h /usr/local/cuda/include
-</span></span><span class="line"><span class="cl">sudo cp -P cudnn-*-archive/lib/libcudnn* /usr/local/cuda/lib64
-</span></span><span class="line"><span class="cl">sudo chmod a+r /usr/local/cuda/include/cudnn*.h /usr/local/cuda/lib64/libcudnn*
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="conda-설치">conda 설치</h3>
-<p>모듈들의 dependency 및 버전 관리를 위해 가상환경인 conda를 사용하기로 하였다.</p>
-<ol>
-<li>자신의 파이썬 환경에 맡는 miniconda 설치 파일을 받고 이를 실행한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Miniconda3-latest-Linux-x86_64.sh
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="2">
-<li>자신이 사용할 가상환경을 만들고 이를 실행한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">conda create -n <span class="o">{</span>my_env<span class="o">}</span>
-</span></span><span class="line"><span class="cl">conda activate <span class="o">{</span>my_env<span class="o">}</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="3">
-<li>터미널 실행 시 자동으로 conda 환경이 실행되는 것을 막을려면 다음을 수행한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">conda config --set auto_activate_base <span class="nb">false</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="pytorch-설치">pytorch 설치</h3>
-<p>conda 환경에서 pytorch 홈페이지를 참고하여 pytorch를 설치한다. 자신이 원하는 구성을 고르면 Run command를 알려준다.</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">conda install pytorch torchvision torchaudio pytorch-cuda<span class="o">=</span>11.7 -c pytorch -c nvidia
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h2 id="설치-확인">설치 확인</h2>
-<p>conda 환경에서 python을 터미널을 실행한 후 pytorch cuda 설정 사용 가능 여부가 <code>True</code>로 출력되면 정상</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
-</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">())</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div>
+<h3 id="single-data-point-operationsdp">Single Data Point Operation(SDP)</h3>
+<ul>
+<li>SDP는 linear functions와 Look-up Table nonlinear functions을 통해 activation과 normalizatin을 지원 (상세내역은 책 참조)</li>
+</ul>
+<h3 id="planar-data-operationpdp">Planar Data Operation(PDP)</h3>
+<ul>
+<li>PDP는 maximum/minimum/average pooling을 지원</li>
+</ul>
+<h3 id="multiplane-operation">Multiplane Operation</h3>
+<ul>
+<li>Cross Channel Data Processor(CPD)은 Local Response Normalization(LRN)을 수행</li>
+</ul>
+<h3 id="data-memory-and-reshape-operations">Data Memory and Reshape Operations</h3>
+<ul>
+<li>bridge DMA는 외부 메모리와 메모리 인터페이스간 데이터 전송을 담당</li>
+<li>data reshape engine은 data trasnformations, splitting, slicing, merging, contraction, reshape transpose 를 담당</li>
+</ul>
+<h3 id="system-configuration">System Configuration</h3>
+<ul>
+<li>NVDLA는 small/large system model로 구현할 수 있음
+<ul>
+<li>small system model : IoT 기기와 같이 작은 모델을 위한 모델, 복잡도와 storage를 낮추고 single task를 수행</li>
+<li>large system model : mutiple task를 위한 coprocessor와 메모리 인터페이스 추가</li>
+</ul>
+</li>
+</ul>
+<h3 id="external-interface">External Interface</h3>
+<ul>
+<li>NVDLA는 외부와 통신을 위한 Configuration Space Bus(CSB), Data backbone(DBB), SRAM interface, Interrupt interface를 가짐 (상세내용은 책 참조)</li>
+</ul>
+<h3 id="software-design">Software Design</h3>
+<ul>
+<li>NVDLA SW는 Trained model을 parser/compiler/optimizer를 통해 loadable로 변환</li>
+<li>User Mode Driver(UMD)에 의해 Loadalbe이 로딩 되고 Job이 Kernel Mode Driver(KMD)로 제출됨, KMD는 스케줄링 수행</li>
+</ul>
+<h2 id="google-tensor-processing-unittpu">Google Tensor Processing Unit(TPU)</h2>
+<ul>
+<li>구글은 speech recognition 수요 해결을 위해 TPU v1(stand alone)과 v2/v3(cloud)를 개발</li>
+<li>TPU v1은 하기 스펙으로 MLP 0/1, CNN 0/1, RNN 0/1 6가지 neural network application을 수행 가능
+<ul>
+<li>256 × 256 eight bits MAC unit</li>
+<li>4 Mb on-chip Accumulator Memory (AM)</li>
+<li>24 Mb Unified Buffer (UB) – activation memory</li>
+<li>8 Gb off-chip weight DRAM memory</li>
+<li>Two 2133 MHz DDR3 channels</li>
+</ul>
+</li>
+<li>TPU는 6가지 neural network application을 수행할 수 있음
+<ul>
+<li>Multi-layer perceptron(MLP) 0/1, Convolution Neural Network(CNN) 0/1, Recurrent Neural Network(RNN) 0/1</li>
+</ul>
+</li>
+</ul>
+<h3 id="system-architecture">System Architecture</h3>
+<ul>
+<li>TPU v1은 매트릭스 연산을 Matrix Multiply Unit(MMU)에서 수행</li>
+<li>MMU는 256 × 256 eight bits MAC unit이며 16bit 연산을 수행할 경우 성능은 8bit 대비 절반(Sparse matrix 연산을 지원하지 않음)</li>
+<li>Weight FIFO는 matrix weight를 8Gb DRAM에서 읽어오며 activation, pooling, normalization 후 중간 연산 결과를 24Mb Unified Buffer에 저장</li>
+<li><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/tpu-15dly1.max-500x500.PNG"
+	
+	
+	
+	loading="lazy"
+	
+		alt="TPU System Architecture"
+	
+	
+></li>
+</ul>
+<h3 id="multipy-accumulatemac-systolic-array">Multipy-Accumulate(MAC) Systolic Array</h3>
+<ul>
+<li>Systolic array는 TPU의 핵심이자 High throughput / low latency를 가진 SIMD pipeline.</li>
+<li>책에 별 설명이 없으므로 이에 대한 내용은 더 찾아보는 것이 좋다(다른 많은 곳에 잘 나와 있음)</li>
+<li>단점은 전력 소모가 많다는 것(데이터 센터 등에 적합)</li>
+</ul>
+<h3 id="new-brain-floating-point-format">New Brain Floating-point Format</h3>
+<ul>
+<li>TPU v1은 input data를 FP32에서 INT8로 quantization하여 연산하며 이에 따라 안정성/정확도 문제 발생</li>
+<li>이를 위해 IEEE FP16 대신 Brain Floating Point format (BFP16) 사용
+<ul>
+<li>BFP16 : Mantissa를 7bit으로 줄이고 exponent를 FP32와 같은 8bit으로 늘림</li>
+<li>Sign 1bit, Exponent 8bit, Mantissa 7bit</li>
+<li>multiplier area와 power를 줄이고 Scaling loss 없이 FP32와 동일한 정확도를 얻음</li>
+</ul>
+</li>
+</ul>
+<h3 id="performance-comparision">Performance Comparision</h3>
+<ul>
+<li>roof-line model의 관점에서 볼 때 TPU가 가장 높은 peak performance를 달성했다.</li>
+<li>roof-line model은 Y축이 성능을 나타내며(평평한 부분이 최고 성능), X축이 byte 당 operation intensity</li>
+<li>부가 설명을 하자면 한번에 얼마나 많은 연산을 수행하게 할 때 성능이 어디까지 올라가는지 지표, loof-line은 메모리 Bandwith 때문에 걸림</li>
+</ul>
+<h3 id="cloud-tpu-configuration">Cloud TPU configuration</h3>
+<ul>
+<li>TPU v2/v3는 v1에서 DDR을 HBM으로 바꾸고 v1을 Pod로 묶음</li>
+</ul>
+<h3 id="cloud-software-architecture">Cloud Software Architecture</h3>
+<ul>
+<li>구글은 cloud computation을 위해 새로운 SW 아키텍쳐를 개발</li>
+<li>Model을 TensorFlow를 통해 computational graph로 해석</li>
+<li>상세 내용은 책을 참조</li>
+</ul>
+
 </section>
 
 
@@ -546,9 +485,9 @@
     
     <section class="article-tags">
         
-            <a href="/tags/cuda/">cuda</a>
+            <a href="/tags/nvdla/">NVDLA</a>
         
-            <a href="/tags/pytorch/">pytorch</a>
+            <a href="/tags/tpu/">TPU</a>
         
     </section>
 
@@ -582,12 +521,12 @@
             
                 
 <article class="">
-    <a href="/p/github-blog-%EB%A7%8C%EB%93%A4%EA%B8%B0/">
+    <a href="/p/ai-hw-design-chap03-parallel-architecture-3/3/">
         
         
 
         <div class="article-details">
-            <h2 class="article-title">Github blog 만들기</h2>
+            <h2 class="article-title">[AI HW Design] Chap03 Parallel Architecture (3/3)</h2>
         </div>
     </a>
 </article>
@@ -595,25 +534,12 @@
             
                 
 <article class="">
-    <a href="/p/ubuntu-20.04-%EA%B0%9C%EC%9D%B8-%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/">
+    <a href="/p/ai-hw-design-chap03-parallel-architecture-1/3/">
         
         
 
         <div class="article-details">
-            <h2 class="article-title">Ubuntu 20.04 개인 환경 설정</h2>
-        </div>
-    </a>
-</article>
-
-            
-                
-<article class="">
-    <a href="/p/%EC%9B%90%EA%B2%A9-%EA%B0%9C%EB%B0%9C-%EC%84%9C%EB%B2%84-%EA%B5%AC%EC%B6%95/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">원격 개발 서버 구축</h2>
+            <h2 class="article-title">[AI HW Design] Chap03 Parallel Architecture (1/3)</h2>
         </div>
     </a>
 </article>

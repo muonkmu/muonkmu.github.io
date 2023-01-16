@@ -7,11 +7,11 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <lastBuildDate>Fri, 30 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/nvdla/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>[AI HW Design] Chap03 Parallel Architecture (2/2)</title>
-        <link>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/2/</link>
+        <title>[AI HW Design] Chap03 Parallel Architecture (2/3)</title>
+        <link>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/3/</link>
         <pubDate>Fri, 30 Dec 2022 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/2/</guid>
+        <guid>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/3/</guid>
         <description>&lt;p&gt;본 챕터에서는 몇가지 주요한 Paralle Architecture에 대하여 소개한다.
 이 페이지에서는 NVDLA와 Google TPU에 대해서 기술한다.&lt;/p&gt;
 &lt;h2 id=&#34;nvidia-deep-learning-accelerator-nvdla&#34;&gt;NVIDIA Deep Learning Accelerator (NVDLA)&lt;/h2&gt;
@@ -22,10 +22,10 @@
 &lt;li&gt;각 블럭은 next layer의 active와 configuration을 위한 double buffer를 가짐&lt;/li&gt;
 &lt;li&gt;next layer의 operation은 active operation이 완료되어야 시작&lt;/li&gt;
 &lt;li&gt;independent mode와 pipeline을 사용하는 fused mode가 있음
-&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/2/NVDLA_core_architecture.png&#34;
+&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/3/NVDLA_core_architecture.png&#34;
 	width=&#34;1142&#34;
 	height=&#34;950&#34;
-	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/2/NVDLA_core_architecture_hu2cca1af52d961361ac30bee8eb97a9b7_113988_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/2/NVDLA_core_architecture_hu2cca1af52d961361ac30bee8eb97a9b7_113988_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/3/NVDLA_core_architecture_hu2cca1af52d961361ac30bee8eb97a9b7_113988_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-2/3/NVDLA_core_architecture_hu2cca1af52d961361ac30bee8eb97a9b7_113988_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;NVDLA core architecture&#34;
@@ -89,13 +89,61 @@
 &lt;li&gt;Two 2133 MHz DDR3 channels&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
+&lt;li&gt;TPU는 6가지 neural network application을 수행할 수 있음
+&lt;ul&gt;
+&lt;li&gt;Multi-layer perceptron(MLP) 0/1, Convolution Neural Network(CNN) 0/1, Recurrent Neural Network(RNN) 0/1&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h3 id=&#34;system-architecture&#34;&gt;System Architecture&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;TPU v1은 매트릭스 연산을 Matrix Multiply Unit(MMU)에서 수행&lt;/li&gt;
+&lt;li&gt;MMU는 256 × 256 eight bits MAC unit이며 16bit 연산을 수행할 경우 성능은 8bit 대비 절반(Sparse matrix 연산을 지원하지 않음)&lt;/li&gt;
+&lt;li&gt;Weight FIFO는 matrix weight를 8Gb DRAM에서 읽어오며 activation, pooling, normalization 후 중간 연산 결과를 24Mb Unified Buffer에 저장&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://storage.googleapis.com/gweb-cloudblog-publish/images/tpu-15dly1.max-500x500.PNG&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;TPU System Architecture&#34;
+	
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&#34;multipy-accumulatemac-systolic-array&#34;&gt;Multipy-Accumulate(MAC) Systolic Array&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Systolic array는 TPU의 핵심이자 High throughput / low latency를 가진 SIMD pipeline.&lt;/li&gt;
+&lt;li&gt;책에 별 설명이 없으므로 이에 대한 내용은 더 찾아보는 것이 좋다(다른 많은 곳에 잘 나와 있음)&lt;/li&gt;
+&lt;li&gt;단점은 전력 소모가 많다는 것(데이터 센터 등에 적합)&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&#34;new-brain-floating-point-format&#34;&gt;New Brain Floating-point Format&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;TPU v1은 input data를 FP32에서 INT8로 quantization하여 연산하며 이에 따라 안정성/정확도 문제 발생&lt;/li&gt;
+&lt;li&gt;이를 위해 IEEE FP16 대신 Brain Floating Point format (BFP16) 사용
+&lt;ul&gt;
+&lt;li&gt;BFP16 : Mantissa를 7bit으로 줄이고 exponent를 FP32와 같은 8bit으로 늘림&lt;/li&gt;
+&lt;li&gt;Sign 1bit, Exponent 8bit, Mantissa 7bit&lt;/li&gt;
+&lt;li&gt;multiplier area와 power를 줄이고 Scaling loss 없이 FP32와 동일한 정확도를 얻음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&#34;performance-comparision&#34;&gt;Performance Comparision&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;roof-line model의 관점에서 볼 때 TPU가 가장 높은 peak performance를 달성했다.&lt;/li&gt;
+&lt;li&gt;roof-line model은 Y축이 성능을 나타내며(평평한 부분이 최고 성능), X축이 byte 당 operation intensity&lt;/li&gt;
+&lt;li&gt;부가 설명을 하자면 한번에 얼마나 많은 연산을 수행하게 할 때 성능이 어디까지 올라가는지 지표, loof-line은 메모리 Bandwith 때문에 걸림&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&#34;cloud-tpu-configuration&#34;&gt;Cloud TPU configuration&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;TPU v2/v3는 v1에서 DDR을 HBM으로 바꾸고 v1을 Pod로 묶음&lt;/li&gt;
+&lt;/ul&gt;
 &lt;h3 id=&#34;cloud-software-architecture&#34;&gt;Cloud Software Architecture&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;구글은 cloud computation을 위해 새로운 SW 아키텍쳐를 개발&lt;/li&gt;
+&lt;li&gt;Model을 TensorFlow를 통해 computational graph로 해석&lt;/li&gt;
+&lt;li&gt;상세 내용은 책을 참조&lt;/li&gt;
+&lt;/ul&gt;
 </description>
         </item>
         

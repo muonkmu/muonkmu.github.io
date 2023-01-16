@@ -6,85 +6,86 @@
         <description>Recent content in Brainwave on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Mon, 12 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/brainwave/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>[AI HW Design] Chap03 Parallel Architecture</title>
-        <link>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture/</link>
-        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
+        <lastBuildDate>Fri, 13 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/brainwave/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[AI HW Design] Chap03 Parallel Architecture (3/3)</title>
+        <link>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-3/3/</link>
+        <pubDate>Fri, 13 Jan 2023 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture/</guid>
-        <description>&lt;p&gt;본 챕터에서는 몇가지 주요한 Paralle Architecture에 대하여 소개한다&lt;/p&gt;
-&lt;h2 id=&#34;intel-central-processing-unit-cpu&#34;&gt;Intel Central Processing Unit (CPU)&lt;/h2&gt;
+        <guid>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-3/3/</guid>
+        <description>&lt;p&gt;본 챕터에서는 몇가지 주요한 Paralle Architecture에 대하여 소개한다.
+이 페이지에서는 Microsoft Catapult Fabric Accelerator에 대해서 기술한다.&lt;/p&gt;
+&lt;h2 id=&#34;microsoft-catapult-fabric-accelerator&#34;&gt;Microsoft Catapult Fabric Accelerator&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.intel.com/content/www/us/en/developer/articles/technical/xeon-processor-scalable-family-technical-overview.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;https://www.intel.com/content/www/us/en/developer/articles/technical/xeon-processor-scalable-family-technical-overview.html&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;CPU는 병렬 프로세싱을 위해 Single Instruction Single Data (SISD) architecture에서 Single Instruction Multiple Data (SIMD)로 진화함.&lt;/li&gt;
-&lt;li&gt;그러나 이는 딥러닝과 같은 거대 병렬 처리에 적합하지 못하여 2017년 딥러닝 어플리케이션을 위한 Xeon processor scalable family (purley platform) 발표&lt;/li&gt;
-&lt;li&gt;Purley platform은 하기 특징을 가짐&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;skylake-mesh-architecture&#34;&gt;Skylake mesh architecture&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;이전 Grantley platform에서는 Last-Level Chache(LLC)등이 Intel Quick Path Interconnect(QPI) ring achitecture로 연결&lt;/li&gt;
-&lt;li&gt;상기 구조는 코어 증가 시 코어 마다 사용가능한 bandwidth가 줄어들어서 메모리 latency가 증가&lt;/li&gt;
-&lt;li&gt;Grantley platform에서는 Intel Ultra Path Interconnect(UPI) mesh archictecture로 업그레이드&lt;/li&gt;
-&lt;li&gt;Comnined Home Agent(CHA)가 통합, 이는 LLC 등의 주소 정보 지도를 작성하며 이는 mesh 연결에서 목적지까지의 라우팅 정보를 제공
-&lt;img src=&#34;https://www.intel.com/content/dam/develop/external/us/en/images/xeon-processor-scalable-family-tech-overview-fig05-737410.png&#34;
-	
-	
-	
+&lt;li&gt;마이크로소프트는 Brainwave Project를 CPU와 FPGA를 쓰는 형태로 변경&lt;/li&gt;
+&lt;li&gt;48개의 FPGA가 2개의 Half rack (pod)에 그룹화되고 네트워크로 연결&lt;/li&gt;
+&lt;li&gt;Brainwave는 train된 DNN 모델을 Catapult Fabric이라 불리는 synthesized softcore에 컴파일 후 narrow precision approach를 적용&lt;/li&gt;
+&lt;li&gt;모델의 파라메터는 softcore 내 상주&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-3/3/01_Microsoft_brainwave_cloud_architect.png&#34;
+	width=&#34;951&#34;
+	height=&#34;528&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-3/3/01_Microsoft_brainwave_cloud_architect_hu5005c84237c5c0d108925d87f29946ce_123068_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-3/3/01_Microsoft_brainwave_cloud_architect_hu5005c84237c5c0d108925d87f29946ce_123068_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
-		alt=&#34;Intel Xeon processor Scalable family mesh architecture&#34;
 	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;180&#34;
+		data-flex-basis=&#34;432px&#34;
 	
-&gt;
-&lt;em&gt;Fig1. Intel Xeon processor Scalable family mesh architecture&lt;/em&gt;&lt;/li&gt;
+&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;intel-ultra-path-interconnect&#34;&gt;Intel Ultra Path Interconnect&lt;/h3&gt;
+&lt;h3 id=&#34;system-configuration&#34;&gt;System Configuration&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;UPI는 어드레스를 공유하는 mutiple processor coherent interconnect&lt;/li&gt;
-&lt;li&gt;UPI는 vertical/horizontal path를 통한 한 코어에서 다른 코어로의 최단 경로를 제공&lt;/li&gt;
-&lt;li&gt;2소켓, 4소켓 링, 8소켓+크로스바 등 다양한 구조 지원&lt;/li&gt;
+&lt;li&gt;Catapult Fabric은 synthesized softcore이며 이는 RTL의 recompilation 없이 low level SW library를 통해 reconfigure 될 수 있다.&lt;/li&gt;
+&lt;li&gt;Catapult Fabric은 Shell과 Role 두 파트로 나눌 수 있음 (상세사항은 책을 참조)
+&lt;ul&gt;
+&lt;li&gt;Shell : 모든 application에서 재사용 가능한 programmable logic (통신/off-chip 등의 인터페이스를 말하는 듯)&lt;/li&gt;
+&lt;li&gt;Roll : Application logic (그림을 보면 Softcore를 지칭하는 듯)&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;subnon-unified-memory-access-clustering&#34;&gt;SubNon-Unified Memory Access Clustering&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;플랫폼은 모든 코어/LLC를 반씩 + 메모리 컨트롤를 1개씩 가진 SNC 0,1 도메인을 가짐&lt;/li&gt;
-&lt;li&gt;각 도메인은 각 메모리 컨트롤러에 매핑되는 유니크한 LLC 주소를 가지며 이는 LLC access latency를 낮춤&lt;/li&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;cache-hierarchy-change&#34;&gt;Cache Hierarchy Change&lt;/h3&gt;
+&lt;h3 id=&#34;catapult-fabric-architecture&#34;&gt;Catapult Fabric Architecture&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;하기 그림과 같이 변경 LLC 및 MLC size 변경으로 hit rate 증가
-&lt;img src=&#34;https://www.intel.com/content/dam/develop/external/us/en/images/xeon-processor-scalable-family-tech-overview-fig11-737410.png&#34;
-	
-	
-	
+&lt;li&gt;Catapult Fabric은 Matrix-Vector Multiplier(MVM), MultiFunction Uint(MFU), Vector Arbitration Network로 구성
+&lt;ul&gt;
+&lt;li&gt;MVM : Matrix-Vector 및 Vector-Vector 연산 수행, PRF/VRF/MRF에 ifmap/fmap 저장&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;VAN : PRF/DRAM/IO-queue 간 데이터 전송 담당&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-3/3/02_The_Catapult_fabric_microarchitecture.png&#34;
+	width=&#34;568&#34;
+	height=&#34;543&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-3/3/02_The_Catapult_fabric_microarchitecture_hub0253fb48da88283ddf54bccb7267131_45778_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-3/3/02_The_Catapult_fabric_microarchitecture_hub0253fb48da88283ddf54bccb7267131_45778_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
-		alt=&#34;Generational cache comparison&#34;
 	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;104&#34;
+		data-flex-basis=&#34;251px&#34;
 	
-&gt;
-&lt;em&gt;Figure 11. Generational cache comparison&lt;/em&gt;&lt;/li&gt;
+&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;singlemultiple-socket-parallel-processing&#34;&gt;single/Multiple Socket Parallel Processing&lt;/h3&gt;
+&lt;h3 id=&#34;matrix-vector-multiplier&#34;&gt;Matrix-Vector Multiplier&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;UPI와 sub-NUMA의 지원으로 딥러닝 worker process들은 코어셋이나 싱글소켓, 다중소켓에 assign 될 수 있음&lt;/li&gt;
+&lt;li&gt;FP16을 MS-FP8/MS-FP-9으로 변환하여 연산(mantissa가 2~3bit)&lt;/li&gt;
+&lt;li&gt;input data는 VRF, filter weight는 MFR에 저장&lt;/li&gt;
+&lt;li&gt;3개의 tile engine과 3개의 accumulator에서 병렬 연산을 지원(상세내용을 책을 참조)&lt;/li&gt;
+&lt;li&gt;MVM의 출력은 MFU로 연결, MFU는 vector-vector operation, activation등을 수행&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;advanced-vector-software-extension&#34;&gt;Advanced vector software extension&lt;/h3&gt;
+&lt;h3 id=&#34;hierarchical-decode-and-dispatch-hdd&#34;&gt;Hierarchical Decode and Dispatch (HDD)&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;Intel Advanced Vector Extension 512(Intel AVX-512)가 Vector Neural Network Instruction(VNNI)를 지원하는 AVX-512)_VNNI로 발전&lt;/li&gt;
-&lt;li&gt;대충 더 빨라지고 8/16/32 FP vector 연산을 지원한다는 듯(자세한 사항은 책 참조)&lt;/li&gt;
+&lt;li&gt;Catapult Fabric은 전통적인 scalar processor(Single Instruction Single Data)를 채택&lt;/li&gt;
+&lt;li&gt;scheduler는 6개의 Decoder가 4-layer구조로 배치 (상세 내용은 책 참조)&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;math-kernel-library-for-deep-neural-networkmkl-dnn&#34;&gt;Math Kernel Library for Deep Neural Network(MKL-DNN)&lt;/h3&gt;
+&lt;h3 id=&#34;sparse-matrix-vector-multiplication-smvm&#34;&gt;Sparse Matrix-Vector Multiplication (SMVM)&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;Convolution, pooling, activation, batch normalization으로 구성된 최적화된 MKL-DNN 지원&lt;/li&gt;
-&lt;li&gt;key feature는 prefetching, data reuse, cache blocking, data layout, vectorization, register blocking이며 자세한 사항은 책 참조&lt;/li&gt;
+&lt;li&gt;SMVM을 위해 Condensed Interleaved Sparse Representation (CISR) encoding 사용
+&lt;ul&gt;
+&lt;li&gt;Compressed Sparse Raw (CSR) 포맷이 가변 row 길이로 인해 Parallel contorl이 어려움을 극복&lt;/li&gt;
+&lt;li&gt;첫 번째 0이 아닌 요소가 첫 번째 슬롯에 배치, 해당 열 인덱스는 인덱스 배열에서 동일한 순서로 배치, 행 요소가 모두 사용되면 다음 두 행 요소가 빈 슬롯에 할당, 이를 반복
+(상세 내용은 책 참조,사실 이해가 잘 안감)&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;nvidia-graphics-processing-unit-gpu&#34;&gt;NVIDIA Graphics Processing Unit (GPU)&lt;/h2&gt;
-&lt;h3 id=&#34;tensor-core-architecture&#34;&gt;Tensor Core Architecture&lt;/h3&gt;
-&lt;h3 id=&#34;winograd-transform&#34;&gt;Winograd Transform&lt;/h3&gt;
-&lt;h3 id=&#34;simultaneous-multithreading-smt&#34;&gt;Simultaneous Multithreading (SMT)&lt;/h3&gt;
-&lt;h3 id=&#34;high-bandwidth-memory-hbm2&#34;&gt;High Bandwidth Memory (HBM2)&lt;/h3&gt;
-&lt;h3 id=&#34;nvlink2-configuration&#34;&gt;NVLink2 Configuration&lt;/h3&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 </description>
         </item>
         

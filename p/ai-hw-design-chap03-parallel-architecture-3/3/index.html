@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='cuda, cudnn, conda, pytorch를 활용한 ML 개발 환경 설정'>
-<title>DL 개발환경 설정 (cuda, cudnn, conda, pytorch)</title>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Chapter 03 Parallel Architecture 요약 3nd'>
+<title>[AI HW Design] Chap03 Parallel Architecture (3/3)</title>
 
-<link rel='canonical' href='https://muonkmu.github.io/p/dl-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95-cuda-cudnn-conda-pytorch/'>
+<link rel='canonical' href='https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-3/3/'>
 
-<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='DL 개발환경 설정 (cuda, cudnn, conda, pytorch)'>
-<meta property='og:description' content='cuda, cudnn, conda, pytorch를 활용한 ML 개발 환경 설정'>
-<meta property='og:url' content='https://muonkmu.github.io/p/dl-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95-cuda-cudnn-conda-pytorch/'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[AI HW Design] Chap03 Parallel Architecture (3/3)'>
+<meta property='og:description' content='Chapter 03 Parallel Architecture 요약 3nd'>
+<meta property='og:url' content='https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-3/3/'>
 <meta property='og:site_name' content='MW Devlog'>
-<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='cuda' /><meta property='article:tag' content='pytorch' /><meta property='article:published_time' content='2023-01-13T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-01-13T00:00:00&#43;00:00'/>
-<meta name="twitter:title" content="DL 개발환경 설정 (cuda, cudnn, conda, pytorch)">
-<meta name="twitter:description" content="cuda, cudnn, conda, pytorch를 활용한 ML 개발 환경 설정">
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Brainwave' /><meta property='article:published_time' content='2023-01-13T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-01-13T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="[AI HW Design] Chap03 Parallel Architecture (3/3)">
+<meta name="twitter:description" content="Chapter 03 Parallel Architecture 요약 3nd">
     </head>
     <body class="
     article-page
@@ -240,18 +240,15 @@
         <div class="widget--toc">
             <nav id="TableOfContents">
   <ol>
-    <li><a href="#목적">목적</a></li>
-    <li><a href="#환경">환경</a></li>
-    <li><a href="#설치-절차">설치 절차</a>
+    <li><a href="#microsoft-catapult-fabric-accelerator">Microsoft Catapult Fabric Accelerator</a>
       <ol>
-        <li><a href="#nvidia-driver-설치">Nvidia Driver 설치</a></li>
-        <li><a href="#cuda-설치">cuda 설치</a></li>
-        <li><a href="#cudnn-설치">cudnn 설치</a></li>
-        <li><a href="#conda-설치">conda 설치</a></li>
-        <li><a href="#pytorch-설치">pytorch 설치</a></li>
+        <li><a href="#system-configuration">System Configuration</a></li>
+        <li><a href="#catapult-fabric-architecture">Catapult Fabric Architecture</a></li>
+        <li><a href="#matrix-vector-multiplier">Matrix-Vector Multiplier</a></li>
+        <li><a href="#hierarchical-decode-and-dispatch-hdd">Hierarchical Decode and Dispatch (HDD)</a></li>
+        <li><a href="#sparse-matrix-vector-multiplication-smvm">Sparse Matrix-Vector Multiplication (SMVM)</a></li>
       </ol>
     </li>
-    <li><a href="#설치-확인">설치 확인</a></li>
   </ol>
 </nav>
         </div>
@@ -270,8 +267,8 @@
     
     <header class="article-category">
         
-            <a href="/categories/devenv/" style="background-color: #C594C5; color: #fff;">
-                DevEnv
+            <a href="/categories/ai_hw_design/" style="background-color: #1554C5; color: #fff;">
+                AI_HW_Design
             </a>
         
     </header>
@@ -279,12 +276,12 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/p/dl-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95-cuda-cudnn-conda-pytorch/">DL 개발환경 설정 (cuda, cudnn, conda, pytorch)</a>
+            <a href="/p/ai-hw-design-chap03-parallel-architecture-3/3/">[AI HW Design] Chap03 Parallel Architecture (3/3)</a>
         </h2>
     
         
         <h3 class="article-subtitle">
-            cuda, cudnn, conda, pytorch를 활용한 ML 개발 환경 설정
+            Chapter 03 Parallel Architecture 요약 3nd
         </h3>
         
     </div>
@@ -335,210 +332,81 @@
     <section class="article-content">
     
     
-    <p>GPU를 이용하여 Deep learning 모델을 구성하고자 하였으나 다른 기술 블로그에서 기술한대로 수행하여도 동작이 되지 않는다.
-해당 공식 문서들을 참고하여 설치하는 법을 기술한다.</p>
-<h2 id="목적">목적</h2>
+    <p>본 챕터에서는 몇가지 주요한 Paralle Architecture에 대하여 소개한다.
+이 페이지에서는 Microsoft Catapult Fabric Accelerator에 대해서 기술한다.</p>
+<h2 id="microsoft-catapult-fabric-accelerator">Microsoft Catapult Fabric Accelerator</h2>
 <ul>
-<li>GPU 및 pytorch 기반 개발을 위한 PC 개발 환경 구성</li>
-<li>GPU 활용을 위해 nvidia driver, cuda, cudnn 설치와 conda 환경에서 pytorch를 설치하는 방법을 다룬다.</li>
+<li>마이크로소프트는 Brainwave Project를 CPU와 FPGA를 쓰는 형태로 변경</li>
+<li>48개의 FPGA가 2개의 Half rack (pod)에 그룹화되고 네트워크로 연결</li>
+<li>Brainwave는 train된 DNN 모델을 Catapult Fabric이라 불리는 synthesized softcore에 컴파일 후 narrow precision approach를 적용</li>
+<li>모델의 파라메터는 softcore 내 상주</li>
+<li><img src="/p/ai-hw-design-chap03-parallel-architecture-3/3/01_Microsoft_brainwave_cloud_architect.png"
+	width="951"
+	height="528"
+	srcset="/p/ai-hw-design-chap03-parallel-architecture-3/3/01_Microsoft_brainwave_cloud_architect_hu5005c84237c5c0d108925d87f29946ce_123068_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap03-parallel-architecture-3/3/01_Microsoft_brainwave_cloud_architect_hu5005c84237c5c0d108925d87f29946ce_123068_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="180"
+		data-flex-basis="432px"
+	
+></li>
 </ul>
-<h2 id="환경">환경</h2>
+<h3 id="system-configuration">System Configuration</h3>
 <ul>
-<li>OS : ubuntu 20.04 LTS</li>
-<li>GPU : nvidia 1080ti</li>
-<li>python 3.8.10 and GCC 9.4.0</li>
+<li>Catapult Fabric은 synthesized softcore이며 이는 RTL의 recompilation 없이 low level SW library를 통해 reconfigure 될 수 있다.</li>
+<li>Catapult Fabric은 Shell과 Role 두 파트로 나눌 수 있음 (상세사항은 책을 참조)
+<ul>
+<li>Shell : 모든 application에서 재사용 가능한 programmable logic (통신/off-chip 등의 인터페이스를 말하는 듯)</li>
+<li>Roll : Application logic (그림을 보면 Softcore를 지칭하는 듯)</li>
 </ul>
-<h2 id="설치-절차">설치 절차</h2>
-<p>우선 모듈의 dependency를 확인해야 한다. 현재 pytorch에서 우분투 20.04를 지원하는 플랫폼은 CUDA 11.7이므로 CUDA 11.7 버전과 이에 적합한 nvidia driver를 설치 해야한다.
-필요한 nvidia driver는 사실 cuda를 설치 해보면 dependency 체크를 하면서 필요한 버전을 알려준다.(더 좋은 방법이 있을지도)</p>
-<h3 id="nvidia-driver-설치">Nvidia Driver 설치</h3>
-<ol>
-<li>nvidia driver 설치 여부 및 현재 설치된 버전을 확인한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">nvidia-smi
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="2">
-<li>필요 시 기존의 nvidia driver를 삭제한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-get remove --purge <span class="s1">&#39;nvidia-.*&#39;</span>
-</span></span><span class="line"><span class="cl">sudo apt-get autoremove
-</span></span><span class="line"><span class="cl">sudo apt-get autoclean
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="3">
-<li>설치가능한 드라이버를 확인한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">ubuntu-drivers devices
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="4">
-<li>만약 필요한 드라이버 목록에서 없다면 저장소를 추가한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo add-apt-repository ppa:graphics-drivers/ppa
-</span></span><span class="line"><span class="cl">sudo apt update
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="5">
-<li>원하는 드라이버를 설치 후 재부팅 한다. 현재 저자의 환경에서는 5.25가 필요하므로 이 버전을 예로 설명한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt install nvidia-driver-525
-</span></span><span class="line"><span class="cl">sudo reboot
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="cuda-설치">cuda 설치</h3>
-<p>cuda 홈페이지에서 현재 내 설정에 맞는 runfile을 다운 가능하나 저자는 이상하게 설치가 안되었다.
-하기 페이지를 활용하여 네트워크 Repo에서 설치하자
-(<a class="link" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#prepare-ubuntu"  target="_blank" rel="noopener"
-    >https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#prepare-ubuntu</a>)</p>
-<ol>
-<li>Remove outdated signing key</li>
-<li>Install the new cuda-keyring package</li>
-<li>Install CUDA SDK</li>
-<li>reboot</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-key del 7fa2af80
-</span></span><span class="line"><span class="cl">wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb
-</span></span><span class="line"><span class="cl">sudo dpkg -i cuda-keyring_1.0-1_all.deb
-</span></span><span class="line"><span class="cl">sudo apt update
-</span></span><span class="line"><span class="cl">sudo apt-get install cuda-11-7
-</span></span><span class="line"><span class="cl">sudo reboot
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="5">
-<li>환경변수를 등록한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span>/usr/local/cuda-11.7/bin<span class="si">${</span><span class="nv">PATH</span><span class="p">:+:</span><span class="si">${</span><span class="nv">PATH</span><span class="si">}}</span>
-</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-11.7/lib64<span class="si">${</span><span class="nv">LD_LIBRARY_PATH</span><span class="p">:+:</span><span class="si">${</span><span class="nv">LD_LIBRARY_PATH</span><span class="si">}}</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="cudnn-설치">cudnn 설치</h3>
-<p>cudnn 역시 package 파일로 설치가 잘 안되서 tar 파일로 설치하였다.
-(<a class="link" href="https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html"  target="_blank" rel="noopener"
-    >https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html</a>)</p>
-<ol>
-<li>필요한 cudnn 라이브러리 tar를 cudnn 홈페이지에서 다운받는다.</li>
-<li>파일의 압축을 풀고 cuda 라이브러리에 파일을 복사한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tar -xvf cudnn-linux-x86_64-8.x.x.x_cudaX.Y-archive.tar.xz
-</span></span><span class="line"><span class="cl">sudo cp cudnn-*-archive/include/cudnn*.h /usr/local/cuda/include
-</span></span><span class="line"><span class="cl">sudo cp -P cudnn-*-archive/lib/libcudnn* /usr/local/cuda/lib64
-</span></span><span class="line"><span class="cl">sudo chmod a+r /usr/local/cuda/include/cudnn*.h /usr/local/cuda/lib64/libcudnn*
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="conda-설치">conda 설치</h3>
-<p>모듈들의 dependency 및 버전 관리를 위해 가상환경인 conda를 사용하기로 하였다.</p>
-<ol>
-<li>자신의 파이썬 환경에 맡는 miniconda 설치 파일을 받고 이를 실행한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Miniconda3-latest-Linux-x86_64.sh
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="2">
-<li>자신이 사용할 가상환경을 만들고 이를 실행한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">conda create -n <span class="o">{</span>my_env<span class="o">}</span>
-</span></span><span class="line"><span class="cl">conda activate <span class="o">{</span>my_env<span class="o">}</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ol start="3">
-<li>터미널 실행 시 자동으로 conda 환경이 실행되는 것을 막을려면 다음을 수행한다.</li>
-</ol>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">conda config --set auto_activate_base <span class="nb">false</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="pytorch-설치">pytorch 설치</h3>
-<p>conda 환경에서 pytorch 홈페이지를 참고하여 pytorch를 설치한다. 자신이 원하는 구성을 고르면 Run command를 알려준다.</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">conda install pytorch torchvision torchaudio pytorch-cuda<span class="o">=</span>11.7 -c pytorch -c nvidia
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h2 id="설치-확인">설치 확인</h2>
-<p>conda 환경에서 python을 터미널을 실행한 후 pytorch cuda 설정 사용 가능 여부가 <code>True</code>로 출력되면 정상</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
-</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">())</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div>
+</li>
+</ul>
+<h3 id="catapult-fabric-architecture">Catapult Fabric Architecture</h3>
+<ul>
+<li>Catapult Fabric은 Matrix-Vector Multiplier(MVM), MultiFunction Uint(MFU), Vector Arbitration Network로 구성
+<ul>
+<li>MVM : Matrix-Vector 및 Vector-Vector 연산 수행, PRF/VRF/MRF에 ifmap/fmap 저장</li>
+</ul>
+</li>
+<li>VAN : PRF/DRAM/IO-queue 간 데이터 전송 담당</li>
+<li><img src="/p/ai-hw-design-chap03-parallel-architecture-3/3/02_The_Catapult_fabric_microarchitecture.png"
+	width="568"
+	height="543"
+	srcset="/p/ai-hw-design-chap03-parallel-architecture-3/3/02_The_Catapult_fabric_microarchitecture_hub0253fb48da88283ddf54bccb7267131_45778_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap03-parallel-architecture-3/3/02_The_Catapult_fabric_microarchitecture_hub0253fb48da88283ddf54bccb7267131_45778_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="104"
+		data-flex-basis="251px"
+	
+></li>
+</ul>
+<h3 id="matrix-vector-multiplier">Matrix-Vector Multiplier</h3>
+<ul>
+<li>FP16을 MS-FP8/MS-FP-9으로 변환하여 연산(mantissa가 2~3bit)</li>
+<li>input data는 VRF, filter weight는 MFR에 저장</li>
+<li>3개의 tile engine과 3개의 accumulator에서 병렬 연산을 지원(상세내용을 책을 참조)</li>
+<li>MVM의 출력은 MFU로 연결, MFU는 vector-vector operation, activation등을 수행</li>
+</ul>
+<h3 id="hierarchical-decode-and-dispatch-hdd">Hierarchical Decode and Dispatch (HDD)</h3>
+<ul>
+<li>Catapult Fabric은 전통적인 scalar processor(Single Instruction Single Data)를 채택</li>
+<li>scheduler는 6개의 Decoder가 4-layer구조로 배치 (상세 내용은 책 참조)</li>
+</ul>
+<h3 id="sparse-matrix-vector-multiplication-smvm">Sparse Matrix-Vector Multiplication (SMVM)</h3>
+<ul>
+<li>SMVM을 위해 Condensed Interleaved Sparse Representation (CISR) encoding 사용
+<ul>
+<li>Compressed Sparse Raw (CSR) 포맷이 가변 row 길이로 인해 Parallel contorl이 어려움을 극복</li>
+<li>첫 번째 0이 아닌 요소가 첫 번째 슬롯에 배치, 해당 열 인덱스는 인덱스 배열에서 동일한 순서로 배치, 행 요소가 모두 사용되면 다음 두 행 요소가 빈 슬롯에 할당, 이를 반복
+(상세 내용은 책 참조,사실 이해가 잘 안감)</li>
+</ul>
+</li>
+</ul>
+
 </section>
 
 
@@ -546,9 +414,7 @@
     
     <section class="article-tags">
         
-            <a href="/tags/cuda/">cuda</a>
-        
-            <a href="/tags/pytorch/">pytorch</a>
+            <a href="/tags/brainwave/">Brainwave</a>
         
     </section>
 
@@ -582,12 +448,12 @@
             
                 
 <article class="">
-    <a href="/p/github-blog-%EB%A7%8C%EB%93%A4%EA%B8%B0/">
+    <a href="/p/ai-hw-design-chap03-parallel-architecture-2/3/">
         
         
 
         <div class="article-details">
-            <h2 class="article-title">Github blog 만들기</h2>
+            <h2 class="article-title">[AI HW Design] Chap03 Parallel Architecture (2/3)</h2>
         </div>
     </a>
 </article>
@@ -595,25 +461,12 @@
             
                 
 <article class="">
-    <a href="/p/ubuntu-20.04-%EA%B0%9C%EC%9D%B8-%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/">
+    <a href="/p/ai-hw-design-chap03-parallel-architecture-1/3/">
         
         
 
         <div class="article-details">
-            <h2 class="article-title">Ubuntu 20.04 개인 환경 설정</h2>
-        </div>
-    </a>
-</article>
-
-            
-                
-<article class="">
-    <a href="/p/%EC%9B%90%EA%B2%A9-%EA%B0%9C%EB%B0%9C-%EC%84%9C%EB%B2%84-%EA%B5%AC%EC%B6%95/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">원격 개발 서버 구축</h2>
+            <h2 class="article-title">[AI HW Design] Chap03 Parallel Architecture (1/3)</h2>
         </div>
     </a>
 </article>
