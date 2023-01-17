@@ -6,7 +6,15 @@
         <description>Recent content in Tags on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Fri, 13 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Mon, 16 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>YOLOv3_tiny</title>
+        <link>https://muonkmu.github.io/tags/yolov3_tiny/</link>
+        <pubDate>Mon, 16 Jan 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/yolov3_tiny/</guid>
+        <description></description>
+        </item>
+        <item>
         <title>Brainwave</title>
         <link>https://muonkmu.github.io/tags/brainwave/</link>
         <pubDate>Fri, 13 Jan 2023 00:00:00 +0000</pubDate>
