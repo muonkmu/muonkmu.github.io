@@ -6,18 +6,10 @@
         <description>Recent content in Categories on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Mon, 16 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>MW_prj_YOLO_acc</title>
-        <link>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</link>
-        <pubDate>Mon, 16 Jan 2023 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</guid>
-        <description>&lt;img src="https://muonkmu.github.io/categories/mw_prj_yolo_acc/yolo_design.jpg" alt="Featured image of post MW_prj_YOLO_acc" /&gt;</description>
-        </item>
-        <item>
+        <lastBuildDate>Sat, 28 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>AI_HW_Design</title>
         <link>https://muonkmu.github.io/categories/ai_hw_design/</link>
-        <pubDate>Fri, 13 Jan 2023 00:00:00 +0000</pubDate>
+        <pubDate>Sat, 28 Jan 2023 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/categories/ai_hw_design/</guid>
         <description>&lt;img src="https://muonkmu.github.io/categories/ai_hw_design/book_cover.png" alt="Featured image of post AI_HW_Design" /&gt;</description>
@@ -25,10 +17,18 @@
         <item>
         <title>DevEnv</title>
         <link>https://muonkmu.github.io/categories/devenv/</link>
-        <pubDate>Fri, 13 Jan 2023 00:00:00 +0000</pubDate>
+        <pubDate>Fri, 20 Jan 2023 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/categories/devenv/</guid>
         <description>&lt;img src="https://muonkmu.github.io/categories/devenv/dev-env.jpeg" alt="Featured image of post DevEnv" /&gt;</description>
+        </item>
+        <item>
+        <title>MW_prj_YOLO_acc</title>
+        <link>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</link>
+        <pubDate>Mon, 16 Jan 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</guid>
+        <description>&lt;img src="https://muonkmu.github.io/categories/mw_prj_yolo_acc/yolo_design.jpg" alt="Featured image of post MW_prj_YOLO_acc" /&gt;</description>
         </item>
         <item>
         <title>Coursera_CNN</title>

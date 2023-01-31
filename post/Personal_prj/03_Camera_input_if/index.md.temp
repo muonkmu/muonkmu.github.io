@@ -1,0 +1,24 @@
++++
+author = "Minwook Kim"
+title = "[MW_project] Camera Input Interface 구성"
+date = "2023-01-18"
+description = "ZCU104 와 e-con’s See3CAM_CU30 camera interface 구성 방안 요약"
+tags = [
+    "USB camera",
+]
+categories = [
+    "MW_prj_YOLO_acc",
+]
++++
+
+Target Board는 현재 소유하고 있는 ZCU104를 사용하기로 하고 EVB의 번들 카메라인 See3CAM_CU30를 사용하기로 하였다.
+선정 사유는 역시 Reference를 구하기 쉽다는것에 있다.
+상기 ZCU104 + See3CAM_CU30의 reference design은 xilinx Embedded Design Tutorial의 `ZCU104 Single Sensor`에서 확인할 수 있다.
+
+
+## 참고 자료
+- https://github.com/Xilinx/Embedded-Reference-Platforms-User-Guide/tree/2019.2
+- https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/index.html
+- https://github.com/Xilinx/Vitis-Tutorials
+- https://www.e-consystems.com/blog/camera/products/getting-started-with-xilinx-zynq-ultrascale-mpsoc-zcu104-evaluation-kit-and-see3cam_cu30_chl_tc_bx/
+- https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/2322268161/Zynq+UltraScale+MPSoC+VCU+TRD+2022.1

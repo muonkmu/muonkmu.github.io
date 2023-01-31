@@ -6,7 +6,169 @@
         <description>Recent content in AI_HW_Design on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Fri, 13 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/ai_hw_design/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sat, 28 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/ai_hw_design/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[AI HW Design] Chap04 Streaming Graph Theory (2/2)</title>
+        <link>https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-2/2/</link>
+        <pubDate>Sat, 28 Jan 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-2/2/</guid>
+        <description>&lt;p&gt;본 챕터에서는 graph-based deep-learnig accelerator 중 Graphcore IPU에 대해 알아본다.
+Graphcore IPU는 Microsoft와 Dell의 차세대 데이터 센터 딥러닝 가속기로 선정되었다.&lt;/p&gt;
+&lt;h2 id=&#34;graphcore-intelligence-processing-unitipu&#34;&gt;Graphcore Intelligence Processing Unit(IPU)&lt;/h2&gt;
+&lt;p&gt;Graphcore IPU는 fine-grained operation을 수행하기 위하여 graph theory를 적용하며 MIMD paralleism을 제공&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Fine-Grained : 하나의 작업을 작은 단위의 프로세스로 나눈 뒤 다수의 호출을 통해, 작업 결과를 생성해내는 방식, 반대말은 Coarse-Grained.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;intelligence-processor-unit-architecture&#34;&gt;Intelligence Processor Unit Architecture&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;IPU는 tiles라 불리는 1216 PE로 구성&lt;/li&gt;
+&lt;li&gt;PE는 256kb local memory를 가지며 레지스터 파일을 제외한 추가 memory storage를 가지지 않음&lt;/li&gt;
+&lt;li&gt;tiles 간 IPU Exchange라 불리는 on-chip interconnect로 연결되어 있으며 IPU간 연결을 위한 IPU link를 제공&lt;/li&gt;
+&lt;li&gt;IPU는 6개의 개별 processing thread를 제공하며 각 thread는 별개의 instruction과 excution flow를 제공&lt;/li&gt;
+&lt;li&gt;각 tile은 static round-robin schedule에 따라 thread 들을 순환한다.&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-2/2/01_IPU_architecture.png&#34;
+	width=&#34;617&#34;
+	height=&#34;989&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-2/2/01_IPU_architecture_huc029ac9d4313a641df7f4585440b0aa8_991509_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-2/2/01_IPU_architecture_huc029ac9d4313a641df7f4585440b0aa8_991509_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Intelligence processing unit architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;62&#34;
+		data-flex-basis=&#34;149px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;accumulating-matrix-product-amp-unit&#34;&gt;Accumulating Matrix Product (AMP) Unit&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;IPU는 pipelined structure AMP를 채택, AMP는 64bit mix-precison 또는 16bit single-point 연산을 클럭 사이클 마다 수행 가능
+&lt;ul&gt;
+&lt;li&gt;mix-precison : 훈련 중에 모델에서 16-bit 및 32-bit 부동 소수점 유형을 모두 사용하여 더 빠르게 실행하고 메모리를 적게 사용하는 것, 모델의 특정 부분을 32-bit 유형으로 유지&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;memory-architecture&#34;&gt;Memory Architecture&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;PE 당 256kb local memory를 가지며 IPU는 총 304Mb 메모리를 가짐&lt;/li&gt;
+&lt;li&gt;각 tile은 21bit address space를 가지며 6개의 execution unit과 이를 공유함&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;interconnect-architecture&#34;&gt;Interconnect Architecture&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;IPU 간 연결은 IPU link를 사용하며 2개 IPU 연결은 3개의 IPU link를 사용 (65Gb/s)&lt;/li&gt;
+&lt;li&gt;Host완s PCIE-4로 연결&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;bulk-synchronous-parallel-bsp-model&#34;&gt;Bulk Synchronous Parallel (BSP) Model&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;IPU operation은 BSP 모델을 기반으로 하며, BSP 모델은 아래 3개의 Phase Operation으로 구분된다.
+&lt;ul&gt;
+&lt;li&gt;Computation Phase : 모든 프로세서가 로컬 메모리로 computation을 수행하며 프로세서간 어떤 통신도 없다.&lt;/li&gt;
+&lt;li&gt;Communication Phase : 각 프로세서는 정보를 교환하며 어떤 computation도 없다.&lt;/li&gt;
+&lt;li&gt;Barrier Synchronization : 모든 프로세서는 computation이나 communication 없이 모든 프로세서가 barrier에 도달할 때까지 대기한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;IPU는 computation이 시작되기 전에 instruction이 코어로 전송되는 BSP 모델을 실행한다. core는 computation을 수행하고 이가 끝난 뒤 다른 코어와 communication을 수행한다. 그후 모든 코어는 동기화를 수행한다.&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-2/2/02_IPU_BSP_model.png&#34;
+	width=&#34;611&#34;
+	height=&#34;307&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-2/2/02_IPU_BSP_model_hu0e2373d75f221ade042503bd4543a98b_34792_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-2/2/02_IPU_BSP_model_hu0e2373d75f221ade042503bd4543a98b_34792_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;IPU BSP model&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;199&#34;
+		data-flex-basis=&#34;477px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;결론&#34;&gt;결론&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Blaize GSP와 Graphcore IPU는 분산 프로세서를 통해 거대 parallel operation을 처리할 수 있기에 Cloud-base application에 좋은 솔루션이다.&lt;/li&gt;
+&lt;li&gt;그러나 이들은 power/area 문제로 임베디드 추론 application에는 적합하지 않다.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>[AI HW Design] Chap04 Streaming Graph Theory (1/2)</title>
+        <link>https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-1/2/</link>
+        <pubDate>Fri, 27 Jan 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-1/2/</guid>
+        <description>&lt;p&gt;본 챕터에서는 graph-based deep-learnig accelerator에 대해 공부한다 (Blaize GSP, Graphcore IPU).
+이들은 Mutiple Instructions Multiple Data(MIMD) 처럼 동작한다.&lt;/p&gt;
+&lt;h2 id=&#34;blaize-graph-streaming-processorgsp&#34;&gt;Blaize Graph Streaming Processor(GSP)&lt;/h2&gt;
+&lt;p&gt;무언가 칩에 대한 설명보단 Graph Streaming 기본 이론에 대한 내용이 주를 이룬다.&lt;/p&gt;
+&lt;h3 id=&#34;stream-graph-model&#34;&gt;Stream Graph Model&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Stream Graph는 네트워크 트래픽, 데이터베이스 등에 널리 쓰이는 모델로 dynamic stream data를 처리하기 위해 data stream model(TCS)을 사용
+&lt;ul&gt;
+&lt;li&gt;거대 그래프 스트리밍 Transit(T), 큰 데이터 처리 Compute(C), 일시/롱텀 데이터 저장 Store(S)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Turnstile 모델이 TCS모델 중에서 데이터 출발/도착과 같은 data behavior을 가장 잘 표현하며 task scheduling에 사용.&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-1/2/01_Data_streaming_TCS_Model.png&#34;
+	width=&#34;317&#34;
+	height=&#34;483&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-1/2/01_Data_streaming_TCS_Model_hud047163813c097f2344ae308b4f685e4_77661_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-1/2/01_Data_streaming_TCS_Model_hud047163813c097f2344ae308b4f685e4_77661_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Data streaming TCS Model&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;65&#34;
+		data-flex-basis=&#34;157px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;depth-first-scheduling-approach&#34;&gt;Depth First Scheduling Approach&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Blaize GSP는 뉴럴넷모델을 Direct Acyclic Graph(DAG) format (V,E)로 변환
+&lt;ul&gt;
+&lt;li&gt;V는 PE vertex, E는 PE간 weighted connection을 위한 edge&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;scheduling을 위해 Depth First Scheduling (DFS)를 사용하며 dynamic graph excution을 가능하게 하고 sparse/conditional graph를 지원한다. (dfs 설명은 유명하니 생략)&lt;/li&gt;
+&lt;li&gt;GSP는 4가지 Parallelism을 달성했다. 자세한 설명은 책 참조
+&lt;ul&gt;
+&lt;li&gt;Task parallelism, Thread parallelism, Data parallelism, Instructon parallelism&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;graph-streaming-processor-architecture&#34;&gt;Graph Streaming Processor Architecture&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;GSP는 다음 그림과 같은 구조로 되어 있음&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-1/2/02_Blaize_GSP_architecture.png&#34;
+	width=&#34;617&#34;
+	height=&#34;183&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-1/2/02_Blaize_GSP_architecture_hub0e573f6ff23a6411796e6d052794dc5_16408_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-1/2/02_Blaize_GSP_architecture_hub0e573f6ff23a6411796e6d052794dc5_16408_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Blaize GSP architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;337&#34;
+		data-flex-basis=&#34;809px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;li&gt;Streaming Processing은 Sequential Processing에 비해 하기와 같은 장점이 있음 (책에 두가지 방법에 대해 비교 그림있음)
+&lt;ul&gt;
+&lt;li&gt;Small intermediate buffer for local processing&lt;/li&gt;
+&lt;li&gt;Cached data is easily supported&lt;/li&gt;
+&lt;li&gt;Memory bandwidth is reduced to improve the performance with less power&lt;/li&gt;
+&lt;li&gt;Support both task and data-parallel processing&lt;/li&gt;
+&lt;li&gt;Data is sent to the next node when it is ready&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;GSP는 opeartion을 데이터가 준비되는 즉시 기다리지 않고 수행하도록 스케줄링 함으로써 성능을 향상시키고 메모리 access를 감소시킴&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>[AI HW Design] Chap03 Parallel Architecture (3/3)</title>
         <link>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-3/3/</link>
         <pubDate>Fri, 13 Jan 2023 00:00:00 +0000</pubDate>

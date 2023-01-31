@@ -6,7 +6,31 @@
         <description>Recent content in Tags on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Mon, 16 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sat, 28 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Graphcore IPU</title>
+        <link>https://muonkmu.github.io/tags/graphcore-ipu/</link>
+        <pubDate>Sat, 28 Jan 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/graphcore-ipu/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Blaize GSP</title>
+        <link>https://muonkmu.github.io/tags/blaize-gsp/</link>
+        <pubDate>Fri, 27 Jan 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/blaize-gsp/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>ubuntu</title>
+        <link>https://muonkmu.github.io/tags/ubuntu/</link>
+        <pubDate>Fri, 20 Jan 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/ubuntu/</guid>
+        <description></description>
+        </item>
+        <item>
         <title>YOLOv3_tiny</title>
         <link>https://muonkmu.github.io/tags/yolov3_tiny/</link>
         <pubDate>Mon, 16 Jan 2023 00:00:00 +0000</pubDate>
@@ -148,14 +172,6 @@
         <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/tags/oracle-cloud/</guid>
-        <description></description>
-        </item>
-        <item>
-        <title>ubuntu</title>
-        <link>https://muonkmu.github.io/tags/ubuntu/</link>
-        <pubDate>Mon, 12 Dec 2022 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/tags/ubuntu/</guid>
         <description></description>
         </item>
         

@@ -86,7 +86,7 @@
 현재 개발되어 있는 기반 설계 및 IP가 전무하기에 PPA 보다는 빠른 구현에 목표를 둔다.&lt;/p&gt;
 &lt;h2 id=&#34;spec-tbd&#34;&gt;SPEC (TBD)&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;target B/D : ZCU104 or zedboard&lt;/li&gt;
+&lt;li&gt;target B/D : ZCU104&lt;/li&gt;
 &lt;li&gt;input : Full HD camera (interface MIPI or USB 중 쉬운거)&lt;/li&gt;
 &lt;li&gt;output : real time image showing a bounding box (interface HDMI)&lt;/li&gt;
 &lt;li&gt;Algorithm : YOLO v3 Tiny (이를 선택한 특별한 이유는 없고 reference 구하기 쉽고 간단해서 이다)&lt;/li&gt;

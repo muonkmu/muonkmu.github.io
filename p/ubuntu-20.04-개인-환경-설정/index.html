@@ -249,6 +249,7 @@
         <li><a href="#vnc-설치">VNC 설치</a></li>
         <li><a href="#ssh-설치">SSH 설치</a></li>
         <li><a href="#zshom-my-zsh-설치-및-설정">ZSH/om-my-zsh 설치 및 설정</a></li>
+        <li><a href="#option-tfpt-설치">(option) TFPT 설치</a></li>
       </ol>
     </li>
   </ol>
@@ -319,7 +320,7 @@
 
 
                 <time class="article-time--reading">
-                    2 minute read
+                    3 minute read
                 </time>
             </div>
         
@@ -668,6 +669,65 @@
 </span></span><span class="line"><span class="cl"><span class="o">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
+</div><h3 id="option-tfpt-설치">(option) TFPT 설치</h3>
+<p>xilinx petalinux를 사용할 생각이라면 tftp 설치가 필요하다</p>
+<ol>
+<li>tftp 설치</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-get update
+</span></span><span class="line"><span class="cl">sudo apt-get install tftpd-hpa
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>서비스 확인</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo service tftpd-hpa status
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>설정 파일 <code>/etc/default/tftpd-hpa</code> 를 원하는 대로 수정한다.
+<ul>
+<li>다른 것은 크게 의미가 없고 up/down 위치인 <code>TFTP_DIRECTORY</code> 정도만 수정</li>
+<li>수정 후 디렉토리 권한 설정을 해준다.</li>
+</ul>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">vim /etc/default/tftpd-hpa
+</span></span><span class="line"><span class="cl">sudo mkdir <span class="o">{</span>tftp-dir<span class="o">}</span>
+</span></span><span class="line"><span class="cl">sudo chmod <span class="m">777</span> <span class="o">{</span>tftp-dir<span class="o">}</span>
+</span></span><span class="line"><span class="cl">sudo chown -R tftp:tftp <span class="o">{</span>tftp-dir<span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>설정 완료 후 재시작</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo service tftpd-hpa restart
+</span></span></code></pre></td></tr></table>
+</div>
 </div>
 </section>
 
@@ -707,6 +767,19 @@
     <h2 class="section-title">Related content</h2>
     <div class="related-content">
         <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/git-%EC%82%AC%EC%9A%A9-tip-%EC%A0%95%EB%A6%AC/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">git 사용 tip 정리</h2>
+        </div>
+    </a>
+</article>
+
             
                 
 <article class="">
