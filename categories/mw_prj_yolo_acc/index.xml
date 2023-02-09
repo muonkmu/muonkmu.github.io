@@ -6,7 +6,386 @@
         <description>Recent content in MW_prj_YOLO_acc on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Mon, 16 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/mw_prj_yolo_acc/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Wed, 08 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/mw_prj_yolo_acc/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[MW_project] Camera Input Interface 구성</title>
+        <link>https://muonkmu.github.io/p/mw_project-camera-input-interface-%EA%B5%AC%EC%84%B1/</link>
+        <pubDate>Wed, 08 Feb 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/mw_project-camera-input-interface-%EA%B5%AC%EC%84%B1/</guid>
+        <description>&lt;p&gt;Target Board는 현재 소유하고 있는 ZCU104를 사용하기로 하고 EVB의 번들 카메라인 See3CAM_CU30를 사용하기로 하였다.
+선정 사유는 역시 Reference를 구하기 쉽다는것에 있다.
+상기 ZCU104 + See3CAM_CU30의 reference design은 xilinx의 Embedded-Reference-Platforms 또는 Zynq-UltraScale-MPSoC-VCU-TRD-2022.1에서 확인할 수 있으나 필자는 봐도 어떻게 구성되어 있는지 잘 모르겠다&amp;hellip;&lt;/p&gt;
+&lt;h2 id=&#34;기본-지식&#34;&gt;기본 지식&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;See3CAM_CU30은 USB3.0 카메라이므로 리눅스에서 &lt;code&gt;Usb Video Clss (UVC)&lt;/code&gt;를 gadget을 사용하여 연결한다.
+&lt;ul&gt;
+&lt;li&gt;UVC : 웹캠이나 캠코더 같은 비디오 스트리밍이 가능한 장치를 기술하는 USB device class&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Video4Linux2(v4l2) 비디오 캡쳐 시스템을 위한 디바이스 드라이버의 모음이자 표준 API
+&lt;ul&gt;
+&lt;li&gt;MIPI/USB camera 카메라등을 지원하는 것으로 봐선 UVC 위에서 표준 추상화 계층을 제공하는 것 같다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;petalinux-config&#34;&gt;petalinux config&lt;/h2&gt;
+&lt;p&gt;이전 포스트인 &lt;code&gt;zcu104 개발환경 설정&lt;/code&gt;에서 다음 드라이버 및 프로그램을 설치한다.&lt;/p&gt;
+&lt;h3 id=&#34;kernel&#34;&gt;kernel&lt;/h3&gt;
+&lt;p&gt;커널은 &lt;code&gt;USB gadget driver, web camera/video driver, xilinx DRM KMS driver(향후사용?), frame buffer driver(향후사용?) 필요하다. BSP를 사용했다면 거의 바꿀 것 없지만 &lt;/code&gt;petalinux-config -c kernel`로 다음 기능을 확인하자.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_MEDIA_CAMERA_SUPPORT
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_MEDIA_CONTROLLER
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_VIDEO_V4L2_SUBDEV_API
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_VIDEO_ADV_DEBUG
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_MEDIA_USB_SUPPORT
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_USB_VIDEO_CLASS
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_USB_VIDEO_CLASS_INPUT_EVDEV
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_V4L_PLATFORM_DRIVERS
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_VIDEO_XILINX 및 그 외
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_DRM_XLNX 및 그 외 (필요한지??)
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_USB 및 기타 가젯 필요한거
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_USB_GADGET_XILINX
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_USB_CONFIGFS 및 그외 (필요한지 잘 모르겠음)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;rootfs&#34;&gt;RootFS&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;petalinux-config -c rootfs&lt;/code&gt; RootFS에는 gstreamer/opencv/x11/v4lutil 패키지그룹, gstreamer 라이브러리, vim, python3 등을 설치한다.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_packagegroup-petalinux-gstreamer
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_packagegroup-petalinux-opencv
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_packagegroup-petalinux-x11
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_packagegroup-petalinux-v4lutils
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_vim
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_python3
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_python3-shell (?)
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_python3-threading (?)
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_python3-multiprocessing (?)
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_gstreamer1.0
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_gstreamer1.0-plugins-base
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;CONFIG_gstreamer1.0-plugins-good
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;카메라-테스트&#34;&gt;카메라 테스트&lt;/h2&gt;
+&lt;p&gt;상기 설정으로 빌드 및 부팅 후 USB 캠을 연결한다. 그 후 아래 명령어로 카메라의 정보를 확인 할 수 있다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;v4l2-ctl --list-devices&lt;/code&gt; : 연결된 디바이스 확인&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;v4l2-ctl -d ${디바이스번호} --all&lt;/code&gt; : 카메라 capability 등 모든 정보의 출력&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;v4l2-ctl -d ${디바이스번호} --list-formats-ext&lt;/code&gt; : 지원하는 포멧 확인&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;python과 opencv를 이용해서 카메라의 영상을 캡쳐해보자&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;os&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;cv2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;time&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;capture&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cv2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;VideoCapture&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;time&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sleep&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mf&#34;&gt;0.1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;success&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;reference&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;capture&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;read&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;cv2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;imwrite&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;${이미지 저장 경로}/${저장 이름}&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;reference&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;capture&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;release&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;cv2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;destroyAllWindows&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;참고-자료&#34;&gt;참고 자료&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/Xilinx/Embedded-Reference-Platforms-User-Guide/tree/2019.2&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://github.com/Xilinx/Embedded-Reference-Platforms-User-Guide/tree/2019.2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/2322268161/Zynq&amp;#43;UltraScale&amp;#43;MPSoC&amp;#43;VCU&amp;#43;TRD&amp;#43;2022.1&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/2322268161/Zynq+UltraScale+MPSoC+VCU+TRD+2022.1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.hackster.io/whitney-knitter/using-a-usb-web-camera-with-the-minized-5783b1&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.hackster.io/whitney-knitter/using-a-usb-web-camera-with-the-minized-5783b1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.e-consystems.com/blog/camera/products/getting-started-with-xilinx-zynq-ultrascale-mpsoc-zcu104-evaluation-kit-and-see3cam_cu30_chl_tc_bx/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.e-consystems.com/blog/camera/products/getting-started-with-xilinx-zynq-ultrascale-mpsoc-zcu104-evaluation-kit-and-see3cam_cu30_chl_tc_bx/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://m.blog.naver.com/overcrash3/120105061216?referrerCode=1&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://m.blog.naver.com/overcrash3/120105061216?referrerCode=1&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>[MW_project] zcu104 개발환경 설정</title>
+        <link>https://muonkmu.github.io/p/mw_project-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/</link>
+        <pubDate>Fri, 03 Feb 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/mw_project-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/</guid>
+        <description>&lt;p&gt;zcu104 petalinux를 포팅하기 위한 일주일 간 삽질의 기록이다.
+xilinx에서 제공하는 training reference를 따라하면 간단하지만 이는 SD카드에 커널과 루트파일 시스템을 삽입하는 방법이다.
+실제 개발의 편의성을 위해 TFTP 및 NFS를 이용하여 부팅하는 방법을 다룬다.&lt;/p&gt;
+&lt;h2 id=&#34;목표&#34;&gt;목표&lt;/h2&gt;
+&lt;p&gt;하기 boot config를 지원하는 petalinux의 포팅 방법 설명 (vivado/petalinux 2022.1 기반)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;jtag로 u-boot까지 다운로드 및 부팅 -&amp;gt; u-boot에서 tftp/pxe로 리눅스 kernel 및 device-tree 로드 명령-&amp;gt; 커널에 의한 NFS로 RootFS 로드&lt;/li&gt;
+&lt;li&gt;SD카드로 u-boot까지 다운로드 및 부팅 -&amp;gt; u-boot에서 tftp/pxe로 리눅스 kernel 및 device-tree 로드 명령-&amp;gt; 커널에 의한 NFS로 RootFS 로드&lt;/li&gt;
+&lt;li&gt;SD카드로 u-boot, 리눅스 kernel, device-tree 로드 -&amp;gt; 커널에 의한 NFS로 RootFS 로드&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;hardware-description-config&#34;&gt;Hardware description config&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;우선 베이스 프로젝트는 리눅스 포팅이 목적이므로 PS영역만 셋업한다.&lt;/li&gt;
+&lt;li&gt;xilinx에서 제공하는 training reference를 그대로 따라해도 무방하다.
+(&lt;a class=&#34;link&#34; href=&#34;https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/docs/Introduction/ZynqMPSoC-EDT/3-system-configuration.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/docs/Introduction/ZynqMPSoC-EDT/3-system-configuration.html&lt;/a&gt;)&lt;/li&gt;
+&lt;li&gt;zcu104_bsp에 사용되는 hw config을 보고 싶다면 후에 기술할 bsp에 기반한 petalinux 프로젝트 hardware 폴더에 관련 프로젝트가 들어있다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;vivado-project-follow&#34;&gt;vivado project follow&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;vivado에서 zcu104보드 프로젝트를 만든다.
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;Project is an extensible Vitis platform&lt;/code&gt; 은 vitis에서 xrt 라이브러리 등을 사용할 때 필요하다. 현 프로젝트에서는 미선택&lt;/li&gt;
+&lt;li&gt;board 세팅에서 ZCU104를 선택&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;create block design&lt;/code&gt;을 선택하여 디자인 블럭 생성&lt;/li&gt;
+&lt;li&gt;zynq_mpsoc ip 를 추가하고 borad preset을 적용한다.&lt;/li&gt;
+&lt;li&gt;지금은 PL 영역이 필요없으로 AXI_HPM/HP 포트를 미사용으로 설정&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Validate Design&lt;/code&gt; 으로 디자인 검증 후 &lt;code&gt;Create HDL Wrapper&lt;/code&gt; 로 래퍼를 생성한다.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Generate Block Design&lt;/code&gt;을 실행 후 &lt;code&gt;bit stream (*.bit)&lt;/code&gt; 을 생성한다.
+&lt;ul&gt;
+&lt;li&gt;현재는 pl 영역의 디자인이 없으므로 bit-stream을 생성하지 않아도 무관한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Export Hardware&lt;/code&gt;로 xsa 파일을 생성한다.
+&lt;ul&gt;
+&lt;li&gt;현재는 pl부분의 디자인이 없으므로 bit-stream을 포함하지 않아도 되며 포함하여도 상관없다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;petalinux-porting&#34;&gt;Petalinux porting&lt;/h2&gt;
+&lt;h3 id=&#34;project-create&#34;&gt;project create&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;처음에는 기초부터 시작하고자 base template 프로젝트로 시작하였지만 포팅 시 부팅이 잘 안되었다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-create -t project --name &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;프로젝트 이름&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt; --template zynqMP
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-config --get-hw-description&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;xsa&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;파일&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt; --silentconfig
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;그래서 xilinx에서 제공하는 bsp 기반으로 프로젝트를 만들었다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-create -t project --name &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;프로젝트 이름&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt; -s &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;bsp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;파일&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-config --get-hw-description&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;xsa&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;파일&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt; --silentconfig
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;위의 두 프로젝트의 폴더/파일을 비교해보면 BSP를 위해 커널등이 어떻게 설정되어 있는지 알 수 있다.&lt;/li&gt;
+&lt;li&gt;bsp 기반으로 만들어진 프로젝트의 경우 &lt;code&gt;README&lt;/code&gt;에 BSP가 어떤 설정을 가지고 만들어져 있는지 나와 있다. 위의 기본 템플릿 프로젝트와 파일과 비교해서 보면 몇가지 설정에 대한 설명이 누락되었음을 알 수 있다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;tftp-boot-config&#34;&gt;tftp boot config&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;이전 post인 ubuntu 환경 설정을 내용을 참고하여 host에 tftp 서버를 설정한다.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;petalinux-config&lt;/code&gt; 명령을 실행하여 &lt;code&gt;Image Packaging Configuration &amp;gt; Copy final images to tftpboot&lt;/code&gt;에 host tftp서버 폴더를 지정한다.&lt;/li&gt;
+&lt;li&gt;만약 향후에 RootFS를 INITRAMFS으로 할려고 할 시 built-in FIT image를 위한 임시 ram 사이즈가 작아서 부팅 시 &amp;ldquo;There&amp;rsquo;s no &amp;lsquo;/dev&amp;rsquo; on rootfs&amp;rdquo; 에러가 난다. 이럴 경우 &lt;code&gt;petalinux-config&lt;/code&gt;의  &lt;code&gt;Image packaging configuration &amp;gt; INITRAMFS/INITRD Image name&lt;/code&gt; 을 &lt;code&gt;petalinux-image-minimal&lt;/code&gt;로 변경 한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;nfs-rootfs-config&#34;&gt;NFS rootFS config&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;이전 post인 ubuntu 환경 설정을 내용을 참고하여 host에 NFS 서버를 설정한다.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;petalinux-config&lt;/code&gt; 명령을 실행하여 &lt;code&gt;Image Packaging Configuration&lt;/code&gt; 에서 하기 내역을 설정
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;Root File System Type&lt;/code&gt;에서 NFS를 선택&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Location of NFS root directory&lt;/code&gt;에 host nfs 폴더를 지정&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;NFS Server IP address&lt;/code&gt; 에서 host ip를 지정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;petalinux-config -c kernel&lt;/code&gt;에서 하기 내역이 설정 되어 있는지 확인
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;Networking support &amp;gt; IP: kernel level configuration&lt;/code&gt; 의 IP:DHCP support, IP:BOOTP support, IP:RARP support&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;File systems &amp;gt; Network file systems &amp;gt; Root file systems&lt;/code&gt;의 NFS 체크&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;상기 내역까지가 매뉴얼의 내용인데 적용해보면 nfs 버전 문제로 nfs RootFS가 마운트 되지 않는다. &lt;code&gt;bootargs&lt;/code&gt;에서 nfs version을 3으로 변경한다.
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;petalinux-config&lt;/code&gt;에서 &lt;code&gt;DTG Setting &amp;gt; Kernel Bootargs &amp;gt; generate boot args automatically&lt;/code&gt;를 해제 (해제하기전에 설정되어 있는 bootargs를 copy)&lt;/li&gt;
+&lt;li&gt;위에 복사한 것을 bootargs를 작성하는 란에 붙여넣고 nfsroot부분에 nfsvers=3 추가&lt;/li&gt;
+&lt;li&gt;ex) &lt;code&gt; earlycon console=ttyPS0,115200 clk_ignore_unused root=/dev/nfs nfsroot=192.168.1.30:/home/minwook/xlx_nfsrfs,tcp,nfsvers=3 ip=dhcp rw&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;mac-설정&#34;&gt;MAC 설정&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;u-boot 부팅 시 마다 아이피가 달라지지 않도록 MAC를 설정한다.
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;petalinux-config&lt;/code&gt; 명령의 &lt;code&gt;Subsystem AUTO Hardware Setting &amp;gt; Ethernet Setting &amp;gt; Ethernet MAC address&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;사실 zcu104의 맥 주소는 부팅 시 eeprom에서 읽어 온다는데 u-boot에서는 안되는 것 같다(사실 잘 모르겠다.)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;build-및-부팅-준비&#34;&gt;build 및 부팅 준비&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;u-boot 및 커널 등을 빌드한다.&lt;/li&gt;
+&lt;li&gt;jtag로 부팅 시키기 위해서는 pre-built 폴더에 이미지들이 준비되어 있어야 한다. &lt;code&gt;petalinux-package&lt;/code&gt;를 이용해 준비하자.&lt;/li&gt;
+&lt;li&gt;host의 NFS 서버 폴더에 RootFS를 압축 해제 시켜 NFS 부팅을 준비한다.&lt;/li&gt;
+&lt;li&gt;향후 SD 카드 등에 부트로더/부트 스크립트를 복사할 경우를 대비하여 부팅이미지를 생성하자.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-build
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-package --prebuilt
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; images/linux
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;tar -xzf rootfs.tar.gz -C &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;NFS&lt;/span&gt;&lt;span class=&#34;p&#34;&gt; 서버 폴더&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-package --boot --fsbl zynqmp_fsbl.elf --fpga system.bit --pmufw pmufw.elf --atf bl31.elf --u-boot u-boot.elf
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ol start=&#34;5&#34;&gt;
+&lt;li&gt;빌드가 정상적으로 완료되면 이전에 지정한 host의 tftp 폴더에 build된 image들이 자동으로 복사된다.
+&lt;ul&gt;
+&lt;li&gt;향후 u-boot에서 tftp로 커널 등을 로드할 때 tftp 서버의 &lt;code&gt;pxelinux.cfg&lt;/code&gt; 폴더 내 어떤 이미지를 로드할 것인지에 대한 설정을 파일에서 읽어온다.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;pxelinux.cfg&lt;/code&gt; 폴더의 &lt;code&gt;default&lt;/code&gt; 파일을 보면 tftp 서버에서 kernel, dtb, RootFS를 로드한다는 것을 알 수 있다.&lt;/li&gt;
+&lt;li&gt;우리는 NFS에서 RootFS를 로드 할 예정이므로 &lt;code&gt;default&lt;/code&gt; 파일의 RootFS 로딩 스크립트 부분을 삭제한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;크로스-컴파일-환경-설정&#34;&gt;크로스 컴파일 환경 설정&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;향후 application의 개발 시 host에서 크로스 컴파일을 진행하고 싶다면 sdk를 만들어 sysroot를 설정하면 된다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-build --sdk
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-package --sysroot -d &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;SDK_&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;설치_폴더&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;unset&lt;/span&gt; LD_LIBRARY_PATH
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;SDK_&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;설치_폴더&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;/environment-setup-cortexa72-cortexa53-xilinx-linux
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;petalinux-booting&#34;&gt;Petalinux Booting&lt;/h2&gt;
+&lt;h3 id=&#34;jtag-boot&#34;&gt;jtag boot&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;jtag로 u-boot까지 로딩한다. 보드의 boot-cfg 스위치를 jtag로 맞춘다. SD카드 등이 필요없지만 속도가 느리다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-boot --jtag --prebuilt &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt; --hw_server-url tcp:127.0.0.1:3121
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;host에 USB를 연결하고 터미널을 오픈 후 하기 명령을 수행하면 부팅이 시작된다.부트 스크립트 로딩 전 대기 카운터에서 엔터를 누르면 u-boot 커맨드 입력이 가능하다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;u-boot에서-커널-로딩&#34;&gt;u-boot에서 커널 로딩&lt;/h3&gt;
+&lt;p&gt;u-boot에서 command를 이용하여 tftp서버에서 커널과 dtb를 로드한다.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;dhcp로 target ip 획득&lt;/li&gt;
+&lt;li&gt;tftp 서버의 ip 및 target의 ip의 환경변수 설정
+&lt;ul&gt;
+&lt;li&gt;이부분은 petalinux-config의 &lt;code&gt;u-boot Configuration &amp;gt; u-boot script configuration &amp;gt; Pre bootenv&lt;/code&gt; 에서 설정이 가능할 것이라 생각되는데 해보지 않음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;tftp 서버에서 설정파일 로드 (&lt;code&gt;pxelinux.cfg/default&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;tftp 부팅 (이후 RootFS의 로드는 세팅에 따른다.)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;dhcp
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;setenv serverip &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;host_ip&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;setenv ipaddr &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;target_ip&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;pxe get
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;pxe boot
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;sd카드--nfs-rootfs&#34;&gt;SD카드 + NFS RootFS&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;jtag로 부팅하면 편하긴 하지만 느리고 매번 리셋이 필요할 때마다 부팅명령을 다시 넣어줘야 한다. 이를 SD카드로 부팅시켜 해결할 수 있다.&lt;/li&gt;
+&lt;li&gt;보드의 boot-cfg 스위치를 SD 카드로 변경한다.&lt;/li&gt;
+&lt;li&gt;SD카드가 준비되어 있지 않다면 SD카드를 파티션 설정을 해야 한다.
+&lt;ul&gt;
+&lt;li&gt;첫번째 파티션은 부트로더, 부팅스크립트 등을 위한 파티션이며 최소 500MB이며 FAT 파일 형식&lt;/li&gt;
+&lt;li&gt;두번째 파티션은 RootFS용으로 EXT4 형식이어야 한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;SD카드에 FSBL, U-boot, bitstream인 &lt;code&gt;BOOT.bin&lt;/code&gt; 를 넣어 놓고 u-boot 까지 부팅 시킨 후 이후 커널 및 RootFS를 로딩할 수 있다.&lt;/li&gt;
+&lt;li&gt;SD카드에 커널의 내용이 변경되지 않은 경우 부팅스크립트 &lt;code&gt;boot.scr&lt;/code&gt;와 커널/디바이스트리 &lt;code&gt;image.ub&lt;/code&gt;를 넣어 놓고 자동으로 NFS에서 RootFS를 로딩하게 하는 방법도 가능하다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;참고-자료&#34;&gt;참고 자료&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/index.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/index.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/Xilinx/Vitis-Tutorials&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://github.com/Xilinx/Vitis-Tutorials&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://docs.xilinx.com/r/2021.1-English/ug1144-petalinux-tools-reference-guide/Configure-TFTP-Boot&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://docs.xilinx.com/r/2021.1-English/ug1144-petalinux-tools-reference-guide/Configure-TFTP-Boot&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>[MW_project] YOLO v3 tiny 분석</title>
         <link>https://muonkmu.github.io/p/mw_project-yolo-v3-tiny-%EB%B6%84%EC%84%9D/</link>
         <pubDate>Mon, 16 Jan 2023 00:00:00 +0000</pubDate>

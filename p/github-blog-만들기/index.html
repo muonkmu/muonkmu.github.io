@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='https://muonkmu.github.io/p/github-blog-%EB%A7%8C%EB%93%A4%EA%B8%B0/'>
 
-<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='Github blog 만들기'>
+<link rel="stylesheet" href="/scss/style.min.f3b6945bee58731371ef6d5a992e6775ef6e63b9642101b9f59903b1c9e16941.css"><meta property='og:title' content='Github blog 만들기'>
 <meta property='og:description' content='Hugo를 이용한 Github Blog 만들기'>
 <meta property='og:url' content='https://muonkmu.github.io/p/github-blog-%EB%A7%8C%EB%93%A4%EA%B8%B0/'>
 <meta property='og:site_name' content='MW Devlog'>
@@ -254,6 +254,11 @@
         <li><a href="#hugo-프로젝트-생성-및-테마-설정">hugo 프로젝트 생성 및 테마 설정</a></li>
         <li><a href="#컨텐츠-작성-및-테스트">컨텐츠 작성 및 테스트</a></li>
         <li><a href="#빌드-및-배포">빌드 및 배포</a></li>
+      </ol>
+    </li>
+    <li><a href="#debug">Debug</a>
+      <ol>
+        <li><a href="#hugo-받침-분리-표기-문제">HUGO 받침 분리 표기 문제</a></li>
       </ol>
     </li>
   </ol>
@@ -611,7 +616,14 @@
 </span></span><span class="line"><span class="cl">git push origin main
 </span></span></code></pre></td></tr></table>
 </div>
-</div>
+</div><h2 id="debug">Debug</h2>
+<h3 id="hugo-받침-분리-표기-문제">HUGO 받침 분리 표기 문제</h3>
+<ul>
+<li>사용하던 중 &lsquo;가&rsquo; 받침이 분리되어 표기되는 문제가 발견되었다. ex) &lsquo;각&rsquo; 이 &lsquo;가ㄱ&rsquo; 로 표기</li>
+<li>구글링을 해보니 <code>Droid Sans Fallback</code> 폰트의 문제라고 생각되어 관련 폰트를 삭제하여 문제를 해결</li>
+<li><code>./themes/hugo-theme-stack/assets/scss/variables.scss</code> 의 <code>--sys-font-family</code>, <code>--zh-font-family</code> 변수 내 Droid Sans 관련 폰트를 모두 삭제한다.</li>
+</ul>
+
 </section>
 
 

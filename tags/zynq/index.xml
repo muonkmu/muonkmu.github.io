@@ -143,7 +143,7 @@
 &lt;li&gt;
 &lt;p&gt;프로젝트 설정 : Hardware Description 및 boot, rootfs, kernel&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;petalinux-config -c {rootfs/kernel/device-tree/u-boot}&lt;/li&gt;
+&lt;li&gt;petalinux-config 또는 petalinux-config -c {rootfs/kernel/device-tree/u-boot}&lt;/li&gt;
 &lt;/ul&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -158,6 +158,17 @@
 &lt;/div&gt;&lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;프로젝트 빌드&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;petalinux-build 또는 petalinux-build -c {rootfs/kernel/device-tree/u-boot}&lt;/li&gt;
+&lt;li&gt;생성되는 파일은 하기와 같다
+&lt;ul&gt;
+&lt;li&gt;boot.scr: A u-boot boot script&lt;/li&gt;
+&lt;li&gt;image.ub: U-boot wrapped Linux kernel image&lt;/li&gt;
+&lt;li&gt;rootfs.tar.gz: Compressed root file system tar ball&lt;/li&gt;
+&lt;li&gt;그외 Pakage를 위한 파일&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -171,6 +182,13 @@
 &lt;p&gt;프로젝트 패키징&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;.BIN&lt;/code&gt; 또는 &lt;code&gt;.MCS&lt;/code&gt; 생성 ( = fsbl + ssbl + pmu + bitstream)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.BIN&lt;/code&gt; 은 다음과 내용을 포함한다.&lt;/li&gt;
+&lt;li&gt;Platform Loader and Manager (PLM)&lt;/li&gt;
+&lt;li&gt;PS Management (PSM) firmware&lt;/li&gt;
+&lt;li&gt;Platform Device Image (PDI)&lt;/li&gt;
+&lt;li&gt;ARM trusted firmware&lt;/li&gt;
+&lt;li&gt;u-boot&lt;/li&gt;
+&lt;li&gt;Device tree blob&lt;/li&gt;
 &lt;/ul&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -193,6 +211,17 @@
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-boot --qemu --kernel
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;TFTP를 위한 Jtag 부트&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-boot --jtag --prebuilt &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt; --hw_server-url tcp:127.0.0.1:3121
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;/li&gt;

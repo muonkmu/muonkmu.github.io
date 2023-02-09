@@ -284,7 +284,14 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;git push origin main
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description>
+&lt;/div&gt;&lt;h2 id=&#34;debug&#34;&gt;Debug&lt;/h2&gt;
+&lt;h3 id=&#34;hugo-받침-분리-표기-문제&#34;&gt;HUGO 받침 분리 표기 문제&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;사용하던 중 &amp;lsquo;가&amp;rsquo; 받침이 분리되어 표기되는 문제가 발견되었다. ex) &amp;lsquo;각&amp;rsquo; 이 &amp;lsquo;가ㄱ&amp;rsquo; 로 표기&lt;/li&gt;
+&lt;li&gt;구글링을 해보니 &lt;code&gt;Droid Sans Fallback&lt;/code&gt; 폰트의 문제라고 생각되어 관련 폰트를 삭제하여 문제를 해결&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;./themes/hugo-theme-stack/assets/scss/variables.scss&lt;/code&gt; 의 &lt;code&gt;--sys-font-family&lt;/code&gt;, &lt;code&gt;--zh-font-family&lt;/code&gt; 변수 내 Droid Sans 관련 폰트를 모두 삭제한다.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
         </item>
         
     </channel>

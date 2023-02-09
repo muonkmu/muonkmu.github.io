@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='https://muonkmu.github.io/p/petalinux-petalinux-basic/'>
 
-<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='[Petalinux] Petalinux Basic'>
+<link rel="stylesheet" href="/scss/style.min.f3b6945bee58731371ef6d5a992e6775ef6e63b9642101b9f59903b1c9e16941.css"><meta property='og:title' content='[Petalinux] Petalinux Basic'>
 <meta property='og:description' content='wedo soluton Petalinux 교육 내용 요약 1st'>
 <meta property='og:url' content='https://muonkmu.github.io/p/petalinux-petalinux-basic/'>
 <meta property='og:site_name' content='MW Devlog'>
@@ -360,7 +360,7 @@
 <li>
 <p>프로젝트 설정 : Hardware Description 및 boot, rootfs, kernel</p>
 <ul>
-<li>petalinux-config -c {rootfs/kernel/device-tree/u-boot}</li>
+<li>petalinux-config 또는 petalinux-config -c {rootfs/kernel/device-tree/u-boot}</li>
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -375,6 +375,17 @@
 </div></li>
 <li>
 <p>프로젝트 빌드</p>
+<ul>
+<li>petalinux-build 또는 petalinux-build -c {rootfs/kernel/device-tree/u-boot}</li>
+<li>생성되는 파일은 하기와 같다
+<ul>
+<li>boot.scr: A u-boot boot script</li>
+<li>image.ub: U-boot wrapped Linux kernel image</li>
+<li>rootfs.tar.gz: Compressed root file system tar ball</li>
+<li>그외 Pakage를 위한 파일</li>
+</ul>
+</li>
+</ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -388,6 +399,13 @@
 <p>프로젝트 패키징</p>
 <ul>
 <li><code>.BIN</code> 또는 <code>.MCS</code> 생성 ( = fsbl + ssbl + pmu + bitstream)</li>
+<li><code>.BIN</code> 은 다음과 내용을 포함한다.</li>
+<li>Platform Loader and Manager (PLM)</li>
+<li>PS Management (PSM) firmware</li>
+<li>Platform Device Image (PDI)</li>
+<li>ARM trusted firmware</li>
+<li>u-boot</li>
+<li>Device tree blob</li>
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -410,6 +428,17 @@
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">petalinux-boot --qemu --kernel
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>TFTP를 위한 Jtag 부트</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">petalinux-boot --jtag --prebuilt <span class="m">2</span> --hw_server-url tcp:127.0.0.1:3121
 </span></span></code></pre></td></tr></table>
 </div>
 </div></li>

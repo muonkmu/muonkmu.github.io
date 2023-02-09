@@ -3,7 +3,37 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://muonkmu.github.io/</loc>
-    <lastmod>2023-01-28T00:00:00+00:00</lastmod>
+    <lastmod>2023-02-08T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/mw_project-camera-input-interface-%EA%B5%AC%EC%84%B1/</loc>
+    <lastmod>2023-02-08T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/</loc>
+    <lastmod>2023-02-08T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/l4v2/</loc>
+    <lastmod>2023-02-08T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</loc>
+    <lastmod>2023-02-08T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/post/</loc>
+    <lastmod>2023-02-08T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/</loc>
+    <lastmod>2023-02-08T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/uvc/</loc>
+    <lastmod>2023-02-08T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/mw_project-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/</loc>
+    <lastmod>2023-02-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/petalinux/</loc>
+    <lastmod>2023-02-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/zcu104/</loc>
+    <lastmod>2023-02-03T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-2/2/</loc>
     <lastmod>2023-01-28T00:00:00+00:00</lastmod>
@@ -11,16 +41,7 @@
     <loc>https://muonkmu.github.io/categories/ai_hw_design/</loc>
     <lastmod>2023-01-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://muonkmu.github.io/categories/</loc>
-    <lastmod>2023-01-28T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://muonkmu.github.io/tags/graphcore-ipu/</loc>
-    <lastmod>2023-01-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/post/</loc>
-    <lastmod>2023-01-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/tags/</loc>
     <lastmod>2023-01-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-1/2/</loc>
@@ -39,9 +60,6 @@
     <lastmod>2023-01-20T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/p/mw_project-yolo-v3-tiny-%EB%B6%84%EC%84%9D/</loc>
-    <lastmod>2023-01-16T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</loc>
     <lastmod>2023-01-16T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/yolov3_tiny/</loc>
