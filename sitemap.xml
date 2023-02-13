@@ -3,24 +3,33 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://muonkmu.github.io/</loc>
-    <lastmod>2023-02-08T00:00:00+00:00</lastmod>
+    <lastmod>2023-02-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://muonkmu.github.io/p/mw_project-camera-input-interface-%EA%B5%AC%EC%84%B1/</loc>
-    <lastmod>2023-02-08T00:00:00+00:00</lastmod>
+    <loc>https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-1/2/</loc>
+    <lastmod>2023-02-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/ai_hw_design/</loc>
+    <lastmod>2023-02-12T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/categories/</loc>
+    <lastmod>2023-02-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/dcnn/</loc>
+    <lastmod>2023-02-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/post/</loc>
+    <lastmod>2023-02-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/</loc>
+    <lastmod>2023-02-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/mw_project-camera-%EC%9E%85%EB%A0%A5-%EB%B0%8F-dp-%EC%B6%9C%EB%A0%A5-%EA%B5%AC%EC%84%B1/</loc>
     <lastmod>2023-02-08T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/l4v2/</loc>
     <lastmod>2023-02-08T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</loc>
-    <lastmod>2023-02-08T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/post/</loc>
-    <lastmod>2023-02-08T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/tags/</loc>
     <lastmod>2023-02-08T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/uvc/</loc>
@@ -36,9 +45,6 @@
     <lastmod>2023-02-03T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/p/ai-hw-design-chap04-streaming-graph-theory-2/2/</loc>
-    <lastmod>2023-01-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/categories/ai_hw_design/</loc>
     <lastmod>2023-01-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/graphcore-ipu/</loc>
