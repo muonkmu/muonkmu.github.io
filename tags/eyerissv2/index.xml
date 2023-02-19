@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>EyerissV2 on MW Devlog</title>
+        <link>https://muonkmu.github.io/tags/eyerissv2/</link>
+        <description>Recent content in EyerissV2 on MW Devlog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Sun, 19 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/eyerissv2/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[AI HW Design] Chap05 Convolution Optimization (3/3)</title>
+        <link>https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/</link>
+        <pubDate>Sun, 19 Feb 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/</guid>
+        <description>&lt;p&gt;앞의 포스트가 너무 길어져서 Eyeriss version2 부분은 현 포스트로 나눔&lt;/p&gt;
+&lt;h2 id=&#34;eyeriss-accelerator-ver2&#34;&gt;Eyeriss Accelerator Ver.2&lt;/h2&gt;
+&lt;p&gt;irregular data pattern 과 network sparsity 지원을 위한 Eyeriss V2 공개&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;새로운 NoC 구조 : data reuse가 적을 땐 external memory에서 더 많은 데이터를 PE로 가져오고  data reuse가 많을 땐 spartial Data를 sharing&lt;/li&gt;
+&lt;li&gt;CSC 엔코딩 적용&lt;/li&gt;
+&lt;li&gt;RS+ 적용&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Eyeriss V1이 GLB&amp;lt;-&amp;gt;PE 연결을 위해 flat multicast NoC를 사용했지만 V2에서는 flexible and mesh NoC 사용,
+이 hierarchical mesh는 GLB cluster, Router Cluster, PE cluster로 구성되며 하기 3가지 타입의 데이터 이동 지원&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ifmap은 GLB cluster에 로드됨, 이는 GLB 메모리에 저장되고 Router Cluster로 전송&lt;/li&gt;
+&lt;li&gt;psum은 GLB 메모리에 저장 되고, ofmap은 external memory에 바로 저장 됨&lt;/li&gt;
+&lt;li&gt;fmap은 Router Cluster로 전송되고 PE spad에 저장&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/01_Eyeriss_v2_system_archi.png&#34;
+	width=&#34;1090&#34;
+	height=&#34;622&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/01_Eyeriss_v2_system_archi_hu72a2311e75580f2efbca22981e0f948c_86395_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/01_Eyeriss_v2_system_archi_hu72a2311e75580f2efbca22981e0f948c_86395_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Eyeriss v2 system architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;175&#34;
+		data-flex-basis=&#34;420px&#34;
+	
+&gt;
+(책에 v1 과 v2 구조에 대한 비교 그림이 있으니 찾아보자)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;hierarchical-mesh-network-hm-noc&#34;&gt;Hierarchical Mesh Network (HM-NoC)&lt;/h3&gt;
+&lt;p&gt;전통적인 Network-on-Chip 구조는 하기와 같으며 장단점을 가지고 있음 (책 그림 참조)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Broadcast Network : high reuse / low bandwidth&lt;/li&gt;
+&lt;li&gt;Unicast Network : high bandwidth / low reuse&lt;/li&gt;
+&lt;li&gt;All-to-All Network : high reuse, high bandwidth / scale difficulty&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Eyeriss V2는 RS+를 지원하기 위해 HM-NoC 구조를 제안, all-to-all network에서 파생되었으나 4가지 모드를 가짐&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Broadcast: single input and single weight&lt;/li&gt;
+&lt;li&gt;Unicast: multiple inputs and multiple weights&lt;/li&gt;
+&lt;li&gt;Grouped multicast: shared weights&lt;/li&gt;
+&lt;li&gt;Interleaved multicast: shared inputs&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/02_Mesh_network_config.png&#34;
+	width=&#34;1095&#34;
+	height=&#34;270&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/02_Mesh_network_config_hu7c65497e49921880cc047795eaed4cf9_175240_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/02_Mesh_network_config_hu7c65497e49921880cc047795eaed4cf9_175240_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Mesh network configuration&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;405&#34;
+		data-flex-basis=&#34;973px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;HM-NoC는 source, destination, router로 구성되며 design phase에서 cluster로 그룹핑되고 operation mode에서는 고정됨.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Router cluster가 다른 cluster와 one-to-one, many-to-many, source/destination 구조로 연결&lt;/li&gt;
+&lt;li&gt;Router cluster는 4개의 source/destination port를 가지며 4가지 routing mode (broadcast, unicate, grouped/interleaved multicast)를 가짐&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;책에서는 다음과 같이 예시를 듬&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Convolution layer : ifmap과 fmap이 reuse 되며 grouped multicast 또는 interleaved mode 로 구성&lt;/li&gt;
+&lt;li&gt;Depth-wise Convolution layer : fmap만 reuse 되며 fmap이 PE로 broadcast, ifmap은 GLB에서 로드&lt;/li&gt;
+&lt;li&gt;Fully connected layer : ifmap이 모든 PE로 broadcast, fmap은 unicast mode로 로드&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;input-activation-hm-noc&#34;&gt;Input Activation HM-NoC&lt;/h4&gt;
+&lt;h4 id=&#34;filter-weight-hm-noc&#34;&gt;Filter Weight HM-NoC&lt;/h4&gt;
+&lt;h4 id=&#34;partial-sum-hm-noc&#34;&gt;Partial Sum HM-NoC&lt;/h4&gt;
+&lt;h3 id=&#34;compressed--sparse-column-csc-format&#34;&gt;Compressed  Sparse Column (CSC) Format&lt;/h3&gt;
+&lt;p&gt;Eyeriss V2는 ifmap과 fmap 둘 다에 CSC 포맷 적용 (zero operation skipping), CSC 포맷의 구조는 다음과 같다&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Data vector : 0이 아닌 값&lt;/li&gt;
+&lt;li&gt;Counter vector : Data vector의 item 기준, 해당 열에서 앞에 있는 0의 값의 갯수&lt;/li&gt;
+&lt;li&gt;Address vector : 각 열을 기준으로 이전 열까지 0이 아닌 item의 누적 갯수&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/03_CSC_format.png&#34;
+	width=&#34;988&#34;
+	height=&#34;683&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/03_CSC_format_hub1bb5f53114ac8ca37a38a301b9de523_189171_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/03_CSC_format_hub1bb5f53114ac8ca37a38a301b9de523_189171_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Compressed sparse column format&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;144&#34;
+		data-flex-basis=&#34;347px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Eyeriss V2는 PE는 zero operation skip을 위해 7 pipeline stage와 5 spad (ifmap, fmap, psum 저장)로 수정&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;첫째로 non-zero data인지 확인하기 위해 address를 검사하고 fmap 로드 전 먼저 ifmap을 로드(zero ifmap skip을 위해)&lt;/li&gt;
+&lt;li&gt;ifmap/fmap이 0이 아니면 계산 pipeline 수행, fmap이 0이면 pipeline disable&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/04_Eyeriss_v2_PE_archi.png&#34;
+	width=&#34;1098&#34;
+	height=&#34;520&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/04_Eyeriss_v2_PE_archi_hu6538d1528bc1b96b882dcb94c7cd426f_43122_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/04_Eyeriss_v2_PE_archi_hu6538d1528bc1b96b882dcb94c7cd426f_43122_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Eyeriss v2 PE architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;211&#34;
+		data-flex-basis=&#34;506px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;row-stationary-plus-rs-dataflow&#34;&gt;Row Stationary Plus (RS+) Dataflow&lt;/h3&gt;
+&lt;p&gt;PE utilization을 높이기 위해 RS+ dataflow 적용&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;model dimension을 다른 PE dimension에 매핑하기 위해 데이터를 tiling, spatial fragmentation 함&lt;/li&gt;
+&lt;li&gt;depth-wise convolution 시 PE utilization이 낮은 문제점 해결&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/05_RS&amp;#43;_dataflow.png&#34;
+	width=&#34;978&#34;
+	height=&#34;348&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/05_RS&amp;#43;_dataflow_hud8aa43c1c4159e4637e897eeb4c09dc1_22311_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap05-convolution-optimization-3/3/05_RS&amp;#43;_dataflow_hud8aa43c1c4159e4637e897eeb4c09dc1_22311_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;row stationary plus dataflow&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;281&#34;
+		data-flex-basis=&#34;674px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

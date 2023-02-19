@@ -353,11 +353,10 @@
 <h2 id="petalinux-config">petalinux config</h2>
 <p>이전 포스트인 <code>zcu104 개발환경 설정</code>에서 다음 드라이버 및 프로그램을 설치한다.</p>
 <h3 id="kernel">kernel</h3>
-<p>커널은 하기 모듈이 필요하다</p>
+<p>커널은 하기 모듈이 필요하다. BSP를 사용했다면 거의 바꿀 것 없지만 <code>petalinux-config -c kernel</code>로 다음 기능을 확인하자.</p>
 <ul>
 <li>카메라 입력 : USB gadget driver, web camera/video driver</li>
-<li>모니터 출력 : xilinx DRM KMS driver, frame buffer driver
-BSP를 사용했다면 거의 바꿀 것 없지만 <code>petalinux-config -c kernel</code>로 다음 기능을 확인하자.</li>
+<li>모니터 출력 : xilinx DRM KMS driver, frame buffer driver</li>
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -430,11 +429,11 @@ BSP를 사용했다면 거의 바꿀 것 없지만 <code>petalinux-config -c ker
 <ul>
 <li><code>v4l2-ctl --list-devices</code> : 연결된 디바이스 확인</li>
 <li><code>v4l2-ctl -d ${디바이스번호} --all</code> : 카메라 capability 등 모든 정보의 출력</li>
-<li><code>v4l2-ctl -d ${디바이스번호} --list-formats-ext</code> : 지원하는 포멧 확인
-DP 포트와 모니터를 연결하면 Frame buffer <code>/dev/fb#</code> 이 생성됨을 확인할 수 있다. <code>fbset</code>명령으로 정보를 조해할 수 있다.</li>
+<li><code>v4l2-ctl -d ${디바이스번호} --list-formats-ext</code> : 지원하는 포멧 확인.</li>
 </ul>
-<p>python기반으로 opencv를 이용해서 카메라의 영상을 캡쳐 및 Framebuffer로 출력해 보자
-하기 코드는 테스트 용으로 현재 카메라 및 프레임 버퍼의 설정 부분은 제외했으므로 출력이 이상할 수 있으니 필요하면 자신의 환경에 맞게 고쳐야 한다.</p>
+<p>DP 포트와 모니터를 연결하면 Frame buffer <code>/dev/fb#</code> 이 생성됨을 확인할 수 있다. <code>fbset</code>명령으로 정보를 조해할 수 있다.</p>
+<p>python기반으로 opencv를 이용해서 카메라의 영상을 캡쳐 및 Framebuffer로 출력해 보자.
+하기 코드는 테스트 용으로 카메라 및 프레임 버퍼의 설정 부분은 제외했으므로 출력이 이상할 수 있으니 필요하면 자신의 환경에 맞게 고쳐야 한다.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -469,8 +468,8 @@ DP 포트와 모니터를 연결하면 Frame buffer <code>/dev/fb#</code> 이 �
 </span></span><span class="line"><span class="cl"><span class="c1"># cv2.imwrite(&#39;${이미지 저장 경로}/${저장 이름}&#39;,reference)</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="mi">1</span> <span class="p">:</span>
-</span></span><span class="line"><span class="cl">  <span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">reference</span><span class="p">)</span> <span class="o">=</span> <span class="n">capture</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">  <span class="n">frame16</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2BGR565</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">capFrame</span><span class="p">)</span> <span class="o">=</span> <span class="n">capture</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="n">frame16</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">capFrame</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2BGR565</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">  <span class="n">fbframe</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">frame16</span><span class="p">,</span> <span class="p">(</span><span class="mi">1920</span><span class="p">,</span><span class="mi">1080</span><span class="p">))</span>
 </span></span><span class="line"><span class="cl">  <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/dev/fb0&#39;</span><span class="p">,</span> <span class="s1">&#39;rb+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">buf</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">    <span class="n">buf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fbframe</span><span class="p">)</span>
