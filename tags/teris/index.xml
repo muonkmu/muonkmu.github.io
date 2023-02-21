@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Teris on MW Devlog</title>
+        <link>https://muonkmu.github.io/tags/teris/</link>
+        <description>Recent content in Teris on MW Devlog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Tue, 21 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/teris/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[AI HW Design] Chap06 &amp; 07 In/Near Memory Computation</title>
+        <link>https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/</link>
+        <pubDate>Tue, 21 Feb 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/</guid>
+        <description>&lt;p&gt;6장은 In-Memory Computation, 7장은 Near-Memory Computation 에 대한 내용이다. 현재 개발하고자 하는 가속기와 동떨어지는 내용이라 판단해서 개요만 보고 스킵할 예정이다.
+삼성이나 하이닉스를 다녀야 쓸모있지 않을까 싶다.&lt;/p&gt;
+&lt;h2 id=&#34;in-memory-computation&#34;&gt;In-Memory Computation&lt;/h2&gt;
+&lt;p&gt;여기서는 메모리와 로직을 stacking 하는 방식의 Processor-In-Memory(PIM)에 대해 설명한다. 다른 방식의 PIM도 있는 걸로 아는데&amp;hellip;&lt;/p&gt;
+&lt;h3 id=&#34;neurocube-architecture&#34;&gt;Neurocube Architecture&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Nerocube는 parallel neural processing unit과 High Bandwidth Memory(HBM)을 스택한 Hybrid Memory Cube(HMC)를 이용&lt;/li&gt;
+&lt;li&gt;이는 stacked memrory에서 PE로 직접 데이터 로드가 가능함(레이턴시 감소)&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/01_Neurocube_archi.png&#34;
+	width=&#34;850&#34;
+	height=&#34;484&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/01_Neurocube_archi_hu7e3ac3480d8fffeef819172836ca0123_89087_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/01_Neurocube_archi_hu7e3ac3480d8fffeef819172836ca0123_89087_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Neurocube architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;175&#34;
+		data-flex-basis=&#34;421px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;teris-accelerator&#34;&gt;Teris Accelerator&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Teris는 Eyeriss의 3D Memory와 함께 Row Stationary(RS) dataflow 채택&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/02_Tetris_archi.png&#34;
+	width=&#34;1200&#34;
+	height=&#34;814&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/02_Tetris_archi_hue0cec8dafc2424a6cf3e0101670db0cd_520795_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/02_Tetris_archi_hue0cec8dafc2424a6cf3e0101670db0cd_520795_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Tetris system architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;147&#34;
+		data-flex-basis=&#34;353px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;neurostream-accelerator&#34;&gt;NeuroStream Accelerator&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;NeuroStream은 HMC의 modular extension인 Smart Memory Cube(SMC)를 이용&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/03_NeuroStream_arch.png&#34;
+	width=&#34;1226&#34;
+	height=&#34;1306&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/03_NeuroStream_arch_hucb12ff9120ba45e699b7649d69b4155b_231205_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/03_NeuroStream_arch_hucb12ff9120ba45e699b7649d69b4155b_231205_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;NeuroStream and NeuroCluster architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;93&#34;
+		data-flex-basis=&#34;225px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;near-memory-computation&#34;&gt;Near-Memory Computation&lt;/h2&gt;
+&lt;h3 id=&#34;didiannao-supercomputer&#34;&gt;DiDianNao Supercomputer&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;대용량 eDRAM을 통해 DianNao의 memory bottleneck을 해결하고자 함&lt;/li&gt;
+&lt;li&gt;모든 synapse를 수용할 후 있는 거대 storage를 제공하는 Neural Function Unit(NFU)를 지닌 16개의 tile로 구성&lt;/li&gt;
+&lt;li&gt;NFU는 4개의 eDRAM bank와 time-interleaved 통신(?) 함 (eDRAM의 레이턴시가 크기 때문)&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/04_DaDianNao_archi.png&#34;
+	width=&#34;1214&#34;
+	height=&#34;622&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/04_DaDianNao_archi_hu3dc4a4aa5e68fb351920261bd2859b52_93958_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/04_DaDianNao_archi_hu3dc4a4aa5e68fb351920261bd2859b52_93958_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;DaDianNao system architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;195&#34;
+		data-flex-basis=&#34;468px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;cnvlutin-accelerator&#34;&gt;Cnvlutin Accelerator&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;DiDianNao에서 파생되었으며 다수의 DiDianNao를 고속 인터페이스로 연결, 거대 parallel mutiplication lane 구조 채택&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

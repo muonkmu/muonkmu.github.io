@@ -321,7 +321,7 @@
 
 
                 <time class="article-time--reading">
-                    2 minute read
+                    3 minute read
                 </time>
             </div>
         
@@ -406,8 +406,23 @@
 <li>Fully connected layer : ifmap이 모든 PE로 broadcast, fmap은 unicast mode로 로드</li>
 </ul>
 <h4 id="input-activation-hm-noc">Input Activation HM-NoC</h4>
+<ul>
+<li>Router Cluster 안의 3개 ifmap router는 GLB cluster의 ifmap SRAM과 연결</li>
+<li>ifmap routerd의 3개의 source/destination port 다른 클러스터와 연결, 1개는 메모리에서 데이터로드, 1개는 PE 연결</li>
+<li>책에 그림과 상세 설명이 있으니 참조하자</li>
+</ul>
 <h4 id="filter-weight-hm-noc">Filter Weight HM-NoC</h4>
+<ul>
+<li>Router Cluster 안의 각 fmap router는 PE cluster 안의 PE row와 연결</li>
+<li>vertical mesh는 사라지고 horizontal mesh 만 데이터 reuse를 위해 남음</li>
+<li>책에 그림과 상세 설명이 있으니 참조하자</li>
+</ul>
 <h4 id="partial-sum-hm-noc">Partial Sum HM-NoC</h4>
+<ul>
+<li>Router Cluster 안의 4개의 psum router는 GLB cluster의 psum SRAM과 PE cluster의 PE column과 연결됨</li>
+<li>horizontal mesh는 사라지고  vertical mesh만 psum accumulation을 위해 남음</li>
+<li>책에 그림과 상세 설명이 있으니 참조하자</li>
+</ul>
 <h3 id="compressed--sparse-column-csc-format">Compressed  Sparse Column (CSC) Format</h3>
 <p>Eyeriss V2는 ifmap과 fmap 둘 다에 CSC 포맷 적용 (zero operation skipping), CSC 포맷의 구조는 다음과 같다</p>
 <ul>
@@ -510,6 +525,19 @@
             
                 
 <article class="">
+    <a href="/p/ai-hw-design-chap06-07-in/near-memory-computation/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[AI HW Design] Chap06 &amp; 07 In/Near Memory Computation</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
     <a href="/p/ai-hw-design-chap05-convolution-optimization-2/3/">
         
         
@@ -555,19 +583,6 @@
 
         <div class="article-details">
             <h2 class="article-title">[AI HW Design] Chap04 Streaming Graph Theory (1/2)</h2>
-        </div>
-    </a>
-</article>
-
-            
-                
-<article class="">
-    <a href="/p/ai-hw-design-chap03-parallel-architecture-3/3/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">[AI HW Design] Chap03 Parallel Architecture (3/3)</h2>
         </div>
     </a>
 </article>
