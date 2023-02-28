@@ -6,7 +6,235 @@
         <description>Recent content in AI_HW_Design on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Tue, 21 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/ai_hw_design/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sun, 26 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/ai_hw_design/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[AI HW Design] Chap08 Network Sparsity (2/2)</title>
+        <link>https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/</link>
+        <pubDate>Sun, 26 Feb 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/</guid>
+        <description>&lt;h2 id=&#34;scnn-accelerator&#34;&gt;SCNN Accelerator&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;SCNN은 sparse encoding scheme을 이용해서 activation / weight sparsity 지원&lt;/li&gt;
+&lt;li&gt;Planar Tiled-Input Stationary-Cartesian Product-sparse (PT-IS-CP-sparse)라 부르는 새로운 Cartesian product flow를 제안 (activation / weight reuse)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;scnn-pt-is-cp-dense-dataflow&#34;&gt;SCNN PT-IS-CP-Dense Dataflow&lt;/h3&gt;
+&lt;p&gt;PT-IS-CP-Dense dataflow는 convolution nested loop를 어떻게 분해할 것인가에 관한 것&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;C X R X S 형태의 K개 filter, batch size N인 C X W X H 형태의 input activation 일 때&lt;/li&gt;
+&lt;li&gt;Input Stationary (IS) 가 적용되면 loop order는 C→W→H→K→R→S 가 됨&lt;/li&gt;
+&lt;li&gt;성능향상을 위해 blocking strategy 적용 (K output channel은 $K_c$ 사이즈의 K/$K_c$ output channel group으로 분리)&lt;/li&gt;
+&lt;li&gt;K/$K_c$→C→W→H→$K_c$→R→S&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;intra-PE parallelism을 위해 PE 내부에서 spatial reuse 활용&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;filter weight(F)와 input activation(I)가 각 buffer에서 fetch되고 이는 F X I array 곱셈기로 전송&lt;/li&gt;
+&lt;li&gt;filter weight와 input activation은 재활용 되며 partial sum은 향후 연산을 위해 메모리 접근 없이 저장됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;intra-PE parallelism을 위해 Spartial tiling 전략이 사용됨&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;W X H input activation는 $W_t$ X $H_t$ Planar Tiles(PT)로 나눠져서 PE로 분배됨&lt;/li&gt;
+&lt;li&gt;또한 mutiple channel processing 지원 (C X $W_t$ X $H_t$이 PE에 할당됨)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;sliding window operation에서 edge에서 cross-tile dependency가 생기는데 data halo를 이용해 해결&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Input Halos : PE input buffer는 halo을 수용하기 위해 C x Wt x Ht보다 약간 큰 크기로 조정&lt;/li&gt;
+&lt;li&gt;Output Halos : PE accumulation buffer도 halo을 수용하기 위해 Kc x Wt x Ht보다 약간 큰 크기로 조정. Halo에는 출력 채널 계산이 끝날 때 누적을 완료하기 위해 인접 PE와 통신하는 불완전한 부분 합계가 포함.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;PT-IS-CP-Dense Dataflow의 최종 수식은 다음과 같다
+&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/01_PT-IS-CP-dense_dataflow.png&#34;
+	width=&#34;1060&#34;
+	height=&#34;1140&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/01_PT-IS-CP-dense_dataflow_hu3c650d0832d33928f21fb381fc9933f6_155844_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/01_PT-IS-CP-dense_dataflow_hu3c650d0832d33928f21fb381fc9933f6_155844_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;PT-IS-CP- dense dataflow&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;92&#34;
+		data-flex-basis=&#34;223px&#34;
+	
+&gt;&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>[AI HW Design] Chap08 Network Sparsity (1/2)</title>
+        <link>https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/</link>
+        <pubDate>Sat, 25 Feb 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/</guid>
+        <description>&lt;p&gt;8장은 시스템 throughput을 높이기 위해 ineffectual zoro operation을 스킵하는 다양한 구조에 대해 알아본다. (feature map encoding/indexing, weight sharing/pruning, quantized prediction)&lt;/p&gt;
+&lt;h2 id=&#34;energy-efficient-inference-engine-eie&#34;&gt;Energy Efficient Inference Engine (EIE)&lt;/h2&gt;
+&lt;p&gt;스탠포드 대학에서 나온 유명한 논문, 알고리즘(SW) + 가속기(SW) 양쪽에 대해 최적화한 논문으로 알고 있다. 중요도에 비해 설명이 부실한 듯&amp;hellip;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;EIE는 sparse matrix-vector mutiplication을 위한 compressed network model을 지원하고 weight sharing을 다룸&lt;/li&gt;
+&lt;li&gt;Leading Non-Zero Detection Network, Central Conrol Unit, Processing Element 로 구성&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;leading-non-zero-detection-network-lnzd&#34;&gt;Leading Non-Zero Detection Network (LNZD)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;LNZD는 input activation으로 부터 nonzero element를 찾아내고 이를 LNZD node로 먹임&lt;/li&gt;
+&lt;li&gt;node는 nonzero value와 index를 PE로 브로드캐스팅 함&lt;/li&gt;
+&lt;li&gt;LNZD에 PE는 4개가 연결&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/01_EIE_PE_LNZD.png&#34;
+	width=&#34;432&#34;
+	height=&#34;300&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/01_EIE_PE_LNZD_huc96f5c73e9317af5fcbb4d0b7427ae06_21530_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/01_EIE_PE_LNZD_huc96f5c73e9317af5fcbb4d0b7427ae06_21530_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;EIE leading nonzero detection network&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;144&#34;
+		data-flex-basis=&#34;345px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;central-control-unit-ccu&#34;&gt;Central Control Unit (CCU)&lt;/h3&gt;
+&lt;p&gt;CCU는 network segment computation을 제어&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;host와 커뮤니케이션 하고 PE state를 모니터링 함&lt;/li&gt;
+&lt;li&gt;두가지 동작모드로 나뉨
+&lt;ul&gt;
+&lt;li&gt;computing mode : CCU는 LNZD로 부터 nonzero input activation을 받고 이를 PE로 브로드캐스팅, 모든 input channel이 스캔될때 까지 반복됨&lt;/li&gt;
+&lt;li&gt;I/O mode : PE는 idle, activation과 weight가 DMA에 의해 접근 됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;processing-element-pe&#34;&gt;Processing Element (PE)&lt;/h3&gt;
+&lt;p&gt;요약하면 ifmap 값을 읽어와서 여기 포인터를 이용하여 해당 weight 값과 효율적으로 곱한다는 이야기인듯..&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;PE는 activation queue, pointer read unit, sparse matrix unit, arithmetic unit, activation R/W unit으로 구성&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/02_EIE_PE_archi.png&#34;
+	width=&#34;1339&#34;
+	height=&#34;371&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/02_EIE_PE_archi_hu4a8254844eadbc3e86f6c2cae8627339_197913_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/02_EIE_PE_archi_hu4a8254844eadbc3e86f6c2cae8627339_197913_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;EIE PE architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;360&#34;
+		data-flex-basis=&#34;866px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;li&gt;computation 동안 CCU는 nonzero input element와 index를 activation queue에 브로드캐스팅 함, PE는 큐가 다차면 input element를 처리(브로드캐스트는 중지)&lt;/li&gt;
+&lt;li&gt;activation queue는 PE가 work backlog를 구축할 수 있도록 해줌(load balancing 문제 해결)&lt;/li&gt;
+&lt;li&gt;pointer read unit은 activation queue의 인덱스를 이용하여 nonzero element의 시작/종료 포인터를 찾음&lt;/li&gt;
+&lt;li&gt;싱글 사이클에 이를 처리하기 위해 포인터는 LSB와 함께 odd/even SRAM에 저장(의미를 잘 모르겠음)&lt;/li&gt;
+&lt;li&gt;sparse matrix read unit은 sparse matrix memory로 부터 포인터를 이용하여 0이 아닌 값을 읽음(fmap?)&lt;/li&gt;
+&lt;li&gt;arithmetic unit은 activation queue와 sparse matrix memory의 0이 아닌 값 MAC 연산&lt;/li&gt;
+&lt;li&gt;연속적으로 가산기 사용되는 경우를 위한 bypass 경로 존재 (그림 보자)&lt;/li&gt;
+&lt;li&gt;activation read/write unit의 경우 fully connected layrer를 위한 source/destination activation register를 가지고 있으며 이는 다음 레이어 연산시 교체됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;deep-compression&#34;&gt;Deep Compression&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;EIE는 pruning과 weight sharing을 통해 네트워크 압축하기위해 Deep Commpression을 적용, 적용 예는 다음과 같음 (책에 그림 예시를 보자)
+&lt;ul&gt;
+&lt;li&gt;4X4 weight matrix라면 16개의 값을 4개의 index(code book)로 만듬&lt;/li&gt;
+&lt;li&gt;index에 해당하는 weight는 Gradient를 가지고 fine-tunnig됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;MAC 연산은 weight와 input activation vector가 0이 아닌 값에 대해서 수행&lt;/li&gt;
+&lt;li&gt;EIE는 interleaved Commpressed Sparse Column(CSC) 적용 (Eyeriss와 약간 다르므로 책참조)
+&lt;ul&gt;
+&lt;li&gt;v는 0이 아닌 값, z는 0이 아닌 값 해당 v 값 앞에 0의 개수&lt;/li&gt;
+&lt;li&gt;v,z는 하나의 large array pair에 $p_j$(벡터의 시작 포인터), $p_j+_1$(마지막 항목 다음 번 포인터)와 함께 저장됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;sparse-matrix-computation&#34;&gt;Sparse Matrix Computation&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;4개의 PE에서 input activation vector(a)는 weight matrix(w)와 곱해짐&lt;/li&gt;
+&lt;li&gt;a를 스캔해서 0이 아닌 $a_j$는 인덱스 값과 함께 브로드캐스팅 됨&lt;/li&gt;
+&lt;li&gt;PE는 index에 대응하는 0이 아닌 $w_j$를 곱합&lt;/li&gt;
+&lt;li&gt;PE는 벡터 v를 $p_j$에서 $p_j+_1$까지만 스캔
+(책에 예시 그림 있으니 참조)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;cambricon-x-accelerator&#34;&gt;Cambricon-X Accelerator&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;병렬연산에서 Nonzero neuron을 선택하기 위해 indexing scheme을 적용&lt;/li&gt;
+&lt;li&gt;Control Processor (CP), Buffer Controller (BC), Input Neural Buffer (NBin), Output Neural Buffer (NBout), Direct Memory Access (DMA) Module, Computation Unit (CU)으로 구성&lt;/li&gt;
+&lt;li&gt;중요 element는 BC Tn indexing unit(nonzero neuron을 인덱싱하는 유닛이며 PE와 수가 같다)&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/03_Cambricon-X_archi.png&#34;
+	width=&#34;660&#34;
+	height=&#34;588&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/03_Cambricon-X_archi_huabb91cf32cb2211099253a3648178d82_23226_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/03_Cambricon-X_archi_huabb91cf32cb2211099253a3648178d82_23226_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Cambricon-X architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;112&#34;
+		data-flex-basis=&#34;269px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;computation-unit-cu&#34;&gt;Computation Unit (CU)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;CU는 Tn개 PE로 구성되며 모든 PE는 fat tree 형태로 연결&lt;/li&gt;
+&lt;li&gt;PE는 PE Functional Unit(PEFU)와 Synapse Buffer(SB)로 구성&lt;/li&gt;
+&lt;li&gt;BC로 부터 neuron을, local BC로 부터 synaps를 읽어서 PEFU에 제공하며 output neuron은 BC에 다시 씀&lt;/li&gt;
+&lt;li&gt;Tn개 PEFU는 Tm개 곱셈기와 가산기를 가져서 TnXTm 곱셈이 가능&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/04_Cambricon-X_PE_archi.png&#34;
+	width=&#34;709&#34;
+	height=&#34;666&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/04_Cambricon-X_PE_archi_hu87e93c84bfbce09b528c0e6429ef2f43_40459_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/04_Cambricon-X_PE_archi_hu87e93c84bfbce09b528c0e6429ef2f43_40459_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Cambricon-X PE architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;106&#34;
+		data-flex-basis=&#34;255px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;li&gt;SB는 synapse를 저장하고 메모리 access를 최소화 하기 위해 디자인, 책에서는 하기 예시를 듬(책그림 참조)
+&lt;ul&gt;
+&lt;li&gt;PE는 4개이고 output neuron 0이 input neruon 2개 연결, output neuron 1이 input neruon 5개 연결&lt;/li&gt;
+&lt;li&gt;output neuron 0의 weight는 address 0에 output neuron 1의 weight는 address 1/2의 SB에 저장&lt;/li&gt;
+&lt;li&gt;output neuron 0 계산 시 SB를 1번 읽고 output neuron 1은 두 번 읽음&lt;/li&gt;
+&lt;li&gt;synapse의 수는 output neuron마다 다를 수 있기 때문에 SB가 비동기적으로 데이터를 로드하여 전체 성능을 향상&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;buffer-controller&#34;&gt;Buffer Controller&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;BC는 Indexing Module (IM)과 BC Functional Unit (BCFU) 로 구성
+&lt;ul&gt;
+&lt;li&gt;BCFU는 인덱싱을 위해 neuron을 저장&lt;/li&gt;
+&lt;li&gt;IM은 BC의 nonzero nueron을 구분하고 nonzero indexed nueron만 전송&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;BC는 input neurons을 NBin에서 PE로 보내거나 BCFU로 제공, PE의 계산결과는 BCFU에 저장 또는 NBout에 쓰여짐&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/05_Cambricon-X_BC_archi.png&#34;
+	width=&#34;982&#34;
+	height=&#34;694&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/05_Cambricon-X_BC_archi_hu608d04ea44a57a3b368d80bb229fbc9d_35431_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/05_Cambricon-X_BC_archi_hu608d04ea44a57a3b368d80bb229fbc9d_35431_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Cambricon-X BC architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;141&#34;
+		data-flex-basis=&#34;339px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;li&gt;IM에는 두가지 하기 두가지 옵션이 있음 (책에 그림에 잘 나와 있음)
+&lt;ul&gt;
+&lt;li&gt;direct indexing : nonzero nueron의 여부를 0/1로 표현한 binary string 사용&lt;/li&gt;
+&lt;li&gt;step indexing : nonzero nueron의 거리를 사용&lt;/li&gt;
+&lt;li&gt;step indexing이 area와 power를 적게 소모함&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>[AI HW Design] Chap06 &amp; 07 In/Near Memory Computation</title>
         <link>https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/</link>
         <pubDate>Tue, 21 Feb 2023 00:00:00 +0000</pubDate>

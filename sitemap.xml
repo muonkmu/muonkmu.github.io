@@ -3,15 +3,45 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://muonkmu.github.io/</loc>
-    <lastmod>2023-02-21T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/</loc>
-    <lastmod>2023-02-21T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/categories/ai_hw_design/</loc>
-    <lastmod>2023-02-21T00:00:00+00:00</lastmod>
+    <lastmod>2023-02-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/categories/</loc>
+    <lastmod>2023-02-28T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/devenv/</loc>
+    <lastmod>2023-02-28T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/post/</loc>
+    <lastmod>2023-02-28T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/</loc>
+    <lastmod>2023-02-28T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/xilinx-ide/</loc>
+    <lastmod>2023-02-28T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/xilinx-ide-installation-based-on-docker/</loc>
+    <lastmod>2023-02-28T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/</loc>
+    <lastmod>2023-02-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/ai_hw_design/</loc>
+    <lastmod>2023-02-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/scnn/</loc>
+    <lastmod>2023-02-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-1/2/</loc>
+    <lastmod>2023-02-25T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/cambricon-x/</loc>
+    <lastmod>2023-02-25T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/eie/</loc>
+    <lastmod>2023-02-25T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/ai-hw-design-chap06-07-in/near-memory-computation/</loc>
     <lastmod>2023-02-21T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/cnvlutin/</loc>
@@ -24,12 +54,6 @@
     <lastmod>2023-02-21T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/neurostream/</loc>
-    <lastmod>2023-02-21T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/post/</loc>
-    <lastmod>2023-02-21T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/tags/</loc>
     <lastmod>2023-02-21T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/teris/</loc>
@@ -85,9 +109,6 @@
   </url><url>
     <loc>https://muonkmu.github.io/tags/blaize-gsp/</loc>
     <lastmod>2023-01-27T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/categories/devenv/</loc>
-    <lastmod>2023-01-20T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/p/git-%EC%82%AC%EC%9A%A9-tip-%EC%A0%95%EB%A6%AC/</loc>
     <lastmod>2023-01-20T00:00:00+00:00</lastmod>

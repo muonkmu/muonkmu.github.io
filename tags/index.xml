@@ -6,7 +6,39 @@
         <description>Recent content in Tags on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Tue, 21 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Tue, 28 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Xilinx IDE</title>
+        <link>https://muonkmu.github.io/tags/xilinx-ide/</link>
+        <pubDate>Tue, 28 Feb 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/xilinx-ide/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>SCNN</title>
+        <link>https://muonkmu.github.io/tags/scnn/</link>
+        <pubDate>Sun, 26 Feb 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/scnn/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Cambricon-X</title>
+        <link>https://muonkmu.github.io/tags/cambricon-x/</link>
+        <pubDate>Sat, 25 Feb 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/cambricon-x/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>EIE</title>
+        <link>https://muonkmu.github.io/tags/eie/</link>
+        <pubDate>Sat, 25 Feb 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/eie/</guid>
+        <description></description>
+        </item>
+        <item>
         <title>Cnvlutin</title>
         <link>https://muonkmu.github.io/tags/cnvlutin/</link>
         <pubDate>Tue, 21 Feb 2023 00:00:00 +0000</pubDate>

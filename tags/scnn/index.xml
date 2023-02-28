@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>SCNN on MW Devlog</title>
+        <link>https://muonkmu.github.io/tags/scnn/</link>
+        <description>Recent content in SCNN on MW Devlog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Sun, 26 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/scnn/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[AI HW Design] Chap08 Network Sparsity (2/2)</title>
+        <link>https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/</link>
+        <pubDate>Sun, 26 Feb 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/</guid>
+        <description>&lt;h2 id=&#34;scnn-accelerator&#34;&gt;SCNN Accelerator&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;SCNN은 sparse encoding scheme을 이용해서 activation / weight sparsity 지원&lt;/li&gt;
+&lt;li&gt;Planar Tiled-Input Stationary-Cartesian Product-sparse (PT-IS-CP-sparse)라 부르는 새로운 Cartesian product flow를 제안 (activation / weight reuse)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;scnn-pt-is-cp-dense-dataflow&#34;&gt;SCNN PT-IS-CP-Dense Dataflow&lt;/h3&gt;
+&lt;p&gt;PT-IS-CP-Dense dataflow는 convolution nested loop를 어떻게 분해할 것인가에 관한 것&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;C X R X S 형태의 K개 filter, batch size N인 C X W X H 형태의 input activation 일 때&lt;/li&gt;
+&lt;li&gt;Input Stationary (IS) 가 적용되면 loop order는 C→W→H→K→R→S 가 됨&lt;/li&gt;
+&lt;li&gt;성능향상을 위해 blocking strategy 적용 (K output channel은 $K_c$ 사이즈의 K/$K_c$ output channel group으로 분리)&lt;/li&gt;
+&lt;li&gt;K/$K_c$→C→W→H→$K_c$→R→S&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;intra-PE parallelism을 위해 PE 내부에서 spatial reuse 활용&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;filter weight(F)와 input activation(I)가 각 buffer에서 fetch되고 이는 F X I array 곱셈기로 전송&lt;/li&gt;
+&lt;li&gt;filter weight와 input activation은 재활용 되며 partial sum은 향후 연산을 위해 메모리 접근 없이 저장됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;intra-PE parallelism을 위해 Spartial tiling 전략이 사용됨&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;W X H input activation는 $W_t$ X $H_t$ Planar Tiles(PT)로 나눠져서 PE로 분배됨&lt;/li&gt;
+&lt;li&gt;또한 mutiple channel processing 지원 (C X $W_t$ X $H_t$이 PE에 할당됨)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;sliding window operation에서 edge에서 cross-tile dependency가 생기는데 data halo를 이용해 해결&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Input Halos : PE input buffer는 halo을 수용하기 위해 C x Wt x Ht보다 약간 큰 크기로 조정&lt;/li&gt;
+&lt;li&gt;Output Halos : PE accumulation buffer도 halo을 수용하기 위해 Kc x Wt x Ht보다 약간 큰 크기로 조정. Halo에는 출력 채널 계산이 끝날 때 누적을 완료하기 위해 인접 PE와 통신하는 불완전한 부분 합계가 포함.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;PT-IS-CP-Dense Dataflow의 최종 수식은 다음과 같다
+&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/01_PT-IS-CP-dense_dataflow.png&#34;
+	width=&#34;1060&#34;
+	height=&#34;1140&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/01_PT-IS-CP-dense_dataflow_hu3c650d0832d33928f21fb381fc9933f6_155844_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/01_PT-IS-CP-dense_dataflow_hu3c650d0832d33928f21fb381fc9933f6_155844_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;PT-IS-CP- dense dataflow&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;92&#34;
+		data-flex-basis=&#34;223px&#34;
+	
+&gt;&lt;/p&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>
