@@ -343,10 +343,10 @@
 <h3 id="how-to-use-a-gui-on-the-docker">How to use a GUI on the docker</h3>
 <p>Docker에서 개발환경을 가상화 하는 것은 좋은데 Docker는 기본적으로 CLI 환경만 제공한다. 그러나 많은 임베디드 개발환경은 설치 및 실행에서 GUI를 필요로 하기에 Docker에서 GUI를 구성하는 방법은 아래와 같다.</p>
 <ol>
-<li>SSH 기반에서 X11 Forwarding을 이용해 HOST에서 GUI를 띄운다.</li>
 <li>desktop 환경이 설치된 Docker에서 VNC 이용</li>
+<li>SSH 기반에서 X11 Forwarding을 이용해 HOST에서 GUI를 띄운다.</li>
 </ol>
-<p>여기서는 2번째 방법을 다룬다.</p>
+<p>1번째 방법은 GUI docker image를 다운받아 설정하고 여기에 ssh의 ForwardX11 옵션을 활성화 하면 2번째 방법도 지원이 된다.</p>
 <h3 id="docker-image-다운-및-실행">Docker image 다운 및 실행</h3>
 <p>선구자가 LXDE 환경의 Docker를 개발하였다. 하기 사이트에서 사용법을 읽어보자.</p>
 <ul>
@@ -374,7 +374,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>이후 Docker의 VNC에 연결하여 진행한다.
-기본적으로 필요한 패키지들을 설치하고 만약 .bashrc가 없어서 터미널의 색깔이 없다면 해당파일을 복사한다.</p>
+기본적으로 필요한 패키지들을 설치하고 만약 <code>.bashrc</code>가 없어서 터미널의 색깔이 없다면 해당파일을 복사한다.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -390,6 +390,10 @@
 <ol>
 <li>필요 패키지들을 설치한다.</li>
 </ol>
+<ul>
+<li><a class="link" href="https://docs.xilinx.com/v/u/2019.2-English/ug1144-petalinux-tools-reference-guide"  target="_blank" rel="noopener"
+    >https://docs.xilinx.com/v/u/2019.2-English/ug1144-petalinux-tools-reference-guide</a></li>
+</ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -402,8 +406,8 @@
 </span></span><span class="line"><span class="cl">gawk make net-tools libncurses5-dev tftpd zlib1g:i386 libssl-dev flex bison libselinux1 gnupg wget diffstat chrpath socat xterm autoconf libtool tar unzip texinfo zlib1g-dev gcc-multilib build-essential screen pax gzip python2.7 cpio
 </span></span></code></pre></td></tr></table>
 </div>
-</div><ol start="2">
-<li>en_US.utf8을 추가한다.</li>
+</div><ol>
+<li>locale에 en_US.utf8을 추가한다.</li>
 </ol>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">

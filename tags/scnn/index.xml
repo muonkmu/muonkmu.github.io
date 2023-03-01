@@ -6,10 +6,10 @@
         <description>Recent content in SCNN on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sun, 26 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/scnn/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Wed, 01 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/scnn/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>[AI HW Design] Chap08 Network Sparsity (2/2)</title>
         <link>https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/</link>
-        <pubDate>Sun, 26 Feb 2023 00:00:00 +0000</pubDate>
+        <pubDate>Wed, 01 Mar 2023 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/</guid>
         <description>&lt;h2 id=&#34;scnn-accelerator&#34;&gt;SCNN Accelerator&lt;/h2&gt;
@@ -55,6 +55,132 @@
 		data-flex-basis=&#34;223px&#34;
 	
 &gt;&lt;/p&gt;
+&lt;h3 id=&#34;scnn-pt-is-cp-sparse-dataflow&#34;&gt;SCNN PT-IS-CP-Sparse Dataflow&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;PT-IS-CP-Sparse는 PT-IS-CP-Dense dataflow에서 파생되었고 filter weight와 input activation의 sparsity를 지원&lt;/li&gt;
+&lt;li&gt;filter weight는 Kc X R X S sparse block으로 압축, input activation은 Wt X Ht 사이즈 블럭으로 엔코딩&lt;/li&gt;
+&lt;li&gt;PE는 nonzero F 와 nonzero I를 곱해서 partial sum은 accumulator buffer에 output index와 저장됨&lt;/li&gt;
+&lt;li&gt;PT-IS-CP-Sparse는 compressed sparse index input activation / filter weigth / accumulator buffer를 패치 할 수 있도록 수정됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;scnn-tiled-architecture&#34;&gt;SCNN Tiled Architecture&lt;/h3&gt;
+&lt;p&gt;SCNN은 Tiled architecture로 PT-IS-CP-Sparse를 지원&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;PE는 halo를 교환 하기 위해 인접 PE와 연결되며 Layer Sequencer는 PE와 DRAM의 데이터 이동을 제어&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/02_SCNN_archi.png&#34;
+	width=&#34;592&#34;
+	height=&#34;368&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/02_SCNN_archi_hu22a2dcceaf27a062ad40ebc660eff001_51694_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/02_SCNN_archi_hu22a2dcceaf27a062ad40ebc660eff001_51694_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;SCNN architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;160&#34;
+		data-flex-basis=&#34;386px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;processing-element-architecture&#34;&gt;Processing Element Architecture&lt;/h3&gt;
+&lt;p&gt;PE는 weight buffer, input/output activation RAM (IARAM/OARAM), multiplier array, scatter crossbar, accumulation buffer, Post-Processing Unit (PPU)으로 구성&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/03_SCNN_dataflow.png&#34;
+	width=&#34;875&#34;
+	height=&#34;528&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/03_SCNN_dataflow_huacf189784cbd8dae2aef41d93c8518bf_46478_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/03_SCNN_dataflow_huacf189784cbd8dae2aef41d93c8518bf_46478_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;SCNN dataflow&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;165&#34;
+		data-flex-basis=&#34;397px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;li&gt;input activation과 filter weight가 PE로 로드되고 multiplier array가 partial sum을 계산 후 acculumlation buffer에 저장&lt;/li&gt;
+&lt;li&gt;acculumlation buffer는 adder와 output channel entry를 가지고 있으며 double buffers 전략 사용
+&lt;ul&gt;
+&lt;li&gt;1개 버퍼는 partial sum을 계산 하고 다른 것은 output을 후처리를 위해 PPU로 전송&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;PPU는 몇 가지 다른 task를 수행
+&lt;ul&gt;
+&lt;li&gt;halo 영역을 위해 인접 PE와 partial sum을 교환&lt;/li&gt;
+&lt;li&gt;nonlinear activation, pooling, dropout 수행&lt;/li&gt;
+&lt;li&gt;output activation을 압축하고 ORAM에 씀&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;data-compression&#34;&gt;Data Compression&lt;/h3&gt;
+&lt;p&gt;filter weight와 input/output activation을 압축하기 위해 다른 것과 약간 수정된 엔코딩 방식 사용(책의 그림 참조)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Data vector : 0이 아닌 element 저장&lt;/li&gt;
+&lt;li&gt;index vector : 0이 아닌 element의 갯수와 이전에 0인 element의 갯수를 저장&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;seernet-accelerator&#34;&gt;SeerNet Accelerator&lt;/h2&gt;
+&lt;p&gt;Microsoft SeerNet은 quantizaition convolution을 이용해서 feature map sparsity를 예상하는 방법을 제안&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Feature Map(F)와 filter weight(W)는 Fq와 Wq로 양자화 되고 이를 이용해 quantized low bit inference를 수행하여 binary sparsity mask(M)을 생성&lt;/li&gt;
+&lt;li&gt;그리고 full precision sparse inference를 수행(앞의 M을 이용하는 듯)&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/04_SeerNet_archi.png&#34;
+	width=&#34;647&#34;
+	height=&#34;619&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/04_SeerNet_archi_hub8d99cee4d0eb9f82ddd1d04851c9f13_43764_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/04_SeerNet_archi_hub8d99cee4d0eb9f82ddd1d04851c9f13_43764_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;SeerNet architecture&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;104&#34;
+		data-flex-basis=&#34;250px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;low-bit-quantization&#34;&gt;Low-Bit Quantization&lt;/h3&gt;
+&lt;p&gt;Low-Bit Quantization은 online/offline에서 filter weight를 양자화&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;output feature map의 dimenstion이 H*W 일 때 양자화 복잡도는 1/(HW)&lt;/li&gt;
+&lt;li&gt;online 동작은 낮은 연산 복잡도와 오버헤드로 병렬처리를 제공하고 offline 동작은 추가 저장공간으로 양자화 오버헤드를 제거함&lt;/li&gt;
+&lt;li&gt;online quantization동안 binary mask 생성을 위한 quantized convolution이 수행되고 이 마스크를 가지고 spase convolution이 수행 됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;efficient-quantization&#34;&gt;Efficient Quantization&lt;/h3&gt;
+&lt;p&gt;Full quantization 대신에 layer-by-layer quantization에 집중하고 output feature map을 예측하기 위한 low-bit quantization 적용&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ReLU의 경우 output feature map의부호를 찾고 음수을 0으로 출력 시킴&lt;/li&gt;
+&lt;li&gt;Max pooling의 경우 정확도 없이 output feature map의 가장 큰 값만 찾음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Quantization flow 하기와 같음&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;n-1이 양/음의 범위를 모두 커버하는 양자화 레벨 2n-1을 정의&lt;/li&gt;
+&lt;li&gt;최대 절대값 M을 찾음&lt;/li&gt;
+&lt;li&gt;양자화 값 x&amp;rsquo; = floor(X/M*2^(n-1))
+&lt;img src=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/05_SeerNet_quntization.png&#34;
+	width=&#34;554&#34;
+	height=&#34;460&#34;
+	srcset=&#34;https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/05_SeerNet_quntization_hucc3c7253dfa6848e984e714af7a258ce_78014_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/05_SeerNet_quntization_hucc3c7253dfa6848e984e714af7a258ce_78014_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;SeerNet Quntization&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;120&#34;
+		data-flex-basis=&#34;289px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;quantized-convolution&#34;&gt;Quantized Convolution&lt;/h3&gt;
+&lt;p&gt;책에 Quantized Convolution, Quantized ReLU activation, Quantized batch normalization 수식 있음&lt;/p&gt;
+&lt;h3 id=&#34;inference-acceleration&#34;&gt;Inference Acceleration&lt;/h3&gt;
+&lt;p&gt;Inference 성능향상을 위해 Intel AVX2 vector 연산 사용&lt;/p&gt;
+&lt;h3 id=&#34;sparsity-mask-encoding&#34;&gt;Sparsity-Mask Encoding&lt;/h3&gt;
+&lt;p&gt;sparse convolution 성능 향상을 위해 row/column index vector를 이용해 sparsity mask를 엔코딩&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;feature map을 vector format으로 변환(다수의 feature map은 matrix 형태가 됨)&lt;/li&gt;
+&lt;li&gt;column index에는 sparse bit의 column 위치 row index 에는 각 row column의 시작위치가 있음(책에 그림 볼 것)&lt;/li&gt;
+&lt;/ul&gt;
 </description>
         </item>
         
