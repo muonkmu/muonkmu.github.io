@@ -7,11 +7,11 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <lastBuildDate>Fri, 03 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/petalinux/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>[MW_project] zcu104 개발환경 설정</title>
-        <link>https://muonkmu.github.io/p/mw_project-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/</link>
+        <title>[YOLO_Acc_prj] 03 zcu104 개발환경 설정</title>
+        <link>https://muonkmu.github.io/p/yolo_acc_prj-03-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/</link>
         <pubDate>Fri, 03 Feb 2023 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/mw_project-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/</guid>
+        <guid>https://muonkmu.github.io/p/yolo_acc_prj-03-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/</guid>
         <description>&lt;p&gt;zcu104 petalinux를 포팅하기 위한 일주일 간 삽질의 기록이다.
 xilinx에서 제공하는 training reference를 따라하면 간단하지만 이는 SD카드에 커널과 루트파일 시스템을 삽입하는 방법이다.
 실제 개발의 편의성을 위해 TFTP 및 NFS를 이용하여 부팅하는 방법을 다룬다.&lt;/p&gt;

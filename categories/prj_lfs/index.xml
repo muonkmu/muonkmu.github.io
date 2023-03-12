@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>prj_LFS on MW Devlog</title>
+        <link>https://muonkmu.github.io/categories/prj_lfs/</link>
+        <description>Recent content in prj_LFS on MW Devlog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Sun, 12 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/prj_lfs/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[LFS_prj] 02 Host setting</title>
+        <link>https://muonkmu.github.io/p/lfs_prj-02-host-setting/</link>
+        <pubDate>Sun, 12 Mar 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/lfs_prj-02-host-setting/</guid>
+        <description>&lt;p&gt;첫번째로 Host를 셋업하는 과정을 서술한다. 기본적으로 VMware에 우분투 20.04가 설치되었고 파티션이 분할 되었다는 가정하에 진행한다.&lt;/p&gt;
+&lt;h2 id=&#34;host-환경설정&#34;&gt;Host 환경설정&lt;/h2&gt;
+&lt;p&gt;LFS를 설치하고 빌드하는데 필요한 host package를 설치한다. 하기 링크를 참조한다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter02/hostreqs.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter02/hostreqs.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;상기 링크에는 host의 필요 패키지 버전 및 상태를 체크하는 스크립트도 제공되므로 실행해보도록 하자. 필자의 환경에서 스크립트를 실행 시 하기 문제점이 발견되서 수정하였다.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;/bin/sh의 심볼릭 링크가 dash가 아닌 bash로 설정
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;sudo dpkg-reconfigure dash&lt;/code&gt; 실행 후 no 선택&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;binutils 등 설치되지 않은 패키지 설치
+&lt;ul&gt;
+&lt;li&gt;binutils, bison, gawk, gcc, g++, make, texinfo&lt;/li&gt;
+&lt;li&gt;우분투에서 설치가능한 패키지의 버전을 확인하고 싶으면 &lt;code&gt;apt-cache policy ${패키지 이름}&lt;/code&gt;으로 확인 가능하다.&lt;/li&gt;
+&lt;li&gt;필자는 패키지 버전을 특별히 버전을 매뉴얼과 맞추지 않았다.(필자는 호환을 보증하지 않는다고 표기된 패키지 버전만 신경씀)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;partition-setting--mount&#34;&gt;Partition Setting &amp;amp; mount&lt;/h2&gt;
+&lt;p&gt;만약 설치시 LFS RootFS 및 SWAP 파티션을 설정하지 않았다면 파티션을 만들어 준다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter02/creatingfilesystem.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter02/creatingfilesystem.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;필자는 하이퍼바이저 위에 우분투20.04를 설치했으므로 이미 Swap 공간이 &lt;code&gt;/swapfile&lt;/code&gt;파일에 생성되어 있다. &lt;code&gt;free&lt;/code&gt; 명령을 통해 swap공간의 존재를 확인할 수 있다.
+그러므로 필자는 별도 스왑공간을 생성하지 않았다. 만약 swap 용량이 모자란다면 스왑파일 용량을 키우자&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;LFS RootFS 파티션과 Swap 파티션을 생성한다.
+&lt;ul&gt;
+&lt;li&gt;RootFS : fdisk 에서 커맨드 n(생성) -&amp;gt; p(primary) 로 생성&lt;/li&gt;
+&lt;li&gt;(필요시)swap : fdisk 에서 커맨드 n(생성) -&amp;gt; p(primary) 로 생성 후 t(type) -&amp;gt; 코드 82&lt;/li&gt;
+&lt;li&gt;w로 저장&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;해당 파일 시스템으로 포맷&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo mkfs -v -t ext4 /dev/&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;RootFS_&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;파티션&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;필요시&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;sudo mkswap /dev/&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;swap_partition&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;전역변수 설정 및 파티션 마운트
+&lt;ul&gt;
+&lt;li&gt;&amp;lsquo;mount -l&amp;rsquo; 명령으로 nosuid나 또는 nodev가 아닌지 확인하자.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;LFS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/mnt/lfs
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo mkdir -pv &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo mount -v -t ext4 /dev/sda2 &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo cat &lt;span class=&#34;s2&#34;&gt;&amp;#34;/dev/sda2   /mnt/lfs   ext4   default   1   1&amp;#34;&lt;/span&gt; &amp;gt;&amp;gt; /etc/fstab
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;패키지와-패치-다운로드&#34;&gt;패키지와 패치 다운로드&lt;/h2&gt;
+&lt;p&gt;기본적인 리눅스 시스템을 구축하기 위해 다운로드 해야 하는 패키지와 패치를 다운로드 한다.
+(아마 빌드를 위한 sysroot 구축이라 생각되는데?? 아직은 확실하지 않음)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;source 저장을 위한 폴더 생성 및 권한 설정&lt;/li&gt;
+&lt;li&gt;패키지 및 패치 다운
+&lt;ul&gt;
+&lt;li&gt;패키지와 패치를 다운로드 할때 수동으로 하나씩 받기 힘드므로 리스트 파일을 제공한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;정상적으로 다운 받았는지 확인하기 위한 md5 체크섬 확인
+&lt;ul&gt;
+&lt;li&gt;체크섬 확인을 위한 파일도 제공하므로 이를 이용&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo mkdir -v &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/sources
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo chmod -v a+wt &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/sources
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;wget --directory-prefix&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/sources https://www.linuxfromscratch.org/lfs/view/stable-systemd/wget-list-systemd
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;wget --input-file&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;wget-list-systemd --continue --directory-prefix&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/sources
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;wget --directory-prefix&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/sources https://www.linuxfromscratch.org/lfs/view/stable-systemd/md5sums
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;pushd&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/sources
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;md5sum -c md5sums
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;popd&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;다운로드한 패키지와 패치의 리스트는 다음 페이지에 나와 있다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;패키지 : &lt;a class=&#34;link&#34; href=&#34;https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter03/packages.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter03/packages.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;패치 : &lt;a class=&#34;link&#34; href=&#34;https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter03/patches.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter03/patches.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;최종-준비&#34;&gt;최종 준비&lt;/h2&gt;
+&lt;p&gt;크로스 컴파일을 위한 유저 추가 및 bash 환경 설정. 각 절차에서 나타난 옵션에 대한 자세한 설명은 매뉴얼 페이지를 참조한다.&lt;/p&gt;
+&lt;h3 id=&#34;최소-lfs-filesystem-layout-구성&#34;&gt;최소 LFS Filesystem layout 구성&lt;/h3&gt;
+&lt;p&gt;LFS의 빌드를 위한 크로스 컴파일러 생성 시 필요한 최소한의 Filesystem layout을 구축하는 듯 하다(필자의 추론)
+Filesystem Layout을 위한 심볼릭 링크도 만들고 그 후 크로스 컴파일러가 설치 될 폴더를 생성한다.(이는 향후 LFS 시스템에 포함되지 않으므로 분리해놓음)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo mkdir -pv &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;etc,var&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/usr/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;bin,lib,sbin&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; i in bin lib sbin&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  ln -sv usr/&lt;span class=&#34;nv&#34;&gt;$i&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/&lt;span class=&#34;nv&#34;&gt;$i&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;done&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;case&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;uname -m&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt; in
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  x86_64&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; mkdir -pv &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/lib64 &lt;span class=&#34;p&#34;&gt;;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;esac&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo mkdir -pv &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/tools
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;lfs빌드를-위한-유저-추가&#34;&gt;LFS빌드를 위한 유저 추가&lt;/h3&gt;
+&lt;p&gt;빌드를 위한 환경 구성을 위해 별도의 유저를 추가&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;lfs 유저추가 및 비번 설정&lt;/li&gt;
+&lt;li&gt;생성된 파일 시스템의 소유자를 lfs로 변경&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;/etc/bash.bashrc&lt;/code&gt; 이름 변경 (우분투20.04의 경우 lfs로 로긴 시 해당 파일이 쉘 환경을 변화시키는 것을 막기 위함)&lt;/li&gt;
+&lt;li&gt;lfs로 로긴&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;9
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo groupadd lfs
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo useradd -s /bin/bash -g lfs -m -k /dev/null lfs
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;chown -v lfs &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;usr&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;,/*&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;,var,etc,tools&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;chown -vh lfs &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;bin,lib,sbin&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;case&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;uname -m&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt; in
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  x86_64&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; chown -v lfs &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/lib64 &lt;span class=&#34;p&#34;&gt;;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;esac&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo mv -v /etc/bash.bashrc /etc/bash.bashrc.NOUSE
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;su - lfs
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;lfs-유저-환경설정&#34;&gt;lfs 유저 환경설정&lt;/h3&gt;
+&lt;p&gt;lfs 유저를 위환 쉘의 환경을 설정한다. 설정에 대한 상세 내용은 매뉴얼을 참조한다.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;.bash_profile&lt;/code&gt;은 Login Shell에서 실행(ex. ssh 로그인 쉘)되며 하기와 같이 설정&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cat &amp;gt; ~/.bash_profile &amp;lt;&amp;lt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;EOF&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; env -i &lt;span class=&#34;nv&#34;&gt;HOME&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$HOME&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;TERM&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TERM&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;PS1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;\u:\w\$ &amp;#39;&lt;/span&gt; /bin/bash
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;&lt;code&gt;.bashrc&lt;/code&gt;은 Non-Login Shell에서 실행(ex. 로그인된 상태에서 쉘이 실행될 때)되며 하기와 같이 설정&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cat &amp;gt; ~/.bashrc &amp;lt;&amp;lt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;EOF&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;set&lt;/span&gt; +h
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;umask&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;022&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;LFS&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/mnt/lfs
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;LC_ALL&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;POSIX
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;LFS_TGT&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;uname -m&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;-lfs-linux-gnu
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;PATH&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; ! -L /bin &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;PATH&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/bin:&lt;span class=&#34;nv&#34;&gt;$PATH&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;PATH&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/tools/bin:&lt;span class=&#34;nv&#34;&gt;$PATH&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;CONFIG_SITE&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/usr/share/config.site
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; LFS LC_ALL LFS_TGT PATH CONFIG_SITE
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;프로파일을 적용한다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; ~/.bash_profile
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description>
+        </item>
+        <item>
+        <title>[LFS_prj] 01 LFS project propsal</title>
+        <link>https://muonkmu.github.io/p/lfs_prj-01-lfs-project-propsal/</link>
+        <pubDate>Sat, 04 Mar 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/lfs_prj-01-lfs-project-propsal/</guid>
+        <description>&lt;p&gt;리눅스의 구조를 조금 더 알아보고자 LFS를 진행해보기로 했다.
+리눅스를 부트로더부터 쉘까지 구축하는 프로젝트인데 수행하고 나면 리눅스 패키지의 디펜던시를 알 수 있다고 한다.
+즉, Roll Your Own(RYO) 기법으로 리눅스를 구축하는 것이다.&lt;/p&gt;
+&lt;h2 id=&#34;목표&#34;&gt;목표&lt;/h2&gt;
+&lt;p&gt;현재 LFS의 버전은 11.3 이며 stable 버전은 init프로그램의 종류에 따라 sysvinit 버전과 systemd 버전으로 나뉜다.
+요즘 추세에 따라 &lt;code&gt;LFS v11.3-systemd&lt;/code&gt; 를 구성하는 것을 목표로 한다.&lt;/p&gt;
+&lt;h2 id=&#34;개발-환경&#34;&gt;개발 환경&lt;/h2&gt;
+&lt;p&gt;VMware를 환경에서 우분투를 설치하여 진행하였다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;노트북에 우분투가 깔려 있었지만 LFS 마운트용 파티션 분할이 SSD 파편화 문제로 실패해서..&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;다른 글들을 보면 ubuntu LiveCD boot 환경에서 진행할 수 있다고 하는데 필자는 그냥 우분투를 설치하였다.
+파티션 구성은 하기와 같다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;sda1(primary 25Gb) : ubuntu 20.04&lt;/li&gt;
+&lt;li&gt;sda2(primary 35Gb) : LFS mount&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;참고&#34;&gt;참고&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;공식 매뉴얼 : &lt;a class=&#34;link&#34; href=&#34;https://www.linuxfromscratch.org/lfs/view/stable-systemd/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.linuxfromscratch.org/lfs/view/stable-systemd/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;번역서(9.1버전) : &lt;a class=&#34;link&#34; href=&#34;https://rawcdn.githack.com/NuttyJamie/LinuxFromScratch-for-Korean/88bdabae8abf2fad511b497b0dc676e6ac95b965/9.1/BOOK/HTML/index.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://rawcdn.githack.com/NuttyJamie/LinuxFromScratch-for-Korean/88bdabae8abf2fad511b497b0dc676e6ac95b965/9.1/BOOK/HTML/index.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;참고 자료 : &lt;a class=&#34;link&#34; href=&#34;http://soopsaram.com/lfs/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;http://soopsaram.com/lfs/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

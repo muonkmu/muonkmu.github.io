@@ -1,0 +1,32 @@
++++
+author = "Minwook Kim"
+title = "[YOLO_Acc_prj] HDMI sync Interface 구성"
+date = "2023-01-25"
+description = "ZCU104의 HDMI sync 인터페이스 구성 방안 요약"
+tags = [
+    "HDMI",
+]
+categories = [
+    "MW_prj_YOLO_acc",
+]
++++
+
+획득된 영상의 출력을 위해 HDMI를 사용하기로 하였다.
+상기 ZCU104 + See3CAM_CU30의 reference design은 xilinx Embedded Design Tutorial의 `ZCU104 Single Sensor`에서 확인할 수 있다.
+
+
+## HDMI Base
+
+### HDMI 연결부
+- ![](01_HDMI_connection.png)
+- HDMI(High Definition Multimedia Interface)은 정해진 신호를 비교적 깨끗하게 전송할 수 있다.
+- 영상신호와 음성신호의 전송채널은 TMDS(Time minimized Differential Signal)을 사용 (차분신호 전송 방식)
+  - TMDS line은 3개의 신호와 1개의 클럭 신호로 구성
+  - 3개의 line을 통해 R, G, B 세가지 원색을 전송, (B에서 HV전송, R/G에서 음성신호 전송)
+- DDC(Display Data Channel)은 디스플레이 데이터 통로로 장치의 송출 사양 신호 및 데이터 격식 신호 전송
+  - E-EDID(Enhanced Extended Display Identificaiton Data) 양식 사용
+  - EDID 정보는 하위장치에서 상위 장치로 제공 (HDIM에서 출력가능한 모든 기능 및 호환성 정보 묘사)
+  - I2C 규격을 따르고 (address는 항상 0xA0) EDID는 칩의 ROM에 저장
+- CEC(Consumer Electronics Control)는 제어 통로, HDMI CEC Network 상의 상호 작용 통제
+- HPD(Hot Plug Detector) 케이블 연결 상태 확인용, 해당 신호가 오지 않으면 DDC 신호를 전송하지 않음
+- ![](02_HDMI_pinmap.png)

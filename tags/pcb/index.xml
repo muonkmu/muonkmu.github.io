@@ -7,84 +7,11 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <lastBuildDate>Wed, 28 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/pcb/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>[KiCad] Footprint and PCB</title>
-        <link>https://muonkmu.github.io/p/kicad-footprint-and-pcb/</link>
+        <title>[KiCad] 01 Symbol and Schemetic</title>
+        <link>https://muonkmu.github.io/p/kicad-01-symbol-and-schemetic/</link>
         <pubDate>Wed, 28 Dec 2022 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/kicad-footprint-and-pcb/</guid>
-        <description>&lt;p&gt;IDEC에서 수강한 KiCad 강좌 요약 이다. 디자인 플로우 중 Footprint와 PCB에 대해 정리한다.&lt;/p&gt;
-&lt;h2 id=&#34;footprint&#34;&gt;Footprint&lt;/h2&gt;
-&lt;h3 id=&#34;footprint-design-flow&#34;&gt;Footprint design flow&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;footprint 편집기를 연다&lt;/li&gt;
-&lt;li&gt;실부품 측정 또는 데이터 시트를 참조하여 부품 치수 확인&lt;/li&gt;
-&lt;li&gt;필요 시 풋프린트 라이브러리 생성 (파일-&amp;gt;새라이브러리)&lt;/li&gt;
-&lt;li&gt;라이브러리 선택 후 새 풋프린트 생성 하거나 유사한 부품 불러 온 후 다른 이름으로 저장&lt;/li&gt;
-&lt;li&gt;십자선 커서 이용하여 원점에서 스페이스바를 눌러 원점 위치 선정&lt;/li&gt;
-&lt;li&gt;실크 레이어에 부품 외형선 그리기&lt;/li&gt;
-&lt;li&gt;패드와 홀 위치 시킨 후 사이즈 속성 편집
-&lt;ul&gt;
-&lt;li&gt;패드 위치에 맞게 번호 편집, 핀번호는 심볼과 일치하도록 할 것&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;저장
-&lt;img src=&#34;https://muonkmu.github.io/p/kicad-footprint-and-pcb/footprint_edit_page.png&#34;
-	width=&#34;2696&#34;
-	height=&#34;1150&#34;
-	srcset=&#34;https://muonkmu.github.io/p/kicad-footprint-and-pcb/footprint_edit_page_hu297452f323d034ce41b824c224ef8559_554183_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/kicad-footprint-and-pcb/footprint_edit_page_hu297452f323d034ce41b824c224ef8559_554183_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;234&#34;
-		data-flex-basis=&#34;562px&#34;
-	
-&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;smd-component-footprint&#34;&gt;SMD Component Footprint&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;SMD 부품의 경우 패드의 속성을 SMD로 변경&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;뒷면-실장-component&#34;&gt;뒷면 실장 component&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;뒷면에 실장할 경우 레이어를 관련 레이어를 B.* 레이어로 변경해야 한다.
-&lt;ul&gt;
-&lt;li&gt;F.Cu, F.Silkscreen, F.Courtyard, F.Fab 내용을 B.* 레이어로 이동&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h2 id=&#34;pcb-design&#34;&gt;PCB design&lt;/h2&gt;
-&lt;ol&gt;
-&lt;li&gt;프로젝트 매니저에서 PCB 편집기 열기&lt;/li&gt;
-&lt;li&gt;회로도 PCB 전환(F8)을 이용하여 회로도에서 컴포넌트를 로딩&lt;/li&gt;
-&lt;li&gt;Edge.Cuts layer에서 PCB 외형선을 그리기&lt;/li&gt;
-&lt;li&gt;외형선 내부에 컴포넌트 배치 및 컴포넌트 레퍼런스/value 위치 조정&lt;/li&gt;
-&lt;li&gt;필요한 텍스트를 Silkscreen에 부가&lt;/li&gt;
-&lt;li&gt;트랙 설정 및 배선 (일반적으로 신호선 12mil, 전원선 30mil)&lt;/li&gt;
-&lt;li&gt;동박면 씌우기 (GND와 연결)&lt;/li&gt;
-&lt;li&gt;DRC 검사&lt;/li&gt;
-&lt;li&gt;Plot을 통해 거버/드릴링/포지션 파일 생성 및 검사
-&lt;img src=&#34;https://muonkmu.github.io/p/kicad-footprint-and-pcb/pcb_edit_page.png&#34;
-	width=&#34;2172&#34;
-	height=&#34;1292&#34;
-	srcset=&#34;https://muonkmu.github.io/p/kicad-footprint-and-pcb/pcb_edit_page_hu69919b00588fcb87585efb993ecafd95_1463424_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/kicad-footprint-and-pcb/pcb_edit_page_hu69919b00588fcb87585efb993ecafd95_1463424_1024x0_resize_box_3.png 1024w&#34;
-	loading=&#34;lazy&#34;
-	
-	
-		class=&#34;gallery-image&#34; 
-		data-flex-grow=&#34;168&#34;
-		data-flex-basis=&#34;403px&#34;
-	
-&gt;&lt;/li&gt;
-&lt;/ol&gt;
-</description>
-        </item>
-        <item>
-        <title>[KiCad] Symbol and Schemetic</title>
-        <link>https://muonkmu.github.io/p/kicad-symbol-and-schemetic/</link>
-        <pubDate>Wed, 28 Dec 2022 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/p/kicad-symbol-and-schemetic/</guid>
+        <guid>https://muonkmu.github.io/p/kicad-01-symbol-and-schemetic/</guid>
         <description>&lt;p&gt;IDEC에서 수강한 KiCad 강좌 요약 이다. 디자인 플로우 중 Symbol and Schemetic에 대해 정리한다.&lt;/p&gt;
 &lt;h2 id=&#34;kicad-개요&#34;&gt;KiCad 개요&lt;/h2&gt;
 &lt;ul&gt;
@@ -124,10 +51,10 @@
 &lt;ul&gt;
 &lt;li&gt;Tip 1 : 프로젝트 생성 시 템플릿을 지정하여 생성 가능 (큰 회사에서 기초 설정 등을 지정한 형식)&lt;/li&gt;
 &lt;li&gt;Tip 2 : 환경 설정에서 텍스트 편집기를 등록하면 텍스트 편집기 사용이 가능하다.
-&lt;img src=&#34;https://muonkmu.github.io/p/kicad-symbol-and-schemetic/project_manage_page.png&#34;
+&lt;img src=&#34;https://muonkmu.github.io/p/kicad-01-symbol-and-schemetic/project_manage_page.png&#34;
 	width=&#34;2908&#34;
 	height=&#34;1356&#34;
-	srcset=&#34;https://muonkmu.github.io/p/kicad-symbol-and-schemetic/project_manage_page_hufdf11732201a6d094dfe0f0284e9b39a_662332_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/kicad-symbol-and-schemetic/project_manage_page_hufdf11732201a6d094dfe0f0284e9b39a_662332_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://muonkmu.github.io/p/kicad-01-symbol-and-schemetic/project_manage_page_hufdf11732201a6d094dfe0f0284e9b39a_662332_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/kicad-01-symbol-and-schemetic/project_manage_page_hufdf11732201a6d094dfe0f0284e9b39a_662332_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 	
@@ -146,10 +73,10 @@
 &lt;li&gt;필요 시 원점 설정 (단축키 space)(심볼 로딩 위치 및 로테이션 시 회전 점)&lt;/li&gt;
 &lt;li&gt;저장
 Tip) 편집 시 원하는 위치에 지정할 수 없을 때 그리드 속성을 편집하여 그리드 간격을 조절하자
-&lt;img src=&#34;https://muonkmu.github.io/p/kicad-symbol-and-schemetic/symbol_edit_page.png&#34;
+&lt;img src=&#34;https://muonkmu.github.io/p/kicad-01-symbol-and-schemetic/symbol_edit_page.png&#34;
 	width=&#34;2218&#34;
 	height=&#34;1246&#34;
-	srcset=&#34;https://muonkmu.github.io/p/kicad-symbol-and-schemetic/symbol_edit_page_hu818501ea25b8fb246a26a0c3f0a5736b_772973_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/kicad-symbol-and-schemetic/symbol_edit_page_hu818501ea25b8fb246a26a0c3f0a5736b_772973_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://muonkmu.github.io/p/kicad-01-symbol-and-schemetic/symbol_edit_page_hu818501ea25b8fb246a26a0c3f0a5736b_772973_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/kicad-01-symbol-and-schemetic/symbol_edit_page_hu818501ea25b8fb246a26a0c3f0a5736b_772973_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 	
@@ -167,16 +94,89 @@ Tip) 편집 시 원하는 위치에 지정할 수 없을 때 그리드 속성을
 &lt;li&gt;레퍼런스 (부품번호, ex. R100) 지정자 채우기 로 레퍼런스 설정&lt;/li&gt;
 &lt;li&gt;PCB 풋 프린트 배정&lt;/li&gt;
 &lt;li&gt;ERC 수행/수정 및 BOM 출력
-&lt;img src=&#34;https://muonkmu.github.io/p/kicad-symbol-and-schemetic/schemetic_edit_page.png&#34;
+&lt;img src=&#34;https://muonkmu.github.io/p/kicad-01-symbol-and-schemetic/schemetic_edit_page.png&#34;
 	width=&#34;2710&#34;
 	height=&#34;1402&#34;
-	srcset=&#34;https://muonkmu.github.io/p/kicad-symbol-and-schemetic/schemetic_edit_page_hua6e34afde46f1c26994059153698c020_602015_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/kicad-symbol-and-schemetic/schemetic_edit_page_hua6e34afde46f1c26994059153698c020_602015_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://muonkmu.github.io/p/kicad-01-symbol-and-schemetic/schemetic_edit_page_hua6e34afde46f1c26994059153698c020_602015_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/kicad-01-symbol-and-schemetic/schemetic_edit_page_hua6e34afde46f1c26994059153698c020_602015_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 	
 		class=&#34;gallery-image&#34; 
 		data-flex-grow=&#34;193&#34;
 		data-flex-basis=&#34;463px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        <item>
+        <title>[KiCad] 02 Footprint and PCB</title>
+        <link>https://muonkmu.github.io/p/kicad-02-footprint-and-pcb/</link>
+        <pubDate>Wed, 28 Dec 2022 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/kicad-02-footprint-and-pcb/</guid>
+        <description>&lt;p&gt;IDEC에서 수강한 KiCad 강좌 요약 이다. 디자인 플로우 중 Footprint와 PCB에 대해 정리한다.&lt;/p&gt;
+&lt;h2 id=&#34;footprint&#34;&gt;Footprint&lt;/h2&gt;
+&lt;h3 id=&#34;footprint-design-flow&#34;&gt;Footprint design flow&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;footprint 편집기를 연다&lt;/li&gt;
+&lt;li&gt;실부품 측정 또는 데이터 시트를 참조하여 부품 치수 확인&lt;/li&gt;
+&lt;li&gt;필요 시 풋프린트 라이브러리 생성 (파일-&amp;gt;새라이브러리)&lt;/li&gt;
+&lt;li&gt;라이브러리 선택 후 새 풋프린트 생성 하거나 유사한 부품 불러 온 후 다른 이름으로 저장&lt;/li&gt;
+&lt;li&gt;십자선 커서 이용하여 원점에서 스페이스바를 눌러 원점 위치 선정&lt;/li&gt;
+&lt;li&gt;실크 레이어에 부품 외형선 그리기&lt;/li&gt;
+&lt;li&gt;패드와 홀 위치 시킨 후 사이즈 속성 편집
+&lt;ul&gt;
+&lt;li&gt;패드 위치에 맞게 번호 편집, 핀번호는 심볼과 일치하도록 할 것&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;저장
+&lt;img src=&#34;https://muonkmu.github.io/p/kicad-02-footprint-and-pcb/footprint_edit_page.png&#34;
+	width=&#34;2696&#34;
+	height=&#34;1150&#34;
+	srcset=&#34;https://muonkmu.github.io/p/kicad-02-footprint-and-pcb/footprint_edit_page_hu297452f323d034ce41b824c224ef8559_554183_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/kicad-02-footprint-and-pcb/footprint_edit_page_hu297452f323d034ce41b824c224ef8559_554183_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;234&#34;
+		data-flex-basis=&#34;562px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;smd-component-footprint&#34;&gt;SMD Component Footprint&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;SMD 부품의 경우 패드의 속성을 SMD로 변경&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;뒷면-실장-component&#34;&gt;뒷면 실장 component&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;뒷면에 실장할 경우 레이어를 관련 레이어를 B.* 레이어로 변경해야 한다.
+&lt;ul&gt;
+&lt;li&gt;F.Cu, F.Silkscreen, F.Courtyard, F.Fab 내용을 B.* 레이어로 이동&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;pcb-design&#34;&gt;PCB design&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;프로젝트 매니저에서 PCB 편집기 열기&lt;/li&gt;
+&lt;li&gt;회로도 PCB 전환(F8)을 이용하여 회로도에서 컴포넌트를 로딩&lt;/li&gt;
+&lt;li&gt;Edge.Cuts layer에서 PCB 외형선을 그리기&lt;/li&gt;
+&lt;li&gt;외형선 내부에 컴포넌트 배치 및 컴포넌트 레퍼런스/value 위치 조정&lt;/li&gt;
+&lt;li&gt;필요한 텍스트를 Silkscreen에 부가&lt;/li&gt;
+&lt;li&gt;트랙 설정 및 배선 (일반적으로 신호선 12mil, 전원선 30mil)&lt;/li&gt;
+&lt;li&gt;동박면 씌우기 (GND와 연결)&lt;/li&gt;
+&lt;li&gt;DRC 검사&lt;/li&gt;
+&lt;li&gt;Plot을 통해 거버/드릴링/포지션 파일 생성 및 검사
+&lt;img src=&#34;https://muonkmu.github.io/p/kicad-02-footprint-and-pcb/pcb_edit_page.png&#34;
+	width=&#34;2172&#34;
+	height=&#34;1292&#34;
+	srcset=&#34;https://muonkmu.github.io/p/kicad-02-footprint-and-pcb/pcb_edit_page_hu69919b00588fcb87585efb993ecafd95_1463424_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/kicad-02-footprint-and-pcb/pcb_edit_page_hu69919b00588fcb87585efb993ecafd95_1463424_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;168&#34;
+		data-flex-basis=&#34;403px&#34;
 	
 &gt;&lt;/li&gt;
 &lt;/ol&gt;

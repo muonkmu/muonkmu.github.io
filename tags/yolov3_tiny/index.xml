@@ -7,11 +7,11 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <lastBuildDate>Mon, 16 Jan 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/yolov3_tiny/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>[MW_project] YOLO v3 tiny 분석</title>
-        <link>https://muonkmu.github.io/p/mw_project-yolo-v3-tiny-%EB%B6%84%EC%84%9D/</link>
+        <title>[YOLO_Acc_prj] 02 YOLO v3 tiny 분석</title>
+        <link>https://muonkmu.github.io/p/yolo_acc_prj-02-yolo-v3-tiny-%EB%B6%84%EC%84%9D/</link>
         <pubDate>Mon, 16 Jan 2023 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/mw_project-yolo-v3-tiny-%EB%B6%84%EC%84%9D/</guid>
+        <guid>https://muonkmu.github.io/p/yolo_acc_prj-02-yolo-v3-tiny-%EB%B6%84%EC%84%9D/</guid>
         <description>&lt;p&gt;Target Model을 YOLOv3_tiny로 정한 것은 다른 이유가 있는 것은 아니고 간단하고 레퍼런스가 쉽게 구할 수 있어서이다.
 사실 프로젝트가 YOLOv3 tini의 경우 매우 가볍기 때문에 가속기로의 의미는 크게 없다고 생각한다.
 그러나 YOLO-X 모델 같은 가속기를 구현하기 위해서는 Sparse Matrix operation 등이 적용 가능한 NPU와 같은 구조를 잡는 것이 필요할 것이라 생각되어 미루어 두기로 한다.
@@ -55,7 +55,7 @@
 &lt;/ul&gt;
 &lt;h2 id=&#34;yolo-v3-structure&#34;&gt;YOLO v3 Structure&lt;/h2&gt;
 &lt;p&gt;Model을 도식화하면 다음과 같다.
-&lt;img src=&#34;https://muonkmu.github.io/p/mw_project-yolo-v3-tiny-%EB%B6%84%EC%84%9D/YOLOv3Tiny.drawio.svg&#34;
+&lt;img src=&#34;https://muonkmu.github.io/p/yolo_acc_prj-02-yolo-v3-tiny-%EB%B6%84%EC%84%9D/YOLOv3Tiny.drawio.svg&#34;
 	
 	
 	

@@ -7,11 +7,11 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <lastBuildDate>Wed, 08 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/mw_prj_yolo_acc/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>[MW_project] Camera 입력 및 DP 출력 구성</title>
-        <link>https://muonkmu.github.io/p/mw_project-camera-%EC%9E%85%EB%A0%A5-%EB%B0%8F-dp-%EC%B6%9C%EB%A0%A5-%EA%B5%AC%EC%84%B1/</link>
+        <title>[YOLO_Acc_prj] 04 Camera 입력 및 DP 출력 구성</title>
+        <link>https://muonkmu.github.io/p/yolo_acc_prj-04-camera-%EC%9E%85%EB%A0%A5-%EB%B0%8F-dp-%EC%B6%9C%EB%A0%A5-%EA%B5%AC%EC%84%B1/</link>
         <pubDate>Wed, 08 Feb 2023 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/mw_project-camera-%EC%9E%85%EB%A0%A5-%EB%B0%8F-dp-%EC%B6%9C%EB%A0%A5-%EA%B5%AC%EC%84%B1/</guid>
+        <guid>https://muonkmu.github.io/p/yolo_acc_prj-04-camera-%EC%9E%85%EB%A0%A5-%EB%B0%8F-dp-%EC%B6%9C%EB%A0%A5-%EA%B5%AC%EC%84%B1/</guid>
         <description>&lt;p&gt;Target Board는 현재 소유하고 있는 ZCU104를 사용하기로 하고 EVB의 번들 카메라인 See3CAM_CU30를 사용하기로 하였다.
 출력은 보드에 DP/HDMI가 있는데 DP는 PS 영역이며 HDMI는 사용자가 PL영역에 구성해야 한다. 그래서 DP로 결정.
 선정 사유는 역시 Reference를 구하기 쉽다는것에 있다.
@@ -174,11 +174,11 @@
 </description>
         </item>
         <item>
-        <title>[MW_project] zcu104 개발환경 설정</title>
-        <link>https://muonkmu.github.io/p/mw_project-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/</link>
+        <title>[YOLO_Acc_prj] 03 zcu104 개발환경 설정</title>
+        <link>https://muonkmu.github.io/p/yolo_acc_prj-03-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/</link>
         <pubDate>Fri, 03 Feb 2023 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/mw_project-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/</guid>
+        <guid>https://muonkmu.github.io/p/yolo_acc_prj-03-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/</guid>
         <description>&lt;p&gt;zcu104 petalinux를 포팅하기 위한 일주일 간 삽질의 기록이다.
 xilinx에서 제공하는 training reference를 따라하면 간단하지만 이는 SD카드에 커널과 루트파일 시스템을 삽입하는 방법이다.
 실제 개발의 편의성을 위해 TFTP 및 NFS를 이용하여 부팅하는 방법을 다룬다.&lt;/p&gt;
@@ -410,11 +410,11 @@ xilinx에서 제공하는 training reference를 따라하면 간단하지만 이
 </description>
         </item>
         <item>
-        <title>[MW_project] YOLO v3 tiny 분석</title>
-        <link>https://muonkmu.github.io/p/mw_project-yolo-v3-tiny-%EB%B6%84%EC%84%9D/</link>
+        <title>[YOLO_Acc_prj] 02 YOLO v3 tiny 분석</title>
+        <link>https://muonkmu.github.io/p/yolo_acc_prj-02-yolo-v3-tiny-%EB%B6%84%EC%84%9D/</link>
         <pubDate>Mon, 16 Jan 2023 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/mw_project-yolo-v3-tiny-%EB%B6%84%EC%84%9D/</guid>
+        <guid>https://muonkmu.github.io/p/yolo_acc_prj-02-yolo-v3-tiny-%EB%B6%84%EC%84%9D/</guid>
         <description>&lt;p&gt;Target Model을 YOLOv3_tiny로 정한 것은 다른 이유가 있는 것은 아니고 간단하고 레퍼런스가 쉽게 구할 수 있어서이다.
 사실 프로젝트가 YOLOv3 tini의 경우 매우 가볍기 때문에 가속기로의 의미는 크게 없다고 생각한다.
 그러나 YOLO-X 모델 같은 가속기를 구현하기 위해서는 Sparse Matrix operation 등이 적용 가능한 NPU와 같은 구조를 잡는 것이 필요할 것이라 생각되어 미루어 두기로 한다.
@@ -458,7 +458,7 @@ xilinx에서 제공하는 training reference를 따라하면 간단하지만 이
 &lt;/ul&gt;
 &lt;h2 id=&#34;yolo-v3-structure&#34;&gt;YOLO v3 Structure&lt;/h2&gt;
 &lt;p&gt;Model을 도식화하면 다음과 같다.
-&lt;img src=&#34;https://muonkmu.github.io/p/mw_project-yolo-v3-tiny-%EB%B6%84%EC%84%9D/YOLOv3Tiny.drawio.svg&#34;
+&lt;img src=&#34;https://muonkmu.github.io/p/yolo_acc_prj-02-yolo-v3-tiny-%EB%B6%84%EC%84%9D/YOLOv3Tiny.drawio.svg&#34;
 	
 	
 	
@@ -476,11 +476,11 @@ xilinx에서 제공하는 training reference를 따라하면 간단하지만 이
 </description>
         </item>
         <item>
-        <title>[MW_project] Personal project propsal</title>
-        <link>https://muonkmu.github.io/p/mw_project-personal-project-propsal/</link>
+        <title>[YOLO_Acc_prj] 01 YOLOv3 Acc Personal project propsal</title>
+        <link>https://muonkmu.github.io/p/yolo_acc_prj-01-yolov3-acc-personal-project-propsal/</link>
         <pubDate>Fri, 13 Jan 2023 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/mw_project-personal-project-propsal/</guid>
+        <guid>https://muonkmu.github.io/p/yolo_acc_prj-01-yolov3-acc-personal-project-propsal/</guid>
         <description>&lt;p&gt;현재까지 DL에 대해 공부한 것과 현업에서 배운 것을 섞어보고자 개인 프로젝트를 진행할 예정이다.
 실력이 미천하여 성능, 효율성은 미뤄두고 가장 빠르고 쉽게 구현하는 것을 목표로 한다.
 생각보다 오래 걸릴 듯 하다.&lt;/p&gt;

@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='project를 위한 zcu104 petalinux TFTP/NFS 개발환경 설정'>
+<title>[YOLO_Acc_prj] 03 zcu104 개발환경 설정</title>
+
+<link rel='canonical' href='https://muonkmu.github.io/p/yolo_acc_prj-03-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/'>
+
+<link rel="stylesheet" href="/scss/style.min.f3b6945bee58731371ef6d5a992e6775ef6e63b9642101b9f59903b1c9e16941.css"><meta property='og:title' content='[YOLO_Acc_prj] 03 zcu104 개발환경 설정'>
+<meta property='og:description' content='project를 위한 zcu104 petalinux TFTP/NFS 개발환경 설정'>
+<meta property='og:url' content='https://muonkmu.github.io/p/yolo_acc_prj-03-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/'>
+<meta property='og:site_name' content='MW Devlog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='zcu104' /><meta property='article:tag' content='petalinux' /><meta property='article:published_time' content='2023-02-03T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-02-03T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="[YOLO_Acc_prj] 03 zcu104 개발환경 설정">
+<meta name="twitter:description" content="project를 위한 zcu104 petalinux TFTP/NFS 개발환경 설정">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/minwook_large_hu93fbe6c7fccf94bb4165ea496a9d4637_41368_300x0_resize_q75_box.jpg" width="300"
+                            height="246" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MW Devlog</a></h1>
+            <h2 class="site-description">Embedded Engineer (HW,SW,SYSTEM)</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/muonkmu'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://www.linkedin.com/in/minwook-kim-35a417154/'
+                        target="_blank"
+                        title="Linkedin"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-linkedin" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+ <path stroke="none" d="M0 0h24v24H0z" fill="none"/> <rect x="4" y="4" width="16" height="16" rx="2" /> <line x1="8" y1="11" x2="8" y2="16" /> <line x1="8" y1="8" x2="8" y2="8.01" /> <line x1="12" y1="16" x2="12" y2="11" />
+ <path d="M16 16v-3a2 2 0 0 0 -4 0" />
+</svg>
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#목표">목표</a></li>
+    <li><a href="#hardware-description-config">Hardware description config</a>
+      <ol>
+        <li><a href="#vivado-project-follow">vivado project follow</a></li>
+      </ol>
+    </li>
+    <li><a href="#petalinux-porting">Petalinux porting</a>
+      <ol>
+        <li><a href="#project-create">project create</a></li>
+        <li><a href="#tftp-boot-config">tftp boot config</a></li>
+        <li><a href="#nfs-rootfs-config">NFS rootFS config</a></li>
+        <li><a href="#mac-설정">MAC 설정</a></li>
+        <li><a href="#build-및-부팅-준비">build 및 부팅 준비</a></li>
+        <li><a href="#크로스-컴파일-환경-설정">크로스 컴파일 환경 설정</a></li>
+      </ol>
+    </li>
+    <li><a href="#petalinux-booting">Petalinux Booting</a>
+      <ol>
+        <li><a href="#jtag-boot">jtag boot</a></li>
+        <li><a href="#u-boot에서-커널-로딩">u-boot에서 커널 로딩</a></li>
+        <li><a href="#sd카드--nfs-rootfs">SD카드 + NFS RootFS</a></li>
+      </ol>
+    </li>
+    <li><a href="#참고-자료">참고 자료</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/mw_prj_yolo_acc/" style="background-color: #F57435; color: #fff;">
+                MW_prj_YOLO_acc
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/yolo_acc_prj-03-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/">[YOLO_Acc_prj] 03 zcu104 개발환경 설정</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            project를 위한 zcu104 petalinux TFTP/NFS 개발환경 설정
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Feb 03, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    5 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>zcu104 petalinux를 포팅하기 위한 일주일 간 삽질의 기록이다.
+xilinx에서 제공하는 training reference를 따라하면 간단하지만 이는 SD카드에 커널과 루트파일 시스템을 삽입하는 방법이다.
+실제 개발의 편의성을 위해 TFTP 및 NFS를 이용하여 부팅하는 방법을 다룬다.</p>
+<h2 id="목표">목표</h2>
+<p>하기 boot config를 지원하는 petalinux의 포팅 방법 설명 (vivado/petalinux 2022.1 기반)</p>
+<ol>
+<li>jtag로 u-boot까지 다운로드 및 부팅 -&gt; u-boot에서 tftp/pxe로 리눅스 kernel 및 device-tree 로드 명령-&gt; 커널에 의한 NFS로 RootFS 로드</li>
+<li>SD카드로 u-boot까지 다운로드 및 부팅 -&gt; u-boot에서 tftp/pxe로 리눅스 kernel 및 device-tree 로드 명령-&gt; 커널에 의한 NFS로 RootFS 로드</li>
+<li>SD카드로 u-boot, 리눅스 kernel, device-tree 로드 -&gt; 커널에 의한 NFS로 RootFS 로드</li>
+</ol>
+<h2 id="hardware-description-config">Hardware description config</h2>
+<ul>
+<li>우선 베이스 프로젝트는 리눅스 포팅이 목적이므로 PS영역만 셋업한다.</li>
+<li>xilinx에서 제공하는 training reference를 그대로 따라해도 무방하다.
+(<a class="link" href="https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/docs/Introduction/ZynqMPSoC-EDT/3-system-configuration.html"  target="_blank" rel="noopener"
+    >https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/docs/Introduction/ZynqMPSoC-EDT/3-system-configuration.html</a>)</li>
+<li>zcu104_bsp에 사용되는 hw config을 보고 싶다면 후에 기술할 bsp에 기반한 petalinux 프로젝트 hardware 폴더에 관련 프로젝트가 들어있다.</li>
+</ul>
+<h3 id="vivado-project-follow">vivado project follow</h3>
+<ol>
+<li>vivado에서 zcu104보드 프로젝트를 만든다.
+<ul>
+<li><code>Project is an extensible Vitis platform</code> 은 vitis에서 xrt 라이브러리 등을 사용할 때 필요하다. 현 프로젝트에서는 미선택</li>
+<li>board 세팅에서 ZCU104를 선택</li>
+</ul>
+</li>
+<li><code>create block design</code>을 선택하여 디자인 블럭 생성</li>
+<li>zynq_mpsoc ip 를 추가하고 borad preset을 적용한다.</li>
+<li>지금은 PL 영역이 필요없으로 AXI_HPM/HP 포트를 미사용으로 설정</li>
+<li><code>Validate Design</code> 으로 디자인 검증 후 <code>Create HDL Wrapper</code> 로 래퍼를 생성한다.</li>
+<li><code>Generate Block Design</code>을 실행 후 <code>bit stream (*.bit)</code> 을 생성한다.
+<ul>
+<li>현재는 pl 영역의 디자인이 없으므로 bit-stream을 생성하지 않아도 무관한다.</li>
+</ul>
+</li>
+<li><code>Export Hardware</code>로 xsa 파일을 생성한다.
+<ul>
+<li>현재는 pl부분의 디자인이 없으므로 bit-stream을 포함하지 않아도 되며 포함하여도 상관없다.</li>
+</ul>
+</li>
+</ol>
+<h2 id="petalinux-porting">Petalinux porting</h2>
+<h3 id="project-create">project create</h3>
+<ul>
+<li>처음에는 기초부터 시작하고자 base template 프로젝트로 시작하였지만 포팅 시 부팅이 잘 안되었다.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">petalinux-create -t project --name <span class="si">${</span><span class="p">프로젝트 이름</span><span class="si">}</span> --template zynqMP
+</span></span><span class="line"><span class="cl">petalinux-config --get-hw-description<span class="o">=</span><span class="si">${</span><span class="nv">xsa</span><span class="p">파일</span><span class="si">}</span> --silentconfig
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>그래서 xilinx에서 제공하는 bsp 기반으로 프로젝트를 만들었다.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">petalinux-create -t project --name <span class="si">${</span><span class="p">프로젝트 이름</span><span class="si">}</span> -s <span class="si">${</span><span class="nv">bsp</span><span class="p">파일</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">petalinux-config --get-hw-description<span class="o">=</span><span class="si">${</span><span class="nv">xsa</span><span class="p">파일</span><span class="si">}</span> --silentconfig
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>위의 두 프로젝트의 폴더/파일을 비교해보면 BSP를 위해 커널등이 어떻게 설정되어 있는지 알 수 있다.</li>
+<li>bsp 기반으로 만들어진 프로젝트의 경우 <code>README</code>에 BSP가 어떤 설정을 가지고 만들어져 있는지 나와 있다. 위의 기본 템플릿 프로젝트와 파일과 비교해서 보면 몇가지 설정에 대한 설명이 누락되었음을 알 수 있다.</li>
+</ul>
+<h3 id="tftp-boot-config">tftp boot config</h3>
+<ul>
+<li>이전 post인 ubuntu 환경 설정을 내용을 참고하여 host에 tftp 서버를 설정한다.</li>
+<li><code>petalinux-config</code> 명령을 실행하여 <code>Image Packaging Configuration &gt; Copy final images to tftpboot</code>에 host tftp서버 폴더를 지정한다.</li>
+<li>만약 향후에 RootFS를 INITRAMFS으로 할려고 할 시 built-in FIT image를 위한 임시 ram 사이즈가 작아서 부팅 시 &ldquo;There&rsquo;s no &lsquo;/dev&rsquo; on rootfs&rdquo; 에러가 난다. 이럴 경우 <code>petalinux-config</code>의  <code>Image packaging configuration &gt; INITRAMFS/INITRD Image name</code> 을 <code>petalinux-image-minimal</code>로 변경 한다.</li>
+</ul>
+<h3 id="nfs-rootfs-config">NFS rootFS config</h3>
+<ul>
+<li>이전 post인 ubuntu 환경 설정을 내용을 참고하여 host에 NFS 서버를 설정한다.</li>
+<li><code>petalinux-config</code> 명령을 실행하여 <code>Image Packaging Configuration</code> 에서 하기 내역을 설정
+<ul>
+<li><code>Root File System Type</code>에서 NFS를 선택</li>
+<li><code>Location of NFS root directory</code>에 host nfs 폴더를 지정</li>
+<li><code>NFS Server IP address</code> 에서 host ip를 지정</li>
+</ul>
+</li>
+<li><code>petalinux-config -c kernel</code>에서 하기 내역이 설정 되어 있는지 확인
+<ul>
+<li><code>Networking support &gt; IP: kernel level configuration</code> 의 IP:DHCP support, IP:BOOTP support, IP:RARP support</li>
+<li><code>File systems &gt; Network file systems &gt; Root file systems</code>의 NFS 체크</li>
+</ul>
+</li>
+<li>상기 내역까지가 매뉴얼의 내용인데 적용해보면 nfs 버전 문제로 nfs RootFS가 마운트 되지 않는다. <code>bootargs</code>에서 nfs version을 3으로 변경한다.
+<ul>
+<li><code>petalinux-config</code>에서 <code>DTG Setting &gt; Kernel Bootargs &gt; generate boot args automatically</code>를 해제 (해제하기전에 설정되어 있는 bootargs를 copy)</li>
+<li>위에 복사한 것을 bootargs를 작성하는 란에 붙여넣고 nfsroot부분에 nfsvers=3 추가</li>
+<li>ex) <code> earlycon console=ttyPS0,115200 clk_ignore_unused root=/dev/nfs nfsroot=192.168.1.30:/home/minwook/xlx_nfsrfs,tcp,nfsvers=3 ip=dhcp rw</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="mac-설정">MAC 설정</h3>
+<ul>
+<li>u-boot 부팅 시 마다 아이피가 달라지지 않도록 MAC를 설정한다.
+<ul>
+<li><code>petalinux-config</code> 명령의 <code>Subsystem AUTO Hardware Setting &gt; Ethernet Setting &gt; Ethernet MAC address</code></li>
+<li>사실 zcu104의 맥 주소는 부팅 시 eeprom에서 읽어 온다는데 u-boot에서는 안되는 것 같다(사실 잘 모르겠다.)</li>
+</ul>
+</li>
+</ul>
+<h3 id="build-및-부팅-준비">build 및 부팅 준비</h3>
+<ol>
+<li>u-boot 및 커널 등을 빌드한다.</li>
+<li>jtag로 부팅 시키기 위해서는 pre-built 폴더에 이미지들이 준비되어 있어야 한다. <code>petalinux-package</code>를 이용해 준비하자.</li>
+<li>host의 NFS 서버 폴더에 RootFS를 압축 해제 시켜 NFS 부팅을 준비한다.</li>
+<li>향후 SD 카드 등에 부트로더/부트 스크립트를 복사할 경우를 대비하여 부팅이미지를 생성하자.</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">petalinux-build
+</span></span><span class="line"><span class="cl">petalinux-package --prebuilt
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> images/linux
+</span></span><span class="line"><span class="cl">tar -xzf rootfs.tar.gz -C <span class="si">${</span><span class="nv">NFS</span><span class="p"> 서버 폴더</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">petalinux-package --boot --fsbl zynqmp_fsbl.elf --fpga system.bit --pmufw pmufw.elf --atf bl31.elf --u-boot u-boot.elf
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="5">
+<li>빌드가 정상적으로 완료되면 이전에 지정한 host의 tftp 폴더에 build된 image들이 자동으로 복사된다.
+<ul>
+<li>향후 u-boot에서 tftp로 커널 등을 로드할 때 tftp 서버의 <code>pxelinux.cfg</code> 폴더 내 어떤 이미지를 로드할 것인지에 대한 설정을 파일에서 읽어온다.</li>
+<li><code>pxelinux.cfg</code> 폴더의 <code>default</code> 파일을 보면 tftp 서버에서 kernel, dtb, RootFS를 로드한다는 것을 알 수 있다.</li>
+<li>우리는 NFS에서 RootFS를 로드 할 예정이므로 <code>default</code> 파일의 RootFS 로딩 스크립트 부분을 삭제한다.</li>
+</ul>
+</li>
+</ol>
+<h3 id="크로스-컴파일-환경-설정">크로스 컴파일 환경 설정</h3>
+<ol>
+<li>향후 application의 개발 시 host에서 크로스 컴파일을 진행하고 싶다면 sdk를 만들어 sysroot를 설정하면 된다.</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">petalinux-build --sdk
+</span></span><span class="line"><span class="cl">petalinux-package --sysroot -d <span class="si">${</span><span class="nv">SDK_</span><span class="p">설치_폴더</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl"><span class="nb">unset</span> LD_LIBRARY_PATH
+</span></span><span class="line"><span class="cl"><span class="nb">source</span> <span class="si">${</span><span class="nv">SDK_</span><span class="p">설치_폴더</span><span class="si">}</span>/environment-setup-cortexa72-cortexa53-xilinx-linux
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="petalinux-booting">Petalinux Booting</h2>
+<h3 id="jtag-boot">jtag boot</h3>
+<ul>
+<li>jtag로 u-boot까지 로딩한다. 보드의 boot-cfg 스위치를 jtag로 맞춘다. SD카드 등이 필요없지만 속도가 느리다.</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">petalinux-boot --jtag --prebuilt <span class="m">2</span> --hw_server-url tcp:127.0.0.1:3121
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>host에 USB를 연결하고 터미널을 오픈 후 하기 명령을 수행하면 부팅이 시작된다.부트 스크립트 로딩 전 대기 카운터에서 엔터를 누르면 u-boot 커맨드 입력이 가능하다.</li>
+</ul>
+<h3 id="u-boot에서-커널-로딩">u-boot에서 커널 로딩</h3>
+<p>u-boot에서 command를 이용하여 tftp서버에서 커널과 dtb를 로드한다.</p>
+<ol>
+<li>dhcp로 target ip 획득</li>
+<li>tftp 서버의 ip 및 target의 ip의 환경변수 설정
+<ul>
+<li>이부분은 petalinux-config의 <code>u-boot Configuration &gt; u-boot script configuration &gt; Pre bootenv</code> 에서 설정이 가능할 것이라 생각되는데 해보지 않음</li>
+</ul>
+</li>
+<li>tftp 서버에서 설정파일 로드 (<code>pxelinux.cfg/default</code>)</li>
+<li>tftp 부팅 (이후 RootFS의 로드는 세팅에 따른다.)</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">dhcp
+</span></span><span class="line"><span class="cl">setenv serverip <span class="si">${</span><span class="nv">host_ip</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">setenv ipaddr <span class="si">${</span><span class="nv">target_ip</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">pxe get
+</span></span><span class="line"><span class="cl">pxe boot
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="sd카드--nfs-rootfs">SD카드 + NFS RootFS</h3>
+<ul>
+<li>jtag로 부팅하면 편하긴 하지만 느리고 매번 리셋이 필요할 때마다 부팅명령을 다시 넣어줘야 한다. 이를 SD카드로 부팅시켜 해결할 수 있다.</li>
+<li>보드의 boot-cfg 스위치를 SD 카드로 변경한다.</li>
+<li>SD카드가 준비되어 있지 않다면 SD카드를 파티션 설정을 해야 한다.
+<ul>
+<li>첫번째 파티션은 부트로더, 부팅스크립트 등을 위한 파티션이며 최소 500MB이며 FAT 파일 형식</li>
+<li>두번째 파티션은 RootFS용으로 EXT4 형식이어야 한다.</li>
+</ul>
+</li>
+<li>SD카드에 FSBL, U-boot, bitstream인 <code>BOOT.bin</code> 를 넣어 놓고 u-boot 까지 부팅 시킨 후 이후 커널 및 RootFS를 로딩할 수 있다.</li>
+<li>SD카드에 커널의 내용이 변경되지 않은 경우 부팅스크립트 <code>boot.scr</code>와 커널/디바이스트리 <code>image.ub</code>를 넣어 놓고 자동으로 NFS에서 RootFS를 로딩하게 하는 방법도 가능하다.</li>
+</ul>
+<h2 id="참고-자료">참고 자료</h2>
+<ul>
+<li><a class="link" href="https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/index.html"  target="_blank" rel="noopener"
+    >https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/index.html</a></li>
+<li><a class="link" href="https://github.com/Xilinx/Vitis-Tutorials"  target="_blank" rel="noopener"
+    >https://github.com/Xilinx/Vitis-Tutorials</a></li>
+<li><a class="link" href="https://docs.xilinx.com/r/2021.1-English/ug1144-petalinux-tools-reference-guide/Configure-TFTP-Boot"  target="_blank" rel="noopener"
+    >https://docs.xilinx.com/r/2021.1-English/ug1144-petalinux-tools-reference-guide/Configure-TFTP-Boot</a></li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/zcu104/">zcu104</a>
+        
+            <a href="/tags/petalinux/">petalinux</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/yolo_acc_prj-04-camera-%EC%9E%85%EB%A0%A5-%EB%B0%8F-dp-%EC%B6%9C%EB%A0%A5-%EA%B5%AC%EC%84%B1/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[YOLO_Acc_prj] 04 Camera 입력 및 DP 출력 구성</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/yolo_acc_prj-02-yolo-v3-tiny-%EB%B6%84%EC%84%9D/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[YOLO_Acc_prj] 02 YOLO v3 tiny 분석</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/yolo_acc_prj-01-yolov3-acc-personal-project-propsal/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[YOLO_Acc_prj] 01 YOLOv3 Acc Personal project propsal</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2022 - 
+        
+        2023 MW Devlog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

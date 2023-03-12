@@ -7,11 +7,11 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <lastBuildDate>Wed, 08 Feb 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/uvc/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>[MW_project] Camera 입력 및 DP 출력 구성</title>
-        <link>https://muonkmu.github.io/p/mw_project-camera-%EC%9E%85%EB%A0%A5-%EB%B0%8F-dp-%EC%B6%9C%EB%A0%A5-%EA%B5%AC%EC%84%B1/</link>
+        <title>[YOLO_Acc_prj] 04 Camera 입력 및 DP 출력 구성</title>
+        <link>https://muonkmu.github.io/p/yolo_acc_prj-04-camera-%EC%9E%85%EB%A0%A5-%EB%B0%8F-dp-%EC%B6%9C%EB%A0%A5-%EA%B5%AC%EC%84%B1/</link>
         <pubDate>Wed, 08 Feb 2023 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/mw_project-camera-%EC%9E%85%EB%A0%A5-%EB%B0%8F-dp-%EC%B6%9C%EB%A0%A5-%EA%B5%AC%EC%84%B1/</guid>
+        <guid>https://muonkmu.github.io/p/yolo_acc_prj-04-camera-%EC%9E%85%EB%A0%A5-%EB%B0%8F-dp-%EC%B6%9C%EB%A0%A5-%EA%B5%AC%EC%84%B1/</guid>
         <description>&lt;p&gt;Target Board는 현재 소유하고 있는 ZCU104를 사용하기로 하고 EVB의 번들 카메라인 See3CAM_CU30를 사용하기로 하였다.
 출력은 보드에 DP/HDMI가 있는데 DP는 PS 영역이며 HDMI는 사용자가 PL영역에 구성해야 한다. 그래서 DP로 결정.
 선정 사유는 역시 Reference를 구하기 쉽다는것에 있다.

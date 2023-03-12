@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='the project propsal of Building the Linux-From-Scratch'>
+<title>[LFS_prj] 02 Host setting</title>
+
+<link rel='canonical' href='https://muonkmu.github.io/p/lfs_prj-02-host-setting/'>
+
+<link rel="stylesheet" href="/scss/style.min.f3b6945bee58731371ef6d5a992e6775ef6e63b9642101b9f59903b1c9e16941.css"><meta property='og:title' content='[LFS_prj] 02 Host setting'>
+<meta property='og:description' content='the project propsal of Building the Linux-From-Scratch'>
+<meta property='og:url' content='https://muonkmu.github.io/p/lfs_prj-02-host-setting/'>
+<meta property='og:site_name' content='MW Devlog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='LFS' /><meta property='article:published_time' content='2023-03-12T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-03-12T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="[LFS_prj] 02 Host setting">
+<meta name="twitter:description" content="the project propsal of Building the Linux-From-Scratch">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/minwook_large_hu93fbe6c7fccf94bb4165ea496a9d4637_41368_300x0_resize_q75_box.jpg" width="300"
+                            height="246" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MW Devlog</a></h1>
+            <h2 class="site-description">Embedded Engineer (HW,SW,SYSTEM)</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/muonkmu'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://www.linkedin.com/in/minwook-kim-35a417154/'
+                        target="_blank"
+                        title="Linkedin"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-linkedin" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+ <path stroke="none" d="M0 0h24v24H0z" fill="none"/> <rect x="4" y="4" width="16" height="16" rx="2" /> <line x1="8" y1="11" x2="8" y2="16" /> <line x1="8" y1="8" x2="8" y2="8.01" /> <line x1="12" y1="16" x2="12" y2="11" />
+ <path d="M16 16v-3a2 2 0 0 0 -4 0" />
+</svg>
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#host-환경설정">Host 환경설정</a></li>
+    <li><a href="#partition-setting--mount">Partition Setting &amp; mount</a></li>
+    <li><a href="#패키지와-패치-다운로드">패키지와 패치 다운로드</a></li>
+    <li><a href="#최종-준비">최종 준비</a>
+      <ol>
+        <li><a href="#최소-lfs-filesystem-layout-구성">최소 LFS Filesystem layout 구성</a></li>
+        <li><a href="#lfs빌드를-위한-유저-추가">LFS빌드를 위한 유저 추가</a></li>
+        <li><a href="#lfs-유저-환경설정">lfs 유저 환경설정</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/prj_lfs/" style="background-color: #A26465; color: #fff;">
+                prj_LFS
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/lfs_prj-02-host-setting/">[LFS_prj] 02 Host setting</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            the project propsal of Building the Linux-From-Scratch
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 12, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>첫번째로 Host를 셋업하는 과정을 서술한다. 기본적으로 VMware에 우분투 20.04가 설치되었고 파티션이 분할 되었다는 가정하에 진행한다.</p>
+<h2 id="host-환경설정">Host 환경설정</h2>
+<p>LFS를 설치하고 빌드하는데 필요한 host package를 설치한다. 하기 링크를 참조한다.</p>
+<ul>
+<li><a class="link" href="https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter02/hostreqs.html"  target="_blank" rel="noopener"
+    >https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter02/hostreqs.html</a></li>
+</ul>
+<p>상기 링크에는 host의 필요 패키지 버전 및 상태를 체크하는 스크립트도 제공되므로 실행해보도록 하자. 필자의 환경에서 스크립트를 실행 시 하기 문제점이 발견되서 수정하였다.</p>
+<ol>
+<li>/bin/sh의 심볼릭 링크가 dash가 아닌 bash로 설정
+<ul>
+<li><code>sudo dpkg-reconfigure dash</code> 실행 후 no 선택</li>
+</ul>
+</li>
+<li>binutils 등 설치되지 않은 패키지 설치
+<ul>
+<li>binutils, bison, gawk, gcc, g++, make, texinfo</li>
+<li>우분투에서 설치가능한 패키지의 버전을 확인하고 싶으면 <code>apt-cache policy ${패키지 이름}</code>으로 확인 가능하다.</li>
+<li>필자는 패키지 버전을 특별히 버전을 매뉴얼과 맞추지 않았다.(필자는 호환을 보증하지 않는다고 표기된 패키지 버전만 신경씀)</li>
+</ul>
+</li>
+</ol>
+<h2 id="partition-setting--mount">Partition Setting &amp; mount</h2>
+<p>만약 설치시 LFS RootFS 및 SWAP 파티션을 설정하지 않았다면 파티션을 만들어 준다.</p>
+<ul>
+<li><a class="link" href="https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter02/creatingfilesystem.html"  target="_blank" rel="noopener"
+    >https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter02/creatingfilesystem.html</a></li>
+</ul>
+<p>필자는 하이퍼바이저 위에 우분투20.04를 설치했으므로 이미 Swap 공간이 <code>/swapfile</code>파일에 생성되어 있다. <code>free</code> 명령을 통해 swap공간의 존재를 확인할 수 있다.
+그러므로 필자는 별도 스왑공간을 생성하지 않았다. 만약 swap 용량이 모자란다면 스왑파일 용량을 키우자</p>
+<ol>
+<li>LFS RootFS 파티션과 Swap 파티션을 생성한다.
+<ul>
+<li>RootFS : fdisk 에서 커맨드 n(생성) -&gt; p(primary) 로 생성</li>
+<li>(필요시)swap : fdisk 에서 커맨드 n(생성) -&gt; p(primary) 로 생성 후 t(type) -&gt; 코드 82</li>
+<li>w로 저장</li>
+</ul>
+</li>
+<li>해당 파일 시스템으로 포맷</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo mkfs -v -t ext4 /dev/<span class="si">${</span><span class="nv">RootFS_</span><span class="p">파티션</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">(</span>필요시<span class="o">)</span>sudo mkswap /dev/<span class="si">${</span><span class="nv">swap_partition</span><span class="si">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>전역변수 설정 및 파티션 마운트
+<ul>
+<li>&lsquo;mount -l&rsquo; 명령으로 nosuid나 또는 nodev가 아닌지 확인하자.</li>
+</ul>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">LFS</span><span class="o">=</span>/mnt/lfs
+</span></span><span class="line"><span class="cl">sudo mkdir -pv <span class="nv">$LFS</span>
+</span></span><span class="line"><span class="cl">sudo mount -v -t ext4 /dev/sda2 <span class="nv">$LFS</span>
+</span></span><span class="line"><span class="cl">sudo cat <span class="s2">&#34;/dev/sda2   /mnt/lfs   ext4   default   1   1&#34;</span> &gt;&gt; /etc/fstab
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="패키지와-패치-다운로드">패키지와 패치 다운로드</h2>
+<p>기본적인 리눅스 시스템을 구축하기 위해 다운로드 해야 하는 패키지와 패치를 다운로드 한다.
+(아마 빌드를 위한 sysroot 구축이라 생각되는데?? 아직은 확실하지 않음)</p>
+<ol>
+<li>source 저장을 위한 폴더 생성 및 권한 설정</li>
+<li>패키지 및 패치 다운
+<ul>
+<li>패키지와 패치를 다운로드 할때 수동으로 하나씩 받기 힘드므로 리스트 파일을 제공한다.</li>
+</ul>
+</li>
+<li>정상적으로 다운 받았는지 확인하기 위한 md5 체크섬 확인
+<ul>
+<li>체크섬 확인을 위한 파일도 제공하므로 이를 이용</li>
+</ul>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo mkdir -v <span class="nv">$LFS</span>/sources
+</span></span><span class="line"><span class="cl">sudo chmod -v a+wt <span class="nv">$LFS</span>/sources
+</span></span><span class="line"><span class="cl">wget --directory-prefix<span class="o">=</span><span class="nv">$LFS</span>/sources https://www.linuxfromscratch.org/lfs/view/stable-systemd/wget-list-systemd
+</span></span><span class="line"><span class="cl">wget --input-file<span class="o">=</span>wget-list-systemd --continue --directory-prefix<span class="o">=</span><span class="nv">$LFS</span>/sources
+</span></span><span class="line"><span class="cl">wget --directory-prefix<span class="o">=</span><span class="nv">$LFS</span>/sources https://www.linuxfromscratch.org/lfs/view/stable-systemd/md5sums
+</span></span><span class="line"><span class="cl"><span class="nb">pushd</span> <span class="nv">$LFS</span>/sources
+</span></span><span class="line"><span class="cl">md5sum -c md5sums
+</span></span><span class="line"><span class="cl"><span class="nb">popd</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>다운로드한 패키지와 패치의 리스트는 다음 페이지에 나와 있다.</p>
+<ul>
+<li>패키지 : <a class="link" href="https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter03/packages.html"  target="_blank" rel="noopener"
+    >https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter03/packages.html</a></li>
+<li>패치 : <a class="link" href="https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter03/patches.html"  target="_blank" rel="noopener"
+    >https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter03/patches.html</a></li>
+</ul>
+<h2 id="최종-준비">최종 준비</h2>
+<p>크로스 컴파일을 위한 유저 추가 및 bash 환경 설정. 각 절차에서 나타난 옵션에 대한 자세한 설명은 매뉴얼 페이지를 참조한다.</p>
+<h3 id="최소-lfs-filesystem-layout-구성">최소 LFS Filesystem layout 구성</h3>
+<p>LFS의 빌드를 위한 크로스 컴파일러 생성 시 필요한 최소한의 Filesystem layout을 구축하는 듯 하다(필자의 추론)
+Filesystem Layout을 위한 심볼릭 링크도 만들고 그 후 크로스 컴파일러가 설치 될 폴더를 생성한다.(이는 향후 LFS 시스템에 포함되지 않으므로 분리해놓음)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo mkdir -pv <span class="nv">$LFS</span>/<span class="o">{</span>etc,var<span class="o">}</span> <span class="nv">$LFS</span>/usr/<span class="o">{</span>bin,lib,sbin<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> i in bin lib sbin<span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  ln -sv usr/<span class="nv">$i</span> <span class="nv">$LFS</span>/<span class="nv">$i</span>
+</span></span><span class="line"><span class="cl"><span class="k">done</span>
+</span></span><span class="line"><span class="cl"><span class="k">case</span> <span class="k">$(</span>uname -m<span class="k">)</span> in
+</span></span><span class="line"><span class="cl">  x86_64<span class="o">)</span> mkdir -pv <span class="nv">$LFS</span>/lib64 <span class="p">;;</span>
+</span></span><span class="line"><span class="cl"><span class="k">esac</span>
+</span></span><span class="line"><span class="cl">sudo mkdir -pv <span class="nv">$LFS</span>/tools
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="lfs빌드를-위한-유저-추가">LFS빌드를 위한 유저 추가</h3>
+<p>빌드를 위한 환경 구성을 위해 별도의 유저를 추가</p>
+<ol>
+<li>lfs 유저추가 및 비번 설정</li>
+<li>생성된 파일 시스템의 소유자를 lfs로 변경</li>
+<li><code>/etc/bash.bashrc</code> 이름 변경 (우분투20.04의 경우 lfs로 로긴 시 해당 파일이 쉘 환경을 변화시키는 것을 막기 위함)</li>
+<li>lfs로 로긴</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo groupadd lfs
+</span></span><span class="line"><span class="cl">sudo useradd -s /bin/bash -g lfs -m -k /dev/null lfs
+</span></span><span class="line"><span class="cl">chown -v lfs <span class="nv">$LFS</span>/<span class="o">{</span>usr<span class="o">{</span>,/*<span class="o">}</span>,var,etc,tools<span class="o">}</span>
+</span></span><span class="line"><span class="cl">chown -vh lfs <span class="nv">$LFS</span>/<span class="o">{</span>bin,lib,sbin<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">case</span> <span class="k">$(</span>uname -m<span class="k">)</span> in
+</span></span><span class="line"><span class="cl">  x86_64<span class="o">)</span> chown -v lfs <span class="nv">$LFS</span>/lib64 <span class="p">;;</span>
+</span></span><span class="line"><span class="cl"><span class="k">esac</span>
+</span></span><span class="line"><span class="cl">sudo mv -v /etc/bash.bashrc /etc/bash.bashrc.NOUSE
+</span></span><span class="line"><span class="cl">su - lfs
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="lfs-유저-환경설정">lfs 유저 환경설정</h3>
+<p>lfs 유저를 위환 쉘의 환경을 설정한다. 설정에 대한 상세 내용은 매뉴얼을 참조한다.</p>
+<ol>
+<li><code>.bash_profile</code>은 Login Shell에서 실행(ex. ssh 로그인 쉘)되며 하기와 같이 설정</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat &gt; ~/.bash_profile &lt;&lt; <span class="s2">&#34;EOF&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">exec</span> env -i <span class="nv">HOME</span><span class="o">=</span><span class="nv">$HOME</span> <span class="nv">TERM</span><span class="o">=</span><span class="nv">$TERM</span> <span class="nv">PS1</span><span class="o">=</span><span class="s1">&#39;\u:\w\$ &#39;</span> /bin/bash
+</span></span><span class="line"><span class="cl">EOF
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li><code>.bashrc</code>은 Non-Login Shell에서 실행(ex. 로그인된 상태에서 쉘이 실행될 때)되며 하기와 같이 설정</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat &gt; ~/.bashrc &lt;&lt; <span class="s2">&#34;EOF&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">set</span> +h
+</span></span><span class="line"><span class="cl"><span class="nb">umask</span> <span class="m">022</span>
+</span></span><span class="line"><span class="cl"><span class="nv">LFS</span><span class="o">=</span>/mnt/lfs
+</span></span><span class="line"><span class="cl"><span class="nv">LC_ALL</span><span class="o">=</span>POSIX
+</span></span><span class="line"><span class="cl"><span class="nv">LFS_TGT</span><span class="o">=</span><span class="k">$(</span>uname -m<span class="k">)</span>-lfs-linux-gnu
+</span></span><span class="line"><span class="cl"><span class="nv">PATH</span><span class="o">=</span>/usr/bin
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> ! -L /bin <span class="o">]</span><span class="p">;</span> <span class="k">then</span> <span class="nv">PATH</span><span class="o">=</span>/bin:<span class="nv">$PATH</span><span class="p">;</span> <span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PATH</span><span class="o">=</span><span class="nv">$LFS</span>/tools/bin:<span class="nv">$PATH</span>
+</span></span><span class="line"><span class="cl"><span class="nv">CONFIG_SITE</span><span class="o">=</span><span class="nv">$LFS</span>/usr/share/config.site
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> LFS LC_ALL LFS_TGT PATH CONFIG_SITE
+</span></span><span class="line"><span class="cl">EOF
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>프로파일을 적용한다.</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">source</span> ~/.bash_profile
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/lfs/">LFS</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/lfs_prj-01-lfs-project-propsal/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[LFS_prj] 01 LFS project propsal</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2022 - 
+        
+        2023 MW Devlog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -3,7 +3,28 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://muonkmu.github.io/</loc>
-    <lastmod>2023-03-01T00:00:00+00:00</lastmod>
+    <lastmod>2023-03-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/lfs_prj-02-host-setting/</loc>
+    <lastmod>2023-03-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/</loc>
+    <lastmod>2023-03-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/lfs/</loc>
+    <lastmod>2023-03-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/post/</loc>
+    <lastmod>2023-03-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/prj_lfs/</loc>
+    <lastmod>2023-03-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/</loc>
+    <lastmod>2023-03-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/lfs_prj-01-lfs-project-propsal/</loc>
+    <lastmod>2023-03-04T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/p/ai-hw-design-chap08-network-sparsity-2/2/</loc>
     <lastmod>2023-03-01T00:00:00+00:00</lastmod>
@@ -11,19 +32,10 @@
     <loc>https://muonkmu.github.io/categories/ai_hw_design/</loc>
     <lastmod>2023-03-01T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://muonkmu.github.io/categories/</loc>
-    <lastmod>2023-03-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/post/</loc>
-    <lastmod>2023-03-01T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://muonkmu.github.io/tags/scnn/</loc>
     <lastmod>2023-03-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/seernet/</loc>
-    <lastmod>2023-03-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/tags/</loc>
     <lastmod>2023-03-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/categories/devenv/</loc>
@@ -80,7 +92,7 @@
     <loc>https://muonkmu.github.io/tags/dcnn/</loc>
     <lastmod>2023-02-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://muonkmu.github.io/p/mw_project-camera-%EC%9E%85%EB%A0%A5-%EB%B0%8F-dp-%EC%B6%9C%EB%A0%A5-%EA%B5%AC%EC%84%B1/</loc>
+    <loc>https://muonkmu.github.io/p/yolo_acc_prj-04-camera-%EC%9E%85%EB%A0%A5-%EB%B0%8F-dp-%EC%B6%9C%EB%A0%A5-%EA%B5%AC%EC%84%B1/</loc>
     <lastmod>2023-02-08T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/l4v2/</loc>
@@ -92,7 +104,7 @@
     <loc>https://muonkmu.github.io/tags/uvc/</loc>
     <lastmod>2023-02-08T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://muonkmu.github.io/p/mw_project-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/</loc>
+    <loc>https://muonkmu.github.io/p/yolo_acc_prj-03-zcu104-%EA%B0%9C%EB%B0%9C%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95/</loc>
     <lastmod>2023-02-03T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/petalinux/</loc>
@@ -119,7 +131,7 @@
     <loc>https://muonkmu.github.io/tags/ubuntu/</loc>
     <lastmod>2023-01-20T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://muonkmu.github.io/p/mw_project-yolo-v3-tiny-%EB%B6%84%EC%84%9D/</loc>
+    <loc>https://muonkmu.github.io/p/yolo_acc_prj-02-yolo-v3-tiny-%EB%B6%84%EC%84%9D/</loc>
     <lastmod>2023-01-16T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/yolov3_tiny/</loc>
@@ -128,7 +140,7 @@
     <loc>https://muonkmu.github.io/p/ai-hw-design-chap03-parallel-architecture-3/3/</loc>
     <lastmod>2023-01-13T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://muonkmu.github.io/p/mw_project-personal-project-propsal/</loc>
+    <loc>https://muonkmu.github.io/p/yolo_acc_prj-01-yolov3-acc-personal-project-propsal/</loc>
     <lastmod>2023-01-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/brainwave/</loc>
@@ -164,10 +176,10 @@
     <loc>https://muonkmu.github.io/tags/tpu/</loc>
     <lastmod>2022-12-30T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://muonkmu.github.io/p/kicad-footprint-and-pcb/</loc>
+    <loc>https://muonkmu.github.io/p/kicad-01-symbol-and-schemetic/</loc>
     <lastmod>2022-12-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://muonkmu.github.io/p/kicad-symbol-and-schemetic/</loc>
+    <loc>https://muonkmu.github.io/p/kicad-02-footprint-and-pcb/</loc>
     <lastmod>2022-12-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/categories/kicad/</loc>
