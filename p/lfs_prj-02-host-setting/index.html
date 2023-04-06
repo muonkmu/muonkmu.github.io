@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='the project propsal of Building the Linux-From-Scratch'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='preparing the host system'>
 <title>[LFS_prj] 02 Host setting</title>
 
 <link rel='canonical' href='https://muonkmu.github.io/p/lfs_prj-02-host-setting/'>
 
 <link rel="stylesheet" href="/scss/style.min.f3b6945bee58731371ef6d5a992e6775ef6e63b9642101b9f59903b1c9e16941.css"><meta property='og:title' content='[LFS_prj] 02 Host setting'>
-<meta property='og:description' content='the project propsal of Building the Linux-From-Scratch'>
+<meta property='og:description' content='preparing the host system'>
 <meta property='og:url' content='https://muonkmu.github.io/p/lfs_prj-02-host-setting/'>
 <meta property='og:site_name' content='MW Devlog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='LFS' /><meta property='article:published_time' content='2023-03-12T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-03-12T00:00:00&#43;00:00'/>
 <meta name="twitter:title" content="[LFS_prj] 02 Host setting">
-<meta name="twitter:description" content="the project propsal of Building the Linux-From-Scratch">
+<meta name="twitter:description" content="preparing the host system">
     </head>
     <body class="
     article-page
@@ -282,7 +282,7 @@
     
         
         <h3 class="article-subtitle">
-            the project propsal of Building the Linux-From-Scratch
+            preparing the host system
         </h3>
         
     </div>
@@ -335,7 +335,7 @@
     
     <p>첫번째로 Host를 셋업하는 과정을 서술한다. 기본적으로 VMware에 우분투 20.04가 설치되었고 파티션이 분할 되었다는 가정하에 진행한다.</p>
 <h2 id="host-환경설정">Host 환경설정</h2>
-<p>LFS를 설치하고 빌드하는데 필요한 host package를 설치한다. 하기 링크를 참조한다.</p>
+<p>LFS를 설치하고 빌드하는데 필요한 host의 환경을 설치하고 필요 package를 설치한다. 하기 링크를 참조한다.</p>
 <ul>
 <li><a class="link" href="https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter02/hostreqs.html"  target="_blank" rel="noopener"
     >https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter02/hostreqs.html</a></li>
@@ -362,7 +362,8 @@
     >https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter02/creatingfilesystem.html</a></li>
 </ul>
 <p>필자는 하이퍼바이저 위에 우분투20.04를 설치했으므로 이미 Swap 공간이 <code>/swapfile</code>파일에 생성되어 있다. <code>free</code> 명령을 통해 swap공간의 존재를 확인할 수 있다.
-그러므로 필자는 별도 스왑공간을 생성하지 않았다. 만약 swap 용량이 모자란다면 스왑파일 용량을 키우자</p>
+그러므로 필자는 메뉴얼과는 다르게 별도 스왑 파티션을 생성하지 않았다. ~만약 swap 용량이 모자란다면 스왑파일 용량을 키우거나 스왑 파티션을 생성하자~
+스왑 파티션이 없으면 나중에 LFS로 부팅했을 때 swap영역이 없으므로 만들어 주는게 좋을 듯 하다. 아님 향후 LFS용 swapfile을 만들자</p>
 <ol>
 <li>LFS RootFS 파티션과 Swap 파티션을 생성한다.
 <ul>
@@ -452,7 +453,8 @@
 <h2 id="최종-준비">최종 준비</h2>
 <p>크로스 컴파일을 위한 유저 추가 및 bash 환경 설정. 각 절차에서 나타난 옵션에 대한 자세한 설명은 매뉴얼 페이지를 참조한다.</p>
 <h3 id="최소-lfs-filesystem-layout-구성">최소 LFS Filesystem layout 구성</h3>
-<p>LFS의 빌드를 위한 크로스 컴파일러 생성 시 필요한 최소한의 Filesystem layout을 구축하는 듯 하다(필자의 추론)
+<p>LFS의 빌드를 위한 크로스 컴파일러 생성 시 필요한 최소한의 Filesystem layout을 구축한다.(필자의 추론)
+크로스 컴파일용 glib이나 libstdc++등이 여기에 설치되고 LFS에 포함되는 시스템은 상기 폴더에 덮어써진다.
 Filesystem Layout을 위한 심볼릭 링크도 만들고 그 후 크로스 컴파일러가 설치 될 폴더를 생성한다.(이는 향후 LFS 시스템에 포함되지 않으므로 분리해놓음)</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -608,6 +610,45 @@ Filesystem Layout을 위한 심볼릭 링크도 만들고 그 후 크로스 컴�
     <h2 class="section-title">Related content</h2>
     <div class="related-content">
         <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/lfs_prj-05-final-debugging/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[LFS_prj] 05 Final debugging</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/lfs_prj-04-building-the-lfs-system/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[LFS_prj] 04 Building the LFS system</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/lfs_prj-03-building-the-lfs-cross-toolchain-and-temporary-tools/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[LFS_prj] 03 Building the LFS Cross Toolchain and Temporary Tools</h2>
+        </div>
+    </a>
+</article>
+
             
                 
 <article class="">

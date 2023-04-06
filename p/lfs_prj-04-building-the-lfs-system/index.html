@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='How to build LFS 시스템'>
+<title>[LFS_prj] 04 Building the LFS system</title>
+
+<link rel='canonical' href='https://muonkmu.github.io/p/lfs_prj-04-building-the-lfs-system/'>
+
+<link rel="stylesheet" href="/scss/style.min.f3b6945bee58731371ef6d5a992e6775ef6e63b9642101b9f59903b1c9e16941.css"><meta property='og:title' content='[LFS_prj] 04 Building the LFS system'>
+<meta property='og:description' content='How to build LFS 시스템'>
+<meta property='og:url' content='https://muonkmu.github.io/p/lfs_prj-04-building-the-lfs-system/'>
+<meta property='og:site_name' content='MW Devlog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='LFS' /><meta property='article:published_time' content='2023-03-19T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-03-19T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="[LFS_prj] 04 Building the LFS system">
+<meta name="twitter:description" content="How to build LFS 시스템">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/minwook_large_hu93fbe6c7fccf94bb4165ea496a9d4637_41368_300x0_resize_q75_box.jpg" width="300"
+                            height="246" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MW Devlog</a></h1>
+            <h2 class="site-description">Embedded Engineer (HW,SW,SYSTEM)</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/muonkmu'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://www.linkedin.com/in/minwook-kim-35a417154/'
+                        target="_blank"
+                        title="Linkedin"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-linkedin" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+ <path stroke="none" d="M0 0h24v24H0z" fill="none"/> <rect x="4" y="4" width="16" height="16" rx="2" /> <line x1="8" y1="11" x2="8" y2="16" /> <line x1="8" y1="8" x2="8" y2="8.01" /> <line x1="12" y1="16" x2="12" y2="11" />
+ <path d="M16 16v-3a2 2 0 0 0 -4 0" />
+</svg>
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#installing-basic-system-software">Installing Basic System Software</a>
+      <ol>
+        <li><a href="#package-install">Package install</a></li>
+        <li><a href="#cleaning-up">Cleaning up</a></li>
+      </ol>
+    </li>
+    <li><a href="#system-configuration">System Configuration</a></li>
+    <li><a href="#making-the-lfs-system-bootable">Making the LFS System Bootable</a></li>
+    <li><a href="#the-end">The end</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/prj_lfs/" style="background-color: #A26465; color: #fff;">
+                prj_LFS
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/lfs_prj-04-building-the-lfs-system/">[LFS_prj] 04 Building the LFS system</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            How to build LFS 시스템
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 19, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>chroot 환경에서 LFS 시스템 구축 과정을 다룬다.</p>
+<h2 id="installing-basic-system-software">Installing Basic System Software</h2>
+<h3 id="package-install">Package install</h3>
+<p>하기 패키지를 설치한다</p>
+<ol>
+<li>Man-pages-6.03</li>
+<li>Iana-Etc-20230202</li>
+<li>Glibc-2.37</li>
+<li>Zlib-1.2.13</li>
+<li>Bzip2-1.0.8</li>
+<li>Xz-5.4.1</li>
+<li>Zstd-1.5.4</li>
+<li>File-5.44</li>
+<li>Readline-8.2</li>
+<li>M4-1.4.19</li>
+<li>Bc-6.2.4</li>
+<li>Flex-2.6.4</li>
+<li>Tcl-8.6.13</li>
+<li>Expect-5.45.4</li>
+<li>DejaGNU-1.6.3</li>
+<li>Binutils-2.40</li>
+<li>GMP-6.2.1</li>
+<li>MPFR-4.2.0</li>
+<li>MPC-1.3.1</li>
+<li>Attr-2.5.1</li>
+<li>Acl-2.3.1</li>
+<li>Libcap-2.67</li>
+<li>Shadow-4.13</li>
+<li>GCC-12.2.0</li>
+<li>Pkg-config-0.29.2</li>
+<li>Ncurses-6.4</li>
+<li>Sed-4.9</li>
+<li>Psmisc-23.6</li>
+<li>Gettext-0.21.1</li>
+<li>Bison-3.8.2</li>
+<li>Grep-3.8</li>
+<li>Bash-5.2.15</li>
+<li>Libtool-2.4.7</li>
+<li>GDBM-1.23</li>
+<li>Gperf-3.1</li>
+<li>Expat-2.5.0</li>
+<li>Inetutils-2.4</li>
+<li>Less-608</li>
+<li>Perl-5.36.0</li>
+<li>XML::Parser-2.46</li>
+<li>Intltool-0.51.0</li>
+<li>Autoconf-2.71</li>
+<li>Automake-1.16.5</li>
+<li>OpenSSL-3.0.8</li>
+<li>Kmod-30</li>
+<li>Libelf from Elfutils-0.188</li>
+<li>Libffi-3.4.4</li>
+<li>Python-3.11.2</li>
+<li>Wheel-0.38.4</li>
+<li>Ninja-1.11.1</li>
+<li>Meson-1.0.0</li>
+<li>Coreutils-9.1</li>
+<li>Check-0.15.2</li>
+<li>Diffutils-3.9</li>
+<li>Gawk-5.2.1</li>
+<li>Findutils-4.9.0</li>
+<li>Groff-1.22.4</li>
+<li>GRUB-2.06</li>
+<li>Gzip-1.12</li>
+<li>IPRoute2-6.1.0</li>
+<li>Kbd-2.5.1</li>
+<li>Libpipeline-1.5.7</li>
+<li>Make-4.4</li>
+<li>Patch-2.7.6</li>
+<li>Tar-1.34</li>
+<li>Texinfo-7.0.2</li>
+<li>Vim-9.0.1273</li>
+<li>MarkupSafe-2.1.2</li>
+<li>Jinja2-3.1.2</li>
+<li>Systemd-252</li>
+<li>D-Bus-1.14.6</li>
+<li>Man-DB-2.11.2</li>
+<li>Procps-ng-4.0.2</li>
+<li>Util-linux-2.38.1</li>
+<li>E2fsprogs-1.47.0</li>
+</ol>
+<h3 id="cleaning-up">Cleaning up</h3>
+<ol>
+<li>패키지 설치를 위한 컴파일 시 디버그 옵션(-g)가 들어가 있으르모 디버그 심볼이 포함되어 있다. 이를 제거한다면 용량을 줄일 수 있다.
+그러나 시스템 소프트웨어에서 디버깅을 하거나 valgrind 또는 GDB를 이용한 회기 테스트 시 디버그 심볼이 필요하다.
+매뉴얼을 참조하여 디버깅 심볼을 스트리핑하여 백업하자</li>
+<li><code>/tmp</code> 폴더의 임시파일, libtool archive 파일, 이전 장에서 사용한 컴파일러 등은 필요없으니 매뉴얼을 참조하여 삭제</li>
+</ol>
+<h2 id="system-configuration">System Configuration</h2>
+<ol>
+<li>General Network Configuration
+<ul>
+<li><code>systemd-networkd</code>에 의해 기본적인 네트워크 구성이 된다.</li>
+<li>네트워크 디바이스의 이름을 변경하고 싶거나 정적 IP/DHCP를 구성하고 싶을시 <code>/etc/systemd/netwokr</code> 하위에 관련 설정 파일을 생성</li>
+<li>/etc/resolv.conf 파일을 이용해 인터넷 연결 시 필요한 DNS를 설정할 수 있다.</li>
+<li><code>/etc/hosts</code>에 호스트 이름을 설정(요즘은 네임서버가 거의 있어서 필요업지만 /etc/hosts를 참조하여 네임서버를 ip로 변환)</li>
+</ul>
+</li>
+<li>Managing Devices
+<ul>
+<li>systemd를 설치했으므로 udev 데몬이 활성화 된다.(udev는 부팅시 sysfs, 내부적으로는 devtmpfs에 검색된 디바이스를 로딩한다.)</li>
+<li>devtmpfs 인스턴스가 /dev에 마운트 될때, 디바이스 노드가 이름,퍼미션,소유권을 변경하면서 생성, 그 뒤커널은 uevent를 udev데몬(udevd)에 날린다.
+/etc/udev/rules.d 등 에 기술된 rule을 기반으로 udevd는 디바이스 노드에대한 새로운 심볼릭링크를 생성</li>
+<li>만약 중복된 디바이스의 이름을 변경하고 싶다면(ex, usb 카메라와 같은) /etc/udev/rules.d에 룰을 기술</li>
+</ul>
+</li>
+<li>Time zone과 NTP time synq등을 설정한다.</li>
+<li>리눅스 콘설 설정파일을 만들고 locale등을 설정한다.</li>
+<li>readline을 위한 /etc/inputrc를 만들고 /etc/shells 파일을 생성한다.</li>
+</ol>
+<h2 id="making-the-lfs-system-bootable">Making the LFS System Bootable</h2>
+<ol>
+<li><code>/etc/fstab</code> 파일을 만들어 rootfs 와 swap파티션을 마운트 하자</li>
+<li>리눅스 커널을 빌드하여  <code>/boot</code>폴더에 복사한다.</li>
+<li>grub을 설치하고 grub.cfg파일을 만들어 부팅 메뉴를 작성한다.(메뉴얼에서는 백업방법이 나와있다. 왠만하면 따라서 하자)</li>
+</ol>
+<h2 id="the-end">The end</h2>
+<p>chroot환경에서 로그아웃 후 마운트된 디렉토리를 해제하고 리부팅하면 끝이다.
+그런데 커널패닉이 발생하니&hellip;.디버깅은 다음장에&hellip;.</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/lfs/">LFS</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/lfs_prj-05-final-debugging/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[LFS_prj] 05 Final debugging</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/lfs_prj-03-building-the-lfs-cross-toolchain-and-temporary-tools/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[LFS_prj] 03 Building the LFS Cross Toolchain and Temporary Tools</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/lfs_prj-02-host-setting/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[LFS_prj] 02 Host setting</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/lfs_prj-01-lfs-project-propsal/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[LFS_prj] 01 LFS project propsal</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2022 - 
+        
+        2023 MW Devlog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

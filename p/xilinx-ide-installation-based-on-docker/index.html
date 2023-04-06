@@ -243,7 +243,7 @@
     <li><a href="#docker-gui">Docker GUI</a>
       <ol>
         <li><a href="#how-to-use-a-gui-on-the-docker">How to use a GUI on the docker</a></li>
-        <li><a href="#docker-image-다운-및-실행">Docker image 다운 및 실행</a></li>
+        <li><a href="#docker-image-빌드-및-실행">Docker image 빌드 및 실행</a></li>
       </ol>
     </li>
     <li><a href="#petalinux-install">Petalinux Install</a>
@@ -253,6 +253,8 @@
       </ol>
     </li>
     <li><a href="#vivado-install">Vivado Install</a></li>
+    <li><a href="#backup-and-import">Backup and import</a></li>
+    <li><a href="#etc">Etc</a></li>
   </ol>
 </nav>
         </div>
@@ -321,7 +323,7 @@
 
 
                 <time class="article-time--reading">
-                    2 minute read
+                    4 minute read
                 </time>
             </div>
         
@@ -347,47 +349,221 @@
 <li>SSH 기반에서 X11 Forwarding을 이용해 HOST에서 GUI를 띄운다.</li>
 </ol>
 <p>1번째 방법은 GUI docker image를 다운받아 설정하고 여기에 ssh의 ForwardX11 옵션을 활성화 하면 2번째 방법도 지원이 된다.</p>
-<h3 id="docker-image-다운-및-실행">Docker image 다운 및 실행</h3>
+<h3 id="docker-image-빌드-및-실행">Docker image 빌드 및 실행</h3>
 <p>선구자가 LXDE 환경의 Docker를 개발하였다. 하기 사이트에서 사용법을 읽어보자.</p>
 <ul>
 <li><a class="link" href="https://hub.docker.com/r/dorowu/ubuntu-desktop-lxde-vnc/"  target="_blank" rel="noopener"
     >https://hub.docker.com/r/dorowu/ubuntu-desktop-lxde-vnc/</a></li>
 </ul>
-<p>다음과 같은 순서로 도커 이미지를 설치하고 실행하자(약 100GB의 용량이 필요하다)</p>
-<ol>
-<li>도커 이미지 다운</li>
-<li>필요시 이미지 이름 변경 및 기존 이미지 삭제</li>
-<li>해당 이미지의 설명을 참조하여 도커를 실행</li>
-</ol>
+<p>위의 이미지를 그대로 사용해도 되지만 시간 설정 등 몇가지 설정이 다르므로 이미지를 빌드하자.
+아래는 필자의 개발환경 구성을 위한 dockerfile이다. 필자는 기본쉘로 zsh를 사용하지만 petalinux는 bash 환경에서 실행해야 함을 주의하자.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo docker pull dorowu/ubuntu-desktop-lxde-vnc
-</span></span><span class="line"><span class="cl">sudo docker image tag dorowu/ubuntu-desktop-lxde-vnc:lastest <span class="si">${</span><span class="p">이미지이름</span><span class="si">}</span>:<span class="si">${</span><span class="p">이미지tag</span><span class="si">}</span>
-</span></span><span class="line"><span class="cl">sudo docker rmi dorowu/ubuntu-desktop-lxde-vnc
-</span></span><span class="line"><span class="cl">sudo docker run -d -p <span class="si">${</span><span class="nv">HTTP_PORT</span><span class="si">}</span>:80 -p <span class="si">${</span><span class="nv">VNC_PORT</span><span class="si">}</span>:5900 -p <span class="si">${</span><span class="nv">SSH_PORT</span><span class="si">}</span>:22 -e <span class="nv">RESOLUTION</span><span class="o">=</span>1920x1080 -e <span class="nv">VNC_PASSWORD</span><span class="o">=</span>xilinx -e <span class="nv">USER</span><span class="o">=</span>xilinx -e <span class="nv">PASSWORD</span><span class="o">=</span>xilinx -v /dev/shm:/dev/shm -v <span class="si">${</span><span class="p">작업 디렉토리 마운팅</span><span class="si">}</span>:/home/xilinx/Workspace --name xilinx-dev <span class="si">${</span><span class="p">이미지이름</span><span class="si">}</span>:<span class="si">${</span><span class="p">이미지tag</span><span class="si">}</span>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#from ubuntu20.04-vnc-dockerfile</span>
+</span></span><span class="line"><span class="cl">FROM dorowu/ubuntu-desktop-lxde-vnc:latest
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># timezone setup</span>
+</span></span><span class="line"><span class="cl">ARG <span class="nv">DEBIAN_FRONTEND</span><span class="o">=</span>noninteractive
+</span></span><span class="line"><span class="cl">ENV <span class="nv">TZ</span><span class="o">=</span>Asia/Seoul
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># package add</span>
+</span></span><span class="line"><span class="cl">RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub <span class="p">|</span> sudo apt-key add - <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> apt-get update <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> apt-get install -y vim git openssh-server zsh fonts-powerline tzdata tio byobu language-pack-en language-pack-ko <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> update-locale <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> apt autoclean -y <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> apt autoremove -y
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># xilinx user add and password setup, and usb dev group add</span>
+</span></span><span class="line"><span class="cl">RUN useradd -m -s /bin/zsh xilinx <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s1">&#39;xilinx:xilinx&#39;</span> <span class="p">|</span> chpasswd <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">&#34;xilinx ALL=(ALL:ALL) ALL&#34;</span> &gt;&gt; /etc/sudoers <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> usermod -a -G dialout xilinx <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> usermod -a -G plugdev xilinx
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">EXPOSE <span class="m">80</span>
+</span></span><span class="line"><span class="cl">WORKDIR /home/xilinx
+</span></span><span class="line"><span class="cl">ENV <span class="nv">HOME</span><span class="o">=</span>/home/xilinx <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="nv">SHELL</span><span class="o">=</span>/bin/zsh
+</span></span><span class="line"><span class="cl">HEALTHCHECK --interval<span class="o">=</span>30s --timeout<span class="o">=</span>5s CMD curl --fail http://127.0.0.1:6079/api/health
+</span></span><span class="line"><span class="cl">ENTRYPOINT <span class="o">[</span><span class="s2">&#34;/startup.sh&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl">~
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>도커를 실행해보자. 하기 파일은 필자의 실행 스크립트이다.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="nv">CON_UBUNTU_VER</span><span class="o">=</span><span class="s2">&#34;20.04&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">CON_NAME</span><span class="o">=</span><span class="s2">&#34;xilinx-dev&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">CON_TAG</span><span class="o">=</span><span class="s2">&#34;2023-3&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">CON_USR_NAME</span><span class="o">=</span><span class="s2">&#34;xilinx&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">CON_USR_PWD</span><span class="o">=</span><span class="s2">&#34;xilinx&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">MAP_PORT_SSH</span><span class="o">=</span><span class="s2">&#34;8091&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">MAP_PORT_VNC</span><span class="o">=</span><span class="s2">&#34;8092&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">MAP_PORT_HTTP</span><span class="o">=</span><span class="s2">&#34;8093&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">VNC_PWD</span><span class="o">=</span><span class="s2">&#34;xilinx&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;######################################################&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;ubuntu </span><span class="nv">$CON_UBUNTU_VER</span><span class="s2"> LXDE Base Docker&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$CON_NAME</span><span class="s2"> platform : xilinx-ide &#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Port SSH: </span><span class="nv">$MAP_PORT_SSH</span><span class="s2">, VNC: </span><span class="nv">$MAP_PORT_VNC</span><span class="s2">, HTTP: </span><span class="nv">$MAP_PORT_HTTP</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;######################################################&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> -n <span class="s2">&#34;Select Command 1)Run-Docker 2)Attach-Bash 3)Remove-Docker : &#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">read</span> selCmd
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> <span class="nv">$selCmd</span> <span class="o">=</span> <span class="s2">&#34;1&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nb">echo</span> -n <span class="s2">&#34;Select Resolution 1)FHD 2)QHD 3)UHD 4)Manual : &#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">read</span> selRes
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">[</span> <span class="nv">$selRes</span> <span class="o">=</span> <span class="s2">&#34;1&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">                <span class="nv">resVal</span><span class="o">=</span><span class="s2">&#34;1920x1080&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">elif</span> <span class="o">[</span> <span class="nv">$selRes</span> <span class="o">=</span> <span class="s2">&#34;2&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">                <span class="nv">resVal</span><span class="o">=</span><span class="s2">&#34;2560x1440&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">elif</span> <span class="o">[</span> <span class="nv">$selRes</span> <span class="o">=</span> <span class="s2">&#34;3&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">                <span class="nv">resVal</span><span class="o">=</span><span class="s2">&#34;3840x2160&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">elif</span> <span class="o">[</span> <span class="nv">$selRes</span> <span class="o">=</span> <span class="s2">&#34;4&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">                <span class="nb">echo</span> -n <span class="s2">&#34;Input Resolution ex)1920x1080 : &#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="nb">read</span> resVal
+</span></span><span class="line"><span class="cl">        <span class="k">else</span>
+</span></span><span class="line"><span class="cl">                <span class="nv">resVal</span><span class="o">=</span><span class="s2">&#34;1920x1980&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="nb">echo</span> <span class="s2">&#34;Undefined Num, Set resolution FHD&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        sudo docker run -d --privileged <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>                -p <span class="nv">$MAP_PORT_HTTP</span>:80 -p <span class="nv">$MAP_PORT_VNC</span>:5900 -p <span class="nv">$MAP_PORT_SSH</span>:22 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>                -e <span class="nv">VNC_PASSWORD</span><span class="o">=</span><span class="nv">$VNC_PWD</span> -e <span class="nv">RESOLUTION</span><span class="o">=</span><span class="nv">$resVal</span> -e <span class="nv">USER</span><span class="o">=</span><span class="nv">$CON_USR_NAME</span> -e <span class="nv">PASSWORD</span><span class="o">=</span><span class="nv">$CON_USR_PWD</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>                -v /dev/shm:/dev/shm -v /dev/bus/usb:/dev/bus/usb  -v <span class="nv">$HOME</span>/Workspace:/home/<span class="nv">$CON_USR_NAME</span>/Workspace <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>                --name <span class="nv">$CON_NAME</span> <span class="nv">$CON_NAME</span>:<span class="nv">$CON_TAG</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">elif</span> <span class="o">[</span> <span class="nv">$selCmd</span> <span class="o">=</span> <span class="s2">&#34;2&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">        sudo docker <span class="nb">exec</span> -it <span class="nv">$CON_NAME</span> /bin/zsh -c <span class="s2">&#34;su - </span><span class="nv">$CON_USR_NAME</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">elif</span> <span class="o">[</span> <span class="nv">$selCmd</span> <span class="o">=</span> <span class="s2">&#34;3&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">        sudo docker stop <span class="nv">$CON_NAME</span>
+</span></span><span class="line"><span class="cl">        sudo docker rm <span class="nv">$CON_NAME</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">echo</span> <span class="s2">&#34;Input the collect decimal number&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>이후 Docker의 VNC에 연결하여 진행한다.
-기본적으로 필요한 패키지들을 설치하고 만약 <code>.bashrc</code>가 없어서 터미널의 색깔이 없다면 해당파일을 복사한다.</p>
+기본적으로 필요한 패키지들을 설치하고 만약 <code>.bashrc</code>가 없어서 터미널의 색깔이 이상하다면 해당파일을 복사한다.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-get install openssh-server
-</span></span><span class="line"><span class="cl">cp /etc/skel/.bashrc <span class="nv">$HOME</span>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cp /etc/skel/.bashrc <span class="nv">$HOME</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="petalinux-install">Petalinux Install</h2>
 <h3 id="사전준비">사전준비</h3>
 <ol>
+<li>필요 시 <code>/bin/sh</code>가 bash가 아니라면 변경한다. 하기 명령을 수행 후 <code>no</code>을 선택하면 bash로 변경됨</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo dpkg-reconfigure dash
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="2">
 <li>필요 패키지들을 설치한다.</li>
 </ol>
 <ul>
@@ -406,8 +582,8 @@
 </span></span><span class="line"><span class="cl">gawk make net-tools libncurses5-dev tftpd zlib1g:i386 libssl-dev flex bison libselinux1 gnupg wget diffstat chrpath socat xterm autoconf libtool tar unzip texinfo zlib1g-dev gcc-multilib build-essential screen pax gzip python2.7 cpio
 </span></span></code></pre></td></tr></table>
 </div>
-</div><ol>
-<li>locale에 en_US.utf8을 추가한다.</li>
+</div><ol start="3">
+<li>필요 시 locale에 en_US.utf8을 추가한다.</li>
 </ol>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -452,7 +628,38 @@
 </span></span><span class="line"><span class="cl">sudo apt-get install libtinfo5
 </span></span></code></pre></td></tr></table>
 </div>
+</div><h2 id="backup-and-import">Backup and import</h2>
+<ol>
+<li>레이어 병합을 위하여 docker의 export 명령으로 출력 시칸다.</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo docker <span class="nb">export</span> --output<span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="p">파일이름</span><span class="si">}</span><span class="s2">&#34;</span> <span class="si">${</span><span class="p">컨테이너명</span><span class="si">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
+</div><ol start="2">
+<li>백업된 파일을 입력시키고 싶다면 다음을 수행한다.</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo docker import -c <span class="s1">&#39;EXPOSE 80&#39;</span>  -c <span class="s1">&#39;WORKDIR /root&#39;</span> -c <span class="s1">&#39;ENV HOME=/home/ubuntu SHELL=/bin/bash&#39;</span> -c <span class="s1">&#39;HEALTHCHECK --interval=30s --timeout=5s CMD curl --fail http://127.0.0.1:6079/api/health&#39;</span> -c <span class="s1">&#39;ENTRYPOINT [&#34;/startup.sh&#34;]&#39;</span> 아카이브.tar 이미지이름:tag
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="etc">Etc</h2>
+<ol>
+<li>ssh 설치 후 자동 실행되지 않는다면 <code>/startup.sh</code> 파일에 ssh 서비스 스타트 명령을 기입한다.
+<ul>
+<li>상기 파일의 마지막 줄은 헬스체크 프로세스 시작 명령이므로 이 위에 기입하면 된다.</li>
+</ul>
+</li>
+</ol>
+
 </section>
 
 

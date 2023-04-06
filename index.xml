@@ -6,7 +6,806 @@
         <description>Recent content on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sun, 12 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Tue, 28 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[LFS_prj] 05 Final debugging</title>
+        <link>https://muonkmu.github.io/p/lfs_prj-05-final-debugging/</link>
+        <pubDate>Tue, 28 Mar 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/lfs_prj-05-final-debugging/</guid>
+        <description>&lt;p&gt;매뉴얼 대로 했는데 커널 패닉이 일어난다. 로그를 보니 rootfs 디바이스가 로드 되지 않는 듯 하다.
+일반적인 환경이 아니라 vmware상에서 개발하다보니 생긴 문제이다.
+즉 커널 모듈이 vmware의 SCSI 드라이버를 로드하지 못하여 생기는 문제인 것 같다.
+하기 두가지 방법으로 해결이 가능하다.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;initramfs환경으로 부팅 : &lt;code&gt;grub.cfg&lt;/code&gt;와 &lt;code&gt;fstab&lt;/code&gt;에 파티션 이름이 아닌 UUID를 넣고 initramfs로 부팅하는 방법인데 부팅은 되나 이제껏 구성했던 환경은 아니다.&lt;/li&gt;
+&lt;li&gt;kernel에 필요한 모듈을 넣어 다시 컴파일 하는 방법&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;필자는 삽질에 삽질을 계속하여 2번째 방법으로 해결하였다.&lt;/p&gt;
+&lt;h2 id=&#34;kernel-rebuild&#34;&gt;Kernel rebuild&lt;/h2&gt;
+&lt;h3 id=&#34;host-환경-재로그인&#34;&gt;Host 환경 재로그인&lt;/h3&gt;
+&lt;p&gt;필자는 grub을 설치한 후 백업을 하지 않았다. grub 명령어로 host의 우부투를 부팅하자. (부팅 시 grub 부팅 선택 화면에서 &lt;code&gt;c&lt;/code&gt;키를 누르면 됨)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;set&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;root&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=(&lt;/span&gt;hd0,1&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;linux /boot/vmlinuz &lt;span class=&#34;nv&#34;&gt;root&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/dev/sda1
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;initrd /boot/initrd.img
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;이후 매뉴얼의 7.3, 7.4절에서 기술한 내용으로 &lt;code&gt;LFS chroot&lt;/code&gt; 환경으로 진입한다.&lt;/p&gt;
+&lt;h3 id=&#34;kernel-rebuild-1&#34;&gt;kernel rebuild&lt;/h3&gt;
+&lt;p&gt;매뉴얼의 10.3절에서 다음의 커널 모듈을 포함하여 커널을 리빌드한다.
+사실 몇가지만 필요할텐데 정확하게 필요한게 먼지 몰라서 다 포함 시켰다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;VMware Balloon Driver&lt;/li&gt;
+&lt;li&gt;VMware VMCI Driver&lt;/li&gt;
+&lt;li&gt;Maintain a devtmpfs filesystem&lt;/li&gt;
+&lt;li&gt;AMD PCnet32 PCI support&lt;/li&gt;
+&lt;li&gt;SCSI device support, SCSI low-level drivers&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;BusLogic SCSI support&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Fusion MPT ScsiHost drivers for SPI&lt;/li&gt;
+&lt;li&gt;Fusion MPT ScsiHost drivers for FC&lt;/li&gt;
+&lt;li&gt;Fusion MPT ScsiHost drivers for SAS&lt;/li&gt;
+&lt;li&gt;File Systems, Ext4 Journaling file system support&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;커널이 리빌드 되면 커널 모듈을 인스톨하고 빌드된 커널을 /boot에 복사하자.
+이후 리부팅 후 성공&lt;/p&gt;
+&lt;h2 id=&#34;reference&#34;&gt;reference&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.andreev.it/2013/09/linux-from-scratch-as-a-virtual-machine-on-vmware-workstation/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://blog.andreev.it/2013/09/linux-from-scratch-as-a-virtual-machine-on-vmware-workstation/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.linuxquestions.org/questions/linux-from-scratch-13/my-lfs-does-not-boot-878722/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.linuxquestions.org/questions/linux-from-scratch-13/my-lfs-does-not-boot-878722/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>[YOLO_Acc_prj] 05 Image format conversion and resize</title>
+        <link>https://muonkmu.github.io/p/yolo_acc_prj-05-image-format-conversion-and-resize/</link>
+        <pubDate>Wed, 22 Mar 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/yolo_acc_prj-05-image-format-conversion-and-resize/</guid>
+        <description>&lt;p&gt;ZCU104 - See3CAM_CU30를 이용하여 이미지 포맷 변환 및 리사이즈 Pipeline을 구성하였다.
+Xilinx에서 제공하는 M2M 기본 예제를 이용하였으며 삽질의 연속으로 2주 정도 걸린 것 같다.
+결론적으로 Xilinx에서 제공하는 VPSS의 경우 다양한 기능을 지원하여 LUT의 사용량이 많고 M2M 드라이버의 경우 지원이 종료되었다.
+향후에는 HLS로 직접 구현해야 할 것으로 생각된다.&lt;/p&gt;
+&lt;h2 id=&#34;기본-지식&#34;&gt;기본 지식&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;Xilinx IP list
+&lt;ul&gt;
+&lt;li&gt;Video Processing SubSystem(VPSS) : Color Space Conversion(CSC)와 SCaler(SC) 기능을 지원한다. 기본적으로 Xilinx_Video_Driver와 호환된다.&lt;/li&gt;
+&lt;li&gt;Framebuffer Read/Write : VDMA의 후속(?)으로 이미지 전용 DMA이다. Gstreamer와 호환이 되어 편리하게 이용이 가능하다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Xilinx Linux Driver
+&lt;ul&gt;
+&lt;li&gt;Mem 2 Mem Composite Video Framework : Framebuffer Read/Write를 이용하여 비디오 파이프라인을 기술해주는 &lt;code&gt;Bridge Driver&lt;/code&gt;이다. 현재 지원 종료되었으므로 테스트로만 이용한다.(지원종료된 이유를 확인 중)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;hw-design&#34;&gt;HW Design&lt;/h2&gt;
+&lt;p&gt;레퍼런스에 나와 있는데로 FB_R -&amp;gt; CSC -&amp;gt; SC -&amp;gt; FB_W 파이프 라인으로 구성한다.
+필자가 실수하여 삽질한 부분은 하기와 같다.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;파이프라인의 동작 클럭은 300Mhz로 하였다. 내부 클럭을 이용하므로 clock wizard ip의 입력 패드를 No buffer로 설정&lt;/li&gt;
+&lt;li&gt;FB_R과 FB_W의 리셋은 드라이버에 의해 구동되므로 PS EMIO로 제어 가능하게 구성한다.(pl reset으로 구동하지 말것)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&#34;https://muonkmu.github.io/p/yolo_acc_prj-05-image-format-conversion-and-resize/01_video_pipe_csc_sc_design.png&#34;
+	width=&#34;2904&#34;
+	height=&#34;774&#34;
+	srcset=&#34;https://muonkmu.github.io/p/yolo_acc_prj-05-image-format-conversion-and-resize/01_video_pipe_csc_sc_design_hu34acd0385fb61d80af575be2f3585f16_170639_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/yolo_acc_prj-05-image-format-conversion-and-resize/01_video_pipe_csc_sc_design_hu34acd0385fb61d80af575be2f3585f16_170639_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;375&#34;
+		data-flex-basis=&#34;900px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;생각보다 CSC/SC가 리소스를 많이 잡아 먹어서 나중에 HLS로 변경해야 할 듯 하다.
+&lt;img src=&#34;https://muonkmu.github.io/p/yolo_acc_prj-05-image-format-conversion-and-resize/02_video_pipe_csc_sc_utilization.png&#34;
+	width=&#34;2262&#34;
+	height=&#34;494&#34;
+	srcset=&#34;https://muonkmu.github.io/p/yolo_acc_prj-05-image-format-conversion-and-resize/02_video_pipe_csc_sc_utilization_hu7b9bb6e7e51e6df27004997d78290e79_148400_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/yolo_acc_prj-05-image-format-conversion-and-resize/02_video_pipe_csc_sc_utilization_hu7b9bb6e7e51e6df27004997d78290e79_148400_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;457&#34;
+		data-flex-basis=&#34;1098px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h2 id=&#34;sw-design&#34;&gt;SW Design&lt;/h2&gt;
+&lt;p&gt;파이프라인 SW component의 구성을 보면 하기와 같다(필자의 생각이므로 틀릴 수 있음)
+&lt;img src=&#34;https://muonkmu.github.io/p/yolo_acc_prj-05-image-format-conversion-and-resize/03_M2M_SW_Struct.drawio.svg&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;h3 id=&#34;deviece-tree&#34;&gt;Deviece Tree&lt;/h3&gt;
+&lt;p&gt;Petalinux는 빌드 시 HW Description 파일(.xsa)을 분석하여 PL Side의 Device Tree를 자동으로 생성해준다.
+&lt;code&gt;&amp;lt;plnx-proj-root&amp;gt;/component/plnx_workspace/device-tree/device-tree/pl.dtsi&lt;/code&gt;에서 생성된 Device-tree를 확인할 수 있다
+(petalinux-config에서 자동으로 디바이스트리를 생성하도록 설정되어 있어야한다). 우리는 vidoe-M2M 드라이버를 사용해야 하므로 디바이스 트리를
+수정해야 하는데 이는 &lt;code&gt;&amp;lt;plnx-proj-root&amp;gt;/project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi&lt;/code&gt;에 기술 시 적용된다.
+하기 내역을 수정한다.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;FrameBufferRead/Write IP에 의해 브리지 노드가 생성되는데 이 노드를 Disable하고 Properity 및 node를 삭제한다.&lt;/li&gt;
+&lt;li&gt;video_m2m 노드를 생성하고 DMA기술하고 및 포트 연결을 기술한다.&lt;/li&gt;
+&lt;li&gt;CSC/SC 노드의 포트의 연결을 수정하여 video_m2m과 연결될 수 있도록 한다.&lt;/li&gt;
+&lt;li&gt;CSC/SC 노드의 compatible 속성을 xlnx,v-vpss-csc 와 xlnx,v-vpss-sc로 고정한다. 이 v-vpss-*가 비디오 드라이버와 연결되는 드라이버이다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;test&#34;&gt;Test&lt;/h2&gt;
+&lt;p&gt;보드가 정상적으로 부팅이 된다면 &lt;code&gt;/dev/video#&lt;/code&gt;, &lt;code&gt;/dev/media#&lt;/code&gt;, &lt;code&gt;/dev/v4l-subdev#&lt;/code&gt;이 등록되었을 것이다.
+상기 디바이스가 보이지 않는다면 &lt;code&gt;dmesg&lt;/code&gt; 등을 이용해 커널 로그 및 부팅 로그를 확인하여 문제를 분석하자.&lt;/p&gt;
+&lt;p&gt;Test는 media-ctl로 CSC/SC를 설정하고 Gstreamer로 스트리밍 파이프라인을 구성하여 결과를 파일로 저장하였다.
+카메라 출력은 UYUV/1280x720이며 CSC/SC에서 이를 RGB/640x480으로 변환한다.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;media-ctl -d /dev/media0 -V &lt;span class=&#34;s2&#34;&gt;&amp;#34;\&amp;#34;a0100000.v_proc_ss\&amp;#34;:0 [fmt:UYVY8_1X16/1280x720 field:none colorspace:rec709]&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;media-ctl -d /dev/media0 -V &lt;span class=&#34;s2&#34;&gt;&amp;#34;\&amp;#34;a0100000.v_proc_ss\&amp;#34;:1 [fmt:RBG888_1X24/1280x720 field:none colorspace:srgb]&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;media-ctl -d /dev/media0 -V &lt;span class=&#34;s2&#34;&gt;&amp;#34;\&amp;#34;a0040000.v_proc_ss\&amp;#34;:0 [fmt:RBG888_1X24/1280x720 field:none colorspace:srgb]&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;media-ctl -d /dev/media0 -V &lt;span class=&#34;s2&#34;&gt;&amp;#34;\&amp;#34;a0040000.v_proc_ss\&amp;#34;:1 [fmt:RBG888_1X24/640x480 field:none colorspace:srgb]&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;gst-launch-1.0 v4l2src &lt;span class=&#34;nv&#34;&gt;device&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/dev/video1 num-buffers&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; ! video/x-raw, &lt;span class=&#34;nv&#34;&gt;width&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1280, &lt;span class=&#34;nv&#34;&gt;height&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;720, &lt;span class=&#34;nv&#34;&gt;format&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;UYVY ! v4l2convert capture-io-mode&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;4&lt;/span&gt; output-io-mode&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;4&lt;/span&gt; ! video/x-raw, &lt;span class=&#34;nv&#34;&gt;width&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;640, &lt;span class=&#34;nv&#34;&gt;height&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;480, &lt;span class=&#34;nv&#34;&gt;format&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;RGB ! filesink &lt;span class=&#34;nv&#34;&gt;location&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;test.rgb
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;gst-launch-1.0에서 파이프라인 입출력 설정이 한번에 되지 않는 거 같은데 테스트 스크립트임으로 넘어가자..&lt;/p&gt;
+&lt;p&gt;상기 저장된 파일은 RGB raw 데이터 파일인데 이를 확인하기 위해 간단한 파이썬 코드를 이용한다.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;os&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;cv2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;sys&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;numpy&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;as&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;np&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;HEIGHT&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;480&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;WIDTH&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;640&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;CHANNEL&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;3&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;vm&#34;&gt;__name__&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;#argment number check&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;len&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sys&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;argv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nb&#34;&gt;print&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;Arguments is missing&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;exit&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;rawRgbFileName&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sys&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;argv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;rawRgbFd&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;open&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rawRgbFileName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;rb&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;cvImage&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;np&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;fromfile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rawRgbFd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dtype&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;np&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;uint8&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;count&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;HEIGHT&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;WIDTH&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;CHANNEL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;reshape&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;HEIGHT&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;WIDTH&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;CHANNEL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;image_rgb&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cv2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cvtColor&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cvImage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cv2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;COLOR_RGB2BGR&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;rawRgbFd&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;close&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;# cv2.imshow(&amp;#39;&amp;#39;, cvImage)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;cv2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;imshow&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;image_rgb&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;cv2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;waitKey&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;cv2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;destroyAllWindows&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;참고-자료&#34;&gt;참고 자료&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;M2M reference : &lt;a class=&#34;link&#34; href=&#34;https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/80707675/Mem&amp;#43;2&amp;#43;Mem&amp;#43;VPSS-CSC&amp;#43;VPSS-SC&amp;#43;device&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/80707675/Mem+2+Mem+VPSS-CSC+VPSS-SC+device&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Petalinux Devie Tree Tip : &lt;a class=&#34;link&#34; href=&#34;https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18842482/Device&amp;#43;Tree&amp;#43;Tips&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18842482/Device+Tree+Tips&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>[LFS_prj] 04 Building the LFS system</title>
+        <link>https://muonkmu.github.io/p/lfs_prj-04-building-the-lfs-system/</link>
+        <pubDate>Sun, 19 Mar 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/lfs_prj-04-building-the-lfs-system/</guid>
+        <description>&lt;p&gt;chroot 환경에서 LFS 시스템 구축 과정을 다룬다.&lt;/p&gt;
+&lt;h2 id=&#34;installing-basic-system-software&#34;&gt;Installing Basic System Software&lt;/h2&gt;
+&lt;h3 id=&#34;package-install&#34;&gt;Package install&lt;/h3&gt;
+&lt;p&gt;하기 패키지를 설치한다&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Man-pages-6.03&lt;/li&gt;
+&lt;li&gt;Iana-Etc-20230202&lt;/li&gt;
+&lt;li&gt;Glibc-2.37&lt;/li&gt;
+&lt;li&gt;Zlib-1.2.13&lt;/li&gt;
+&lt;li&gt;Bzip2-1.0.8&lt;/li&gt;
+&lt;li&gt;Xz-5.4.1&lt;/li&gt;
+&lt;li&gt;Zstd-1.5.4&lt;/li&gt;
+&lt;li&gt;File-5.44&lt;/li&gt;
+&lt;li&gt;Readline-8.2&lt;/li&gt;
+&lt;li&gt;M4-1.4.19&lt;/li&gt;
+&lt;li&gt;Bc-6.2.4&lt;/li&gt;
+&lt;li&gt;Flex-2.6.4&lt;/li&gt;
+&lt;li&gt;Tcl-8.6.13&lt;/li&gt;
+&lt;li&gt;Expect-5.45.4&lt;/li&gt;
+&lt;li&gt;DejaGNU-1.6.3&lt;/li&gt;
+&lt;li&gt;Binutils-2.40&lt;/li&gt;
+&lt;li&gt;GMP-6.2.1&lt;/li&gt;
+&lt;li&gt;MPFR-4.2.0&lt;/li&gt;
+&lt;li&gt;MPC-1.3.1&lt;/li&gt;
+&lt;li&gt;Attr-2.5.1&lt;/li&gt;
+&lt;li&gt;Acl-2.3.1&lt;/li&gt;
+&lt;li&gt;Libcap-2.67&lt;/li&gt;
+&lt;li&gt;Shadow-4.13&lt;/li&gt;
+&lt;li&gt;GCC-12.2.0&lt;/li&gt;
+&lt;li&gt;Pkg-config-0.29.2&lt;/li&gt;
+&lt;li&gt;Ncurses-6.4&lt;/li&gt;
+&lt;li&gt;Sed-4.9&lt;/li&gt;
+&lt;li&gt;Psmisc-23.6&lt;/li&gt;
+&lt;li&gt;Gettext-0.21.1&lt;/li&gt;
+&lt;li&gt;Bison-3.8.2&lt;/li&gt;
+&lt;li&gt;Grep-3.8&lt;/li&gt;
+&lt;li&gt;Bash-5.2.15&lt;/li&gt;
+&lt;li&gt;Libtool-2.4.7&lt;/li&gt;
+&lt;li&gt;GDBM-1.23&lt;/li&gt;
+&lt;li&gt;Gperf-3.1&lt;/li&gt;
+&lt;li&gt;Expat-2.5.0&lt;/li&gt;
+&lt;li&gt;Inetutils-2.4&lt;/li&gt;
+&lt;li&gt;Less-608&lt;/li&gt;
+&lt;li&gt;Perl-5.36.0&lt;/li&gt;
+&lt;li&gt;XML::Parser-2.46&lt;/li&gt;
+&lt;li&gt;Intltool-0.51.0&lt;/li&gt;
+&lt;li&gt;Autoconf-2.71&lt;/li&gt;
+&lt;li&gt;Automake-1.16.5&lt;/li&gt;
+&lt;li&gt;OpenSSL-3.0.8&lt;/li&gt;
+&lt;li&gt;Kmod-30&lt;/li&gt;
+&lt;li&gt;Libelf from Elfutils-0.188&lt;/li&gt;
+&lt;li&gt;Libffi-3.4.4&lt;/li&gt;
+&lt;li&gt;Python-3.11.2&lt;/li&gt;
+&lt;li&gt;Wheel-0.38.4&lt;/li&gt;
+&lt;li&gt;Ninja-1.11.1&lt;/li&gt;
+&lt;li&gt;Meson-1.0.0&lt;/li&gt;
+&lt;li&gt;Coreutils-9.1&lt;/li&gt;
+&lt;li&gt;Check-0.15.2&lt;/li&gt;
+&lt;li&gt;Diffutils-3.9&lt;/li&gt;
+&lt;li&gt;Gawk-5.2.1&lt;/li&gt;
+&lt;li&gt;Findutils-4.9.0&lt;/li&gt;
+&lt;li&gt;Groff-1.22.4&lt;/li&gt;
+&lt;li&gt;GRUB-2.06&lt;/li&gt;
+&lt;li&gt;Gzip-1.12&lt;/li&gt;
+&lt;li&gt;IPRoute2-6.1.0&lt;/li&gt;
+&lt;li&gt;Kbd-2.5.1&lt;/li&gt;
+&lt;li&gt;Libpipeline-1.5.7&lt;/li&gt;
+&lt;li&gt;Make-4.4&lt;/li&gt;
+&lt;li&gt;Patch-2.7.6&lt;/li&gt;
+&lt;li&gt;Tar-1.34&lt;/li&gt;
+&lt;li&gt;Texinfo-7.0.2&lt;/li&gt;
+&lt;li&gt;Vim-9.0.1273&lt;/li&gt;
+&lt;li&gt;MarkupSafe-2.1.2&lt;/li&gt;
+&lt;li&gt;Jinja2-3.1.2&lt;/li&gt;
+&lt;li&gt;Systemd-252&lt;/li&gt;
+&lt;li&gt;D-Bus-1.14.6&lt;/li&gt;
+&lt;li&gt;Man-DB-2.11.2&lt;/li&gt;
+&lt;li&gt;Procps-ng-4.0.2&lt;/li&gt;
+&lt;li&gt;Util-linux-2.38.1&lt;/li&gt;
+&lt;li&gt;E2fsprogs-1.47.0&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;cleaning-up&#34;&gt;Cleaning up&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;패키지 설치를 위한 컴파일 시 디버그 옵션(-g)가 들어가 있으르모 디버그 심볼이 포함되어 있다. 이를 제거한다면 용량을 줄일 수 있다.
+그러나 시스템 소프트웨어에서 디버깅을 하거나 valgrind 또는 GDB를 이용한 회기 테스트 시 디버그 심볼이 필요하다.
+매뉴얼을 참조하여 디버깅 심볼을 스트리핑하여 백업하자&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;/tmp&lt;/code&gt; 폴더의 임시파일, libtool archive 파일, 이전 장에서 사용한 컴파일러 등은 필요없으니 매뉴얼을 참조하여 삭제&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;system-configuration&#34;&gt;System Configuration&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;General Network Configuration
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;systemd-networkd&lt;/code&gt;에 의해 기본적인 네트워크 구성이 된다.&lt;/li&gt;
+&lt;li&gt;네트워크 디바이스의 이름을 변경하고 싶거나 정적 IP/DHCP를 구성하고 싶을시 &lt;code&gt;/etc/systemd/netwokr&lt;/code&gt; 하위에 관련 설정 파일을 생성&lt;/li&gt;
+&lt;li&gt;/etc/resolv.conf 파일을 이용해 인터넷 연결 시 필요한 DNS를 설정할 수 있다.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;/etc/hosts&lt;/code&gt;에 호스트 이름을 설정(요즘은 네임서버가 거의 있어서 필요업지만 /etc/hosts를 참조하여 네임서버를 ip로 변환)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Managing Devices
+&lt;ul&gt;
+&lt;li&gt;systemd를 설치했으므로 udev 데몬이 활성화 된다.(udev는 부팅시 sysfs, 내부적으로는 devtmpfs에 검색된 디바이스를 로딩한다.)&lt;/li&gt;
+&lt;li&gt;devtmpfs 인스턴스가 /dev에 마운트 될때, 디바이스 노드가 이름,퍼미션,소유권을 변경하면서 생성, 그 뒤커널은 uevent를 udev데몬(udevd)에 날린다.
+/etc/udev/rules.d 등 에 기술된 rule을 기반으로 udevd는 디바이스 노드에대한 새로운 심볼릭링크를 생성&lt;/li&gt;
+&lt;li&gt;만약 중복된 디바이스의 이름을 변경하고 싶다면(ex, usb 카메라와 같은) /etc/udev/rules.d에 룰을 기술&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Time zone과 NTP time synq등을 설정한다.&lt;/li&gt;
+&lt;li&gt;리눅스 콘설 설정파일을 만들고 locale등을 설정한다.&lt;/li&gt;
+&lt;li&gt;readline을 위한 /etc/inputrc를 만들고 /etc/shells 파일을 생성한다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;making-the-lfs-system-bootable&#34;&gt;Making the LFS System Bootable&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;/etc/fstab&lt;/code&gt; 파일을 만들어 rootfs 와 swap파티션을 마운트 하자&lt;/li&gt;
+&lt;li&gt;리눅스 커널을 빌드하여  &lt;code&gt;/boot&lt;/code&gt;폴더에 복사한다.&lt;/li&gt;
+&lt;li&gt;grub을 설치하고 grub.cfg파일을 만들어 부팅 메뉴를 작성한다.(메뉴얼에서는 백업방법이 나와있다. 왠만하면 따라서 하자)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;the-end&#34;&gt;The end&lt;/h2&gt;
+&lt;p&gt;chroot환경에서 로그아웃 후 마운트된 디렉토리를 해제하고 리부팅하면 끝이다.
+그런데 커널패닉이 발생하니&amp;hellip;.디버깅은 다음장에&amp;hellip;.&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>[LFS_prj] 03 Building the LFS Cross Toolchain and Temporary Tools</title>
+        <link>https://muonkmu.github.io/p/lfs_prj-03-building-the-lfs-cross-toolchain-and-temporary-tools/</link>
+        <pubDate>Sat, 18 Mar 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/lfs_prj-03-building-the-lfs-cross-toolchain-and-temporary-tools/</guid>
+        <description>&lt;p&gt;LFS 시스템 빌드를 위한 cross tool chain의 설정과정을 다룬다.&lt;/p&gt;
+&lt;h2 id=&#34;techical-note&#34;&gt;Techical note&lt;/h2&gt;
+&lt;p&gt;LFS 시스템의 빌드 단계는 아래의 단계를 따른다&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Stage&lt;/th&gt;
+&lt;th&gt;Build&lt;/th&gt;
+&lt;th&gt;Host&lt;/th&gt;
+&lt;th&gt;Target&lt;/th&gt;
+&lt;th&gt;Action&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;pc&lt;/td&gt;
+&lt;td&gt;pc&lt;/td&gt;
+&lt;td&gt;lfs&lt;/td&gt;
+&lt;td&gt;Build cross-compiler cc1 using cc-pc on pc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;pc&lt;/td&gt;
+&lt;td&gt;lfs&lt;/td&gt;
+&lt;td&gt;lfs&lt;/td&gt;
+&lt;td&gt;Build compiler cc-lfs using cc1 on pc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;lfs&lt;/td&gt;
+&lt;td&gt;lfs&lt;/td&gt;
+&lt;td&gt;lfs&lt;/td&gt;
+&lt;td&gt;Rebuild and test cc-lfs using cc-lfs on lfs&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;여기서 1단계와 2단계가 cross compiler를 구축하는 단계이고 3단계는 chroot와 cross compiler를 이용한 LFS 시스템을 만드는 단계이다.
+cross compiler를 만드는 단계가 2단계로 구분되어 있는 이유는 하기와 같이 설명하고 있다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;C언어는 단순컴파일러가 아니라 표준 라이브러리(glib)도 정의하는데 이는 cc1으로 컴파일되어야 함&lt;/li&gt;
+&lt;li&gt;그런데 컴파일러는 내부 라이브러리 libgcc를 이용해 컴파일하는데 이는 glib에 연결되어 있어야함&lt;/li&gt;
+&lt;li&gt;이 상호 의존 문제를 해결하기 위해 먼저 cc1 및 libgcc(스레드,예외처리 일부 기능이 부족한)를 만들고 이를 이용해 glib을 만듬(glib은 성능저하 없음)&lt;/li&gt;
+&lt;li&gt;그 다음 2단계에서 cc1을 이용해 cc-lfs를 만드며 이때 libgcc 및 llibstdc++도 다시 만듬&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;그리고 3단계(chroot) 환경에서 기존에 만든 패키지가 있음에도 다시 모든 패키지를 빌드하는데 이는 LSF를 안정적으로 만들어 준다.(2단계에서 만든 패키지들이 몇가지 디펜던시가 부족하므로)&lt;/p&gt;
+&lt;p&gt;(이해하기 좀 빡세다&amp;hellip;해보면 이해간다는데 해봐도 머리속이 클리어하지 않다.)&lt;/p&gt;
+&lt;h2 id=&#34;compiling-a-cross-toolchain&#34;&gt;Compiling a Cross-Toolchain&lt;/h2&gt;
+&lt;p&gt;위의 1단계, cc1을 빌드하고 glib을 만든다. 그리고 cc-lfs도 만들 수 있도록 libstdc++도 추출함&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Binutils-2.40 - Pass 1&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;linker, an assembler, and other tools for handling object files&lt;/li&gt;
+&lt;li&gt;&amp;ndash;prefix=$LFS/tools, &amp;ndash;with-sysroot=$LFS 옵션으로 볼 때 host환경에서 쓴다는 것을 알 수 있다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;GCC-12.2.0 - Pass 1&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;-prefix=$LFS/tools, &amp;ndash;with-sysroot=$LFS 옵션으로 볼 때 host환경에서 사용&lt;/li&gt;
+&lt;li&gt;&amp;ndash;disable-shared에서 내부 라이브러리를 정적으로 쓰도록 함, 호스트의 동적 라이브러리로 인한 문제 차단&lt;/li&gt;
+&lt;li&gt;&amp;ndash;disable-libstdcxx 등 : 위에서 설명한 일부기능이 부족한 cc1이 됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Linux-6.1.11 API Headers&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;리눅스 커널에서 Glibc에 쓰이는 커널 API인 리눅스 API 헤더를 추출&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Glibc-2.37&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Glibc 패키지는 메인 C 라이브러리를 포함하고 있다. 이 라이브러리는 메모리 할당, 디렉토리 검색, 파일 열기 및 닫기, 파일 읽기 및 쓰기, 문자열 처리, 패턴 대조, 산술 등의 기본 루틴을 제공한다&lt;/li&gt;
+&lt;li&gt;&amp;ndash;prefix=/usr 로 볼때 빌드된 것이 LFS 시스템 상에서 사용됨을 알 수 있다.&lt;/li&gt;
+&lt;li&gt;&amp;ndash;host=$LFS_TGT, &amp;ndash;build=$(../scripts/config.guess) 는 이전의 gcc와 binutil등을 이용해서 크로스 컴파일함&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Libstdc++ from GCC-12.2.0&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;c++을 설치하기 위해서 Libstdc++가 필요한데 Glibc에 디펜던시를 가지므로 gcc 설치 시 설치하지 않았다.&lt;/li&gt;
+&lt;li&gt;Glibc와 같이 &amp;ndash;prefix=/usr, &amp;ndash;host=$LFS_TGT, &amp;ndash;build=$(../scripts/config.guess) 구성을 사용&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;cross-compiling-temporary-tools&#34;&gt;Cross Compiling Temporary Tools&lt;/h2&gt;
+&lt;p&gt;위 기술노트의 2단계, cc-lfs를 구축한다.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;M4-1.4.19
+&lt;ul&gt;
+&lt;li&gt;매크로 처리기&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Ncurses-6.4
+&lt;ul&gt;
+&lt;li&gt;문자 화면의 터미널 독립적 처리를 위한 라이브러리를 포함(clear, tab 같은)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Bash-5.2.15
+&lt;ul&gt;
+&lt;li&gt;배쉬 쉘&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Coreutils-9.1
+&lt;ul&gt;
+&lt;li&gt;기본적인 시스템 특성을 보여주고 설정하기 위한 유틸리티(cat, chmod, cp, dd 등등)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Diffutils-3.9
+&lt;ul&gt;
+&lt;li&gt;diff 유틸&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;File-5.44
+&lt;ul&gt;
+&lt;li&gt;file 명령어 util&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Findutils-4.9.0
+&lt;ul&gt;
+&lt;li&gt;Findutils 패키지는 파일을 찾는 프로그램을 포함(find 등)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Gawk-5.2.1
+&lt;ul&gt;
+&lt;li&gt;텍스트 편집에 최적화된 스크립트 언어&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Grep-3.8&lt;/li&gt;
+&lt;li&gt;Gzip-1.12&lt;/li&gt;
+&lt;li&gt;Make-4.4&lt;/li&gt;
+&lt;li&gt;Patch-2.7.6&lt;/li&gt;
+&lt;li&gt;Sed-4.9&lt;/li&gt;
+&lt;li&gt;Tar-1.34&lt;/li&gt;
+&lt;li&gt;Xz-5.4.1&lt;/li&gt;
+&lt;li&gt;Binutils-2.40 - Pass 2&lt;/li&gt;
+&lt;li&gt;GCC-12.2.0 - Pass 2&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;entering-chroot-and-building-additional-temporary-tools&#34;&gt;Entering Chroot and Building Additional Temporary Tools&lt;/h2&gt;
+&lt;p&gt;위의 빌드를 위한 임시 시스템에서 필요한 몇가지 패키지를 chroot의 분리된 환경에서 설치한다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;상기 패키지를 host환경이 아닌 LFS 환경에서 설치하는 이유는 나와있지 않다.&lt;/li&gt;
+&lt;li&gt;LFS ver9에서는 chroot로 LFS 환경으로 들어가기 이전에 모든 빌드 시스템 구축을 끝낸다.(이게 더 이해가 쉬운듯)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;entering-chroot-env-and-make-vfs&#34;&gt;Entering Chroot env and make VFS&lt;/h3&gt;
+&lt;p&gt;현재까지 만들어진 파일 시스템은 lfs 소유인데 이는 다른 유저가 파일을 조작할 권리를 얻을 수 있으므로 소유자를 root로 변환&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;chown -R root:root &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;usr,lib,var,etc,bin,sbin,tools&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;case&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;uname -m&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt; in
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  x86_64&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; chown -R root:root &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/lib64 &lt;span class=&#34;p&#34;&gt;;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;esac&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;code&gt;/dev&lt;/code&gt; 등 필요한 가상 커널 파일 시스템을 생성한다.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -pv &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;dev,proc,sys,run&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mount -v --bind /dev &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/dev
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mount -v --bind /dev/pts &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/dev/pts
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mount -vt proc proc &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/proc
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mount -vt sysfs sysfs &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/sys
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mount -vt tmpfs tmpfs &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/run
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; -h &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/dev/shm &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  mkdir -pv &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;readlink &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/dev/shm&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  mount -t tmpfs -o nosuid,nodev tmpfs &lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;/dev/shm
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;chroot를 이용하여 LFS환경으로 진입한다&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;chroot &lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$LFS&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt; /usr/bin/env -i   &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;nv&#34;&gt;HOME&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/root                  &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;nv&#34;&gt;TERM&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$TERM&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;                &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;nv&#34;&gt;PS1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;(lfs chroot) \u:\w\$ &amp;#39;&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;nv&#34;&gt;PATH&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin:/usr/sbin     &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    /bin/bash --login
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;리눅스 표준 디렉토리 트리를 생성한다(리눅스 파일 시스템 계층 표준 기반)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -pv /&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;boot,home,mnt,opt,srv&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -pv /etc/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;opt,sysconfig&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -pv /lib/firmware
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -pv /media/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;floppy,cdrom&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -pv /usr/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;,local/&lt;span class=&#34;o&#34;&gt;}{&lt;/span&gt;include,src&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -pv /usr/local/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;bin,lib,sbin&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -pv /usr/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;,local/&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;share/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;color,dict,doc,info,locale,man&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -pv /usr/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;,local/&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;share/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;misc,terminfo,zoneinfo&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -pv /usr/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;,local/&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;share/man/man&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;1..8&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -pv /var/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;cache,local,log,mail,opt,spool&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -pv /var/lib/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;color,misc,locate&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ln -sfv /run /var/run
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ln -sfv /run/lock /var/lock
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;install -dv -m &lt;span class=&#34;m&#34;&gt;0750&lt;/span&gt; /root
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;install -dv -m &lt;span class=&#34;m&#34;&gt;1777&lt;/span&gt; /tmp /var/tmp
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;리눅스는 마운트된 파일시스템의 리스트를 &lt;code&gt;/etc/mtab&lt;/code&gt;에 관리하고 이를 &lt;code&gt;/proc&lt;/code&gt;에 노출시키므로 이를 위한 심볼릭 링크를 생성&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;mtab은 mount command에 의해 자동갱신됨, fstab은 부팅 시 마운트할 목록&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ln -sv /proc/self/mounts /etc/mtab
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;code&gt;host&lt;/code&gt; 파일과 &lt;code&gt;/etc/passwd&lt;/code&gt;. &lt;code&gt;/etc/group&lt;/code&gt;을 생성한다. 필요 시 테스트를 위한 테스트 그룹도 생성하고 재로그인 한다.
+생성된 그룹은 어떤 표준에도 속하지 않는  Udev 구성의 요구사항에 의해 만들어진 그룹이다.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;25
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;26
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;27
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;28
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;29
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;30
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;31
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;32
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;33
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;34
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;35
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;36
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;37
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;38
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;39
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;40
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;41
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;42
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;43
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;44
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;45
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;46
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;47
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;48
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;49
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;50
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;51
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;52
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;53
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;54
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;55
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;56
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;57
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;58
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;59
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;60
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cat &amp;gt; /etc/hosts &lt;span class=&#34;s&#34;&gt;&amp;lt;&amp;lt; EOF
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s&#34;&gt;127.0.0.1  localhost $(hostname)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s&#34;&gt;::1        localhost
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s&#34;&gt;EOF&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cat &amp;gt; /etc/passwd &amp;lt;&amp;lt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;EOF&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root:x:0:0:root:/root:/bin/bash
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;bin:x:1:1:bin:/dev/null:/usr/bin/false
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;daemon:x:6:6:Daemon User:/dev/null:/usr/bin/false
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;messagebus:x:18:18:D-Bus Message Daemon User:/run/dbus:/usr/bin/false
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-journal-gateway:x:73:73:systemd Journal Gateway:/:/usr/bin/false
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-journal-remote:x:74:74:systemd Journal Remote:/:/usr/bin/false
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-journal-upload:x:75:75:systemd Journal Upload:/:/usr/bin/false
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-network:x:76:76:systemd Network Management:/:/usr/bin/false
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-resolve:x:77:77:systemd Resolver:/:/usr/bin/false
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-timesync:x:78:78:systemd Time Synchronization:/:/usr/bin/false
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-coredump:x:79:79:systemd Core Dumper:/:/usr/bin/false
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;uuidd:x:80:80:UUID Generation Daemon User:/dev/null:/usr/bin/false
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-oom:x:81:81:systemd Out Of Memory Daemon:/:/usr/bin/false
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;nobody:x:65534:65534:Unprivileged User:/dev/null:/usr/bin/false
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cat &amp;gt; /etc/group &amp;lt;&amp;lt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;EOF&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root:x:0:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;bin:x:1:daemon
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sys:x:2:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;kmem:x:3:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;tape:x:4:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;tty:x:5:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;daemon:x:6:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;floppy:x:7:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;disk:x:8:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;lp:x:9:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;dialout:x:10:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;audio:x:11:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;video:x:12:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;utmp:x:13:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;usb:x:14:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cdrom:x:15:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;adm:x:16:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;messagebus:x:18:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-journal:x:23:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;input:x:24:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mail:x:34:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;kvm:x:61:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-journal-gateway:x:73:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-journal-remote:x:74:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-journal-upload:x:75:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-network:x:76:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-resolve:x:77:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-timesync:x:78:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-coredump:x:79:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;uuidd:x:80:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemd-oom:x:81:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;wheel:x:97:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;users:x:999:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;nogroup:x:65534:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; /usr/bin/bash --login
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;마지막으로 login, agetty 및 init 들은 로그파일이 존재하지 않으면 로그를 남기지 않으므로 파일을 미리 생성해준다.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;touch /var/log/&lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;btmp,lastlog,faillog,wtmp&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;chgrp -v utmp /var/log/lastlog
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;chmod -v &lt;span class=&#34;m&#34;&gt;664&lt;/span&gt;  /var/log/lastlog
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;chmod -v &lt;span class=&#34;m&#34;&gt;600&lt;/span&gt;  /var/log/btmp
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;building-additional-temporary-tools&#34;&gt;Building Additional Temporary Tools&lt;/h3&gt;
+&lt;p&gt;하기 패키지를 설치한다.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Gettext-0.21.1
+&lt;ul&gt;
+&lt;li&gt;다국어화와 현지화를 위한 유틸리티가 포함, 프로그램을 현지 언어를 지원하도록 컴파일 할 수 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Bison-3.8.2
+&lt;ul&gt;
+&lt;li&gt;파서 생성기가 포함(?)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Perl-5.36.0&lt;/li&gt;
+&lt;li&gt;Python-3.11.2&lt;/li&gt;
+&lt;li&gt;Texinfo-7.0.2
+&lt;ul&gt;
+&lt;li&gt;info 페이지를 읽고, 쓰고, 변환하는 프로그램(man보다 자세하다고 함)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Util-linux-2.38.1
+&lt;ul&gt;
+&lt;li&gt;파일 시스템, 콘솔, 파티션 및 메시지를 처리하는 유틸리티가 포함된 패키지&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;cleaning-and-backup&#34;&gt;Cleaning and Backup&lt;/h2&gt;
+&lt;p&gt;툴체인 셋업이 완료되었으므로 필요하다면 현재구성을 백업하도록 하자.
+상세 내용은 메뉴얼 참조&lt;/p&gt;
+</description>
+        </item>
+        <item>
         <title>[LFS_prj] 02 Host setting</title>
         <link>https://muonkmu.github.io/p/lfs_prj-02-host-setting/</link>
         <pubDate>Sun, 12 Mar 2023 00:00:00 +0000</pubDate>
@@ -14,7 +813,7 @@
         <guid>https://muonkmu.github.io/p/lfs_prj-02-host-setting/</guid>
         <description>&lt;p&gt;첫번째로 Host를 셋업하는 과정을 서술한다. 기본적으로 VMware에 우분투 20.04가 설치되었고 파티션이 분할 되었다는 가정하에 진행한다.&lt;/p&gt;
 &lt;h2 id=&#34;host-환경설정&#34;&gt;Host 환경설정&lt;/h2&gt;
-&lt;p&gt;LFS를 설치하고 빌드하는데 필요한 host package를 설치한다. 하기 링크를 참조한다.&lt;/p&gt;
+&lt;p&gt;LFS를 설치하고 빌드하는데 필요한 host의 환경을 설치하고 필요 package를 설치한다. 하기 링크를 참조한다.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter02/hostreqs.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter02/hostreqs.html&lt;/a&gt;&lt;/li&gt;
@@ -41,7 +840,8 @@
     &gt;https://www.linuxfromscratch.org/lfs/view/stable-systemd/chapter02/creatingfilesystem.html&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;필자는 하이퍼바이저 위에 우분투20.04를 설치했으므로 이미 Swap 공간이 &lt;code&gt;/swapfile&lt;/code&gt;파일에 생성되어 있다. &lt;code&gt;free&lt;/code&gt; 명령을 통해 swap공간의 존재를 확인할 수 있다.
-그러므로 필자는 별도 스왑공간을 생성하지 않았다. 만약 swap 용량이 모자란다면 스왑파일 용량을 키우자&lt;/p&gt;
+그러므로 필자는 메뉴얼과는 다르게 별도 스왑 파티션을 생성하지 않았다. ~만약 swap 용량이 모자란다면 스왑파일 용량을 키우거나 스왑 파티션을 생성하자~
+스왑 파티션이 없으면 나중에 LFS로 부팅했을 때 swap영역이 없으므로 만들어 주는게 좋을 듯 하다. 아님 향후 LFS용 swapfile을 만들자&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;LFS RootFS 파티션과 Swap 파티션을 생성한다.
 &lt;ul&gt;
@@ -131,7 +931,8 @@
 &lt;h2 id=&#34;최종-준비&#34;&gt;최종 준비&lt;/h2&gt;
 &lt;p&gt;크로스 컴파일을 위한 유저 추가 및 bash 환경 설정. 각 절차에서 나타난 옵션에 대한 자세한 설명은 매뉴얼 페이지를 참조한다.&lt;/p&gt;
 &lt;h3 id=&#34;최소-lfs-filesystem-layout-구성&#34;&gt;최소 LFS Filesystem layout 구성&lt;/h3&gt;
-&lt;p&gt;LFS의 빌드를 위한 크로스 컴파일러 생성 시 필요한 최소한의 Filesystem layout을 구축하는 듯 하다(필자의 추론)
+&lt;p&gt;LFS의 빌드를 위한 크로스 컴파일러 생성 시 필요한 최소한의 Filesystem layout을 구축한다.(필자의 추론)
+크로스 컴파일용 glib이나 libstdc++등이 여기에 설치되고 LFS에 포함되는 시스템은 상기 폴더에 덮어써진다.
 Filesystem Layout을 위한 심볼릭 링크도 만들고 그 후 크로스 컴파일러가 설치 될 폴더를 생성한다.(이는 향후 LFS 시스템에 포함되지 않으므로 분리해놓음)&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -478,47 +1279,221 @@ Filesystem Layout을 위한 심볼릭 링크도 만들고 그 후 크로스 컴�
 &lt;li&gt;SSH 기반에서 X11 Forwarding을 이용해 HOST에서 GUI를 띄운다.&lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;1번째 방법은 GUI docker image를 다운받아 설정하고 여기에 ssh의 ForwardX11 옵션을 활성화 하면 2번째 방법도 지원이 된다.&lt;/p&gt;
-&lt;h3 id=&#34;docker-image-다운-및-실행&#34;&gt;Docker image 다운 및 실행&lt;/h3&gt;
+&lt;h3 id=&#34;docker-image-빌드-및-실행&#34;&gt;Docker image 빌드 및 실행&lt;/h3&gt;
 &lt;p&gt;선구자가 LXDE 환경의 Docker를 개발하였다. 하기 사이트에서 사용법을 읽어보자.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://hub.docker.com/r/dorowu/ubuntu-desktop-lxde-vnc/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;https://hub.docker.com/r/dorowu/ubuntu-desktop-lxde-vnc/&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;다음과 같은 순서로 도커 이미지를 설치하고 실행하자(약 100GB의 용량이 필요하다)&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;도커 이미지 다운&lt;/li&gt;
-&lt;li&gt;필요시 이미지 이름 변경 및 기존 이미지 삭제&lt;/li&gt;
-&lt;li&gt;해당 이미지의 설명을 참조하여 도커를 실행&lt;/li&gt;
-&lt;/ol&gt;
+&lt;p&gt;위의 이미지를 그대로 사용해도 되지만 시간 설정 등 몇가지 설정이 다르므로 이미지를 빌드하자.
+아래는 필자의 개발환경 구성을 위한 dockerfile이다. 필자는 기본쉘로 zsh를 사용하지만 petalinux는 bash 환경에서 실행해야 함을 주의하자.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
-&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
-&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
-&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;25
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;26
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;27
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;28
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;29
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo docker pull dorowu/ubuntu-desktop-lxde-vnc
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo docker image tag dorowu/ubuntu-desktop-lxde-vnc:lastest &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;이미지이름&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;:&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;이미지tag&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo docker rmi dorowu/ubuntu-desktop-lxde-vnc
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo docker run -d -p &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;HTTP_PORT&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;:80 -p &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;VNC_PORT&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;:5900 -p &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;SSH_PORT&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;:22 -e &lt;span class=&#34;nv&#34;&gt;RESOLUTION&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;1920x1080 -e &lt;span class=&#34;nv&#34;&gt;VNC_PASSWORD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;xilinx -e &lt;span class=&#34;nv&#34;&gt;USER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;xilinx -e &lt;span class=&#34;nv&#34;&gt;PASSWORD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;xilinx -v /dev/shm:/dev/shm -v &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;작업 디렉토리 마운팅&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;:/home/xilinx/Workspace --name xilinx-dev &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;이미지이름&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;:&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;이미지tag&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;#from ubuntu20.04-vnc-dockerfile&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;FROM dorowu/ubuntu-desktop-lxde-vnc:latest
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# timezone setup&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ARG &lt;span class=&#34;nv&#34;&gt;DEBIAN_FRONTEND&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;noninteractive
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ENV &lt;span class=&#34;nv&#34;&gt;TZ&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;Asia/Seoul
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# package add&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; sudo apt-key add - &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; apt-get update &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; apt-get install -y vim git openssh-server zsh fonts-powerline tzdata tio byobu language-pack-en language-pack-ko &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; update-locale &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; apt autoclean -y &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; apt autoremove -y
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# xilinx user add and password setup, and usb dev group add&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;RUN useradd -m -s /bin/zsh xilinx &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;xilinx:xilinx&amp;#39;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; chpasswd &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;xilinx ALL=(ALL:ALL) ALL&amp;#34;&lt;/span&gt; &amp;gt;&amp;gt; /etc/sudoers &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; usermod -a -G dialout xilinx &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; usermod -a -G plugdev xilinx
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;EXPOSE &lt;span class=&#34;m&#34;&gt;80&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;WORKDIR /home/xilinx
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ENV &lt;span class=&#34;nv&#34;&gt;HOME&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/home/xilinx &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;nv&#34;&gt;SHELL&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/bin/zsh
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;HEALTHCHECK --interval&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;30s --timeout&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;5s CMD curl --fail http://127.0.0.1:6079/api/health
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ENTRYPOINT &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;/startup.sh&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;~
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;도커를 실행해보자. 하기 파일은 필자의 실행 스크립트이다.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;25
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;26
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;27
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;28
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;29
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;30
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;31
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;32
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;33
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;34
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;35
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;36
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;37
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;38
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;39
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;40
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;41
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;42
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;43
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;44
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;45
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;46
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;47
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;48
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;49
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;50
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;51
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;52
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;53
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;54
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;55
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;56
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#!/bin/bash
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;CON_UBUNTU_VER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;20.04&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;CON_NAME&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;xilinx-dev&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;CON_TAG&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;2023-3&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;CON_USR_NAME&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;xilinx&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;CON_USR_PWD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;xilinx&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;MAP_PORT_SSH&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;8091&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;MAP_PORT_VNC&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;8092&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;MAP_PORT_HTTP&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;8093&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;VNC_PWD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;xilinx&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;######################################################&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;ubuntu &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$CON_UBUNTU_VER&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; LXDE Base Docker&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$CON_NAME&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt; platform : xilinx-ide &amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;Port SSH: &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$MAP_PORT_SSH&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;, VNC: &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$MAP_PORT_VNC&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;, HTTP: &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$MAP_PORT_HTTP&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;######################################################&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; -n &lt;span class=&#34;s2&#34;&gt;&amp;#34;Select Command 1)Run-Docker 2)Attach-Bash 3)Remove-Docker : &amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;read&lt;/span&gt; selCmd
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$selCmd&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;1&amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; -n &lt;span class=&#34;s2&#34;&gt;&amp;#34;Select Resolution 1)FHD 2)QHD 3)UHD 4)Manual : &amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;nb&#34;&gt;read&lt;/span&gt; selRes
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$selRes&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;1&amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                &lt;span class=&#34;nv&#34;&gt;resVal&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;1920x1080&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;elif&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$selRes&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;2&amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                &lt;span class=&#34;nv&#34;&gt;resVal&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;2560x1440&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;elif&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$selRes&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;3&amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                &lt;span class=&#34;nv&#34;&gt;resVal&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;3840x2160&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;elif&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$selRes&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;4&amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; -n &lt;span class=&#34;s2&#34;&gt;&amp;#34;Input Resolution ex)1920x1080 : &amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                &lt;span class=&#34;nb&#34;&gt;read&lt;/span&gt; resVal
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                &lt;span class=&#34;nv&#34;&gt;resVal&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;1920x1980&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;Undefined Num, Set resolution FHD&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        sudo docker run -d --privileged &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;                -p &lt;span class=&#34;nv&#34;&gt;$MAP_PORT_HTTP&lt;/span&gt;:80 -p &lt;span class=&#34;nv&#34;&gt;$MAP_PORT_VNC&lt;/span&gt;:5900 -p &lt;span class=&#34;nv&#34;&gt;$MAP_PORT_SSH&lt;/span&gt;:22 &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;                -e &lt;span class=&#34;nv&#34;&gt;VNC_PASSWORD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$VNC_PWD&lt;/span&gt; -e &lt;span class=&#34;nv&#34;&gt;RESOLUTION&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$resVal&lt;/span&gt; -e &lt;span class=&#34;nv&#34;&gt;USER&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$CON_USR_NAME&lt;/span&gt; -e &lt;span class=&#34;nv&#34;&gt;PASSWORD&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$CON_USR_PWD&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;                -v /dev/shm:/dev/shm -v /dev/bus/usb:/dev/bus/usb  -v &lt;span class=&#34;nv&#34;&gt;$HOME&lt;/span&gt;/Workspace:/home/&lt;span class=&#34;nv&#34;&gt;$CON_USR_NAME&lt;/span&gt;/Workspace &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;                --name &lt;span class=&#34;nv&#34;&gt;$CON_NAME&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$CON_NAME&lt;/span&gt;:&lt;span class=&#34;nv&#34;&gt;$CON_TAG&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;elif&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$selCmd&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;2&amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        sudo docker &lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; -it &lt;span class=&#34;nv&#34;&gt;$CON_NAME&lt;/span&gt; /bin/zsh -c &lt;span class=&#34;s2&#34;&gt;&amp;#34;su - &lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$CON_USR_NAME&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;elif&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$selCmd&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;3&amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        sudo docker stop &lt;span class=&#34;nv&#34;&gt;$CON_NAME&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        sudo docker rm &lt;span class=&#34;nv&#34;&gt;$CON_NAME&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;Input the collect decimal number&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;fi&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;이후 Docker의 VNC에 연결하여 진행한다.
-기본적으로 필요한 패키지들을 설치하고 만약 &lt;code&gt;.bashrc&lt;/code&gt;가 없어서 터미널의 색깔이 없다면 해당파일을 복사한다.&lt;/p&gt;
+기본적으로 필요한 패키지들을 설치하고 만약 &lt;code&gt;.bashrc&lt;/code&gt;가 없어서 터미널의 색깔이 이상하다면 해당파일을 복사한다.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
-&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo apt-get install openssh-server
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cp /etc/skel/.bashrc &lt;span class=&#34;nv&#34;&gt;$HOME&lt;/span&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cp /etc/skel/.bashrc &lt;span class=&#34;nv&#34;&gt;$HOME&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;h2 id=&#34;petalinux-install&#34;&gt;Petalinux Install&lt;/h2&gt;
 &lt;h3 id=&#34;사전준비&#34;&gt;사전준비&lt;/h3&gt;
 &lt;ol&gt;
+&lt;li&gt;필요 시 &lt;code&gt;/bin/sh&lt;/code&gt;가 bash가 아니라면 변경한다. 하기 명령을 수행 후 &lt;code&gt;no&lt;/code&gt;을 선택하면 bash로 변경됨&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo dpkg-reconfigure dash
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ol start=&#34;2&#34;&gt;
 &lt;li&gt;필요 패키지들을 설치한다.&lt;/li&gt;
 &lt;/ol&gt;
 &lt;ul&gt;
@@ -537,8 +1512,8 @@ Filesystem Layout을 위한 심볼릭 링크도 만들고 그 후 크로스 컴�
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;gawk make net-tools libncurses5-dev tftpd zlib1g:i386 libssl-dev flex bison libselinux1 gnupg wget diffstat chrpath socat xterm autoconf libtool tar unzip texinfo zlib1g-dev gcc-multilib build-essential screen pax gzip python2.7 cpio
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;ol&gt;
-&lt;li&gt;locale에 en_US.utf8을 추가한다.&lt;/li&gt;
+&lt;/div&gt;&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;필요 시 locale에 en_US.utf8을 추가한다.&lt;/li&gt;
 &lt;/ol&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -583,7 +1558,38 @@ Filesystem Layout을 위한 심볼릭 링크도 만들고 그 후 크로스 컴�
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo apt-get install libtinfo5
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description>
+&lt;/div&gt;&lt;h2 id=&#34;backup-and-import&#34;&gt;Backup and import&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;레이어 병합을 위하여 docker의 export 명령으로 출력 시칸다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo docker &lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; --output&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;파일이름&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span class=&#34;si&#34;&gt;${&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;컨테이너명&lt;/span&gt;&lt;span class=&#34;si&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;백업된 파일을 입력시키고 싶다면 다음을 수행한다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo docker import -c &lt;span class=&#34;s1&#34;&gt;&amp;#39;EXPOSE 80&amp;#39;&lt;/span&gt;  -c &lt;span class=&#34;s1&#34;&gt;&amp;#39;WORKDIR /root&amp;#39;&lt;/span&gt; -c &lt;span class=&#34;s1&#34;&gt;&amp;#39;ENV HOME=/home/ubuntu SHELL=/bin/bash&amp;#39;&lt;/span&gt; -c &lt;span class=&#34;s1&#34;&gt;&amp;#39;HEALTHCHECK --interval=30s --timeout=5s CMD curl --fail http://127.0.0.1:6079/api/health&amp;#39;&lt;/span&gt; -c &lt;span class=&#34;s1&#34;&gt;&amp;#39;ENTRYPOINT [&amp;#34;/startup.sh&amp;#34;]&amp;#39;&lt;/span&gt; 아카이브.tar 이미지이름:tag
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;etc&#34;&gt;Etc&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;ssh 설치 후 자동 실행되지 않는다면 &lt;code&gt;/startup.sh&lt;/code&gt; 파일에 ssh 서비스 스타트 명령을 기입한다.
+&lt;ul&gt;
+&lt;li&gt;상기 파일의 마지막 줄은 헬스체크 프로세스 시작 명령이므로 이 위에 기입하면 된다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+</description>
         </item>
         <item>
         <title>[AI HW Design] Chap08 Network Sparsity (1/2)</title>
@@ -1725,19 +2731,20 @@ xilinx에서 제공하는 training reference를 따라하면 간단하지만 이
 &lt;h3 id=&#34;jtag-boot&#34;&gt;jtag boot&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;jtag로 u-boot까지 로딩한다. 보드의 boot-cfg 스위치를 jtag로 맞춘다. SD카드 등이 필요없지만 속도가 느리다.&lt;/li&gt;
+&lt;li&gt;host에 USB를 연결하고 터미널을 오픈 후 하기 명령을 수행하면 부팅이 시작된다.부트 스크립트 로딩 전 대기 카운터에서 엔터를 누르면 u-boot 커맨드 입력이 가능하다.&lt;/li&gt;
+&lt;li&gt;만약 &lt;code&gt;rlwrap: warning&lt;/code&gt; 이 발행한다면 현재 &lt;code&gt;$TERM&lt;/code&gt;에 rlwrap이 없는 것이므로 쉘의 &lt;code&gt;$TERM&lt;/code&gt;의 값을 xterm으로 변경한다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td class=&#34;lntd&#34;&gt;
-&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-boot --jtag --prebuilt &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt; --hw_server-url tcp:127.0.0.1:3121
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;TERM&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;xterm
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;petalinux-boot --jtag --prebuilt &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt; --hw_server-url tcp:127.0.0.1:3121
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;ul&gt;
-&lt;li&gt;host에 USB를 연결하고 터미널을 오픈 후 하기 명령을 수행하면 부팅이 시작된다.부트 스크립트 로딩 전 대기 카운터에서 엔터를 누르면 u-boot 커맨드 입력이 가능하다.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;u-boot에서-커널-로딩&#34;&gt;u-boot에서 커널 로딩&lt;/h3&gt;
+&lt;/div&gt;&lt;h3 id=&#34;u-boot에서-커널-로딩&#34;&gt;u-boot에서 커널 로딩&lt;/h3&gt;
 &lt;p&gt;u-boot에서 command를 이용하여 tftp서버에서 커널과 dtb를 로드한다.&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;dhcp로 target ip 획득&lt;/li&gt;

@@ -3,24 +3,45 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://muonkmu.github.io/</loc>
-    <lastmod>2023-03-12T00:00:00+00:00</lastmod>
+    <lastmod>2023-03-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://muonkmu.github.io/p/lfs_prj-02-host-setting/</loc>
-    <lastmod>2023-03-12T00:00:00+00:00</lastmod>
+    <loc>https://muonkmu.github.io/p/lfs_prj-05-final-debugging/</loc>
+    <lastmod>2023-03-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/categories/</loc>
-    <lastmod>2023-03-12T00:00:00+00:00</lastmod>
+    <lastmod>2023-03-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/lfs/</loc>
-    <lastmod>2023-03-12T00:00:00+00:00</lastmod>
+    <lastmod>2023-03-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/post/</loc>
-    <lastmod>2023-03-12T00:00:00+00:00</lastmod>
+    <lastmod>2023-03-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/categories/prj_lfs/</loc>
-    <lastmod>2023-03-12T00:00:00+00:00</lastmod>
+    <lastmod>2023-03-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/</loc>
+    <lastmod>2023-03-28T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/yolo_acc_prj-05-image-format-conversion-and-resize/</loc>
+    <lastmod>2023-03-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</loc>
+    <lastmod>2023-03-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/xilinx-vpss/</loc>
+    <lastmod>2023-03-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/xlinx-m2m/</loc>
+    <lastmod>2023-03-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/lfs_prj-04-building-the-lfs-system/</loc>
+    <lastmod>2023-03-19T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/lfs_prj-03-building-the-lfs-cross-toolchain-and-temporary-tools/</loc>
+    <lastmod>2023-03-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/lfs_prj-02-host-setting/</loc>
     <lastmod>2023-03-12T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/p/lfs_prj-01-lfs-project-propsal/</loc>
@@ -96,9 +117,6 @@
     <lastmod>2023-02-08T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/l4v2/</loc>
-    <lastmod>2023-02-08T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</loc>
     <lastmod>2023-02-08T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/uvc/</loc>

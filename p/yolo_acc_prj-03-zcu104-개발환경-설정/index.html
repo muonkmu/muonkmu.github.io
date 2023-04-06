@@ -513,19 +513,20 @@ xilinx에서 제공하는 training reference를 따라하면 간단하지만 이
 <h3 id="jtag-boot">jtag boot</h3>
 <ul>
 <li>jtag로 u-boot까지 로딩한다. 보드의 boot-cfg 스위치를 jtag로 맞춘다. SD카드 등이 필요없지만 속도가 느리다.</li>
+<li>host에 USB를 연결하고 터미널을 오픈 후 하기 명령을 수행하면 부팅이 시작된다.부트 스크립트 로딩 전 대기 카운터에서 엔터를 누르면 u-boot 커맨드 입력이 가능하다.</li>
+<li>만약 <code>rlwrap: warning</code> 이 발행한다면 현재 <code>$TERM</code>에 rlwrap이 없는 것이므로 쉘의 <code>$TERM</code>의 값을 xterm으로 변경한다.</li>
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">petalinux-boot --jtag --prebuilt <span class="m">2</span> --hw_server-url tcp:127.0.0.1:3121
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">TERM</span><span class="o">=</span>xterm
+</span></span><span class="line"><span class="cl">petalinux-boot --jtag --prebuilt <span class="m">2</span> --hw_server-url tcp:127.0.0.1:3121
 </span></span></code></pre></td></tr></table>
 </div>
-</div><ul>
-<li>host에 USB를 연결하고 터미널을 오픈 후 하기 명령을 수행하면 부팅이 시작된다.부트 스크립트 로딩 전 대기 카운터에서 엔터를 누르면 u-boot 커맨드 입력이 가능하다.</li>
-</ul>
-<h3 id="u-boot에서-커널-로딩">u-boot에서 커널 로딩</h3>
+</div><h3 id="u-boot에서-커널-로딩">u-boot에서 커널 로딩</h3>
 <p>u-boot에서 command를 이용하여 tftp서버에서 커널과 dtb를 로드한다.</p>
 <ol>
 <li>dhcp로 target ip 획득</li>
@@ -616,6 +617,19 @@ xilinx에서 제공하는 training reference를 따라하면 간단하지만 이
     <h2 class="section-title">Related content</h2>
     <div class="related-content">
         <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/yolo_acc_prj-05-image-format-conversion-and-resize/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[YOLO_Acc_prj] 05 Image format conversion and resize</h2>
+        </div>
+    </a>
+</article>
+
             
                 
 <article class="">
