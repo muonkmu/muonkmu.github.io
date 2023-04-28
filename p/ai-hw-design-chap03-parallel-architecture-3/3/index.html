@@ -329,86 +329,17 @@
 
 </header>
 
-    <section class="article-content">
     
+        <div class="article-private-content">
+    <br></br>
+    <h3 class="article-subtitle">
+        <p>&emsp;&emsp;&emsp;This page contains information such as copyright materials.</p>
+        <p>&emsp;&emsp;&emsp;So this page is a private post.</p>
+    </h3>
+    <br></br>
+</div>
+
     
-    <p>본 챕터에서는 몇가지 주요한 Paralle Architecture에 대하여 소개한다.
-이 페이지에서는 Microsoft Catapult Fabric Accelerator에 대해서 기술한다.</p>
-<h2 id="microsoft-catapult-fabric-accelerator">Microsoft Catapult Fabric Accelerator</h2>
-<ul>
-<li>마이크로소프트는 Brainwave Project를 CPU와 FPGA를 쓰는 형태로 변경</li>
-<li>48개의 FPGA가 2개의 Half rack (pod)에 그룹화되고 네트워크로 연결</li>
-<li>Brainwave는 train된 DNN 모델을 Catapult Fabric이라 불리는 synthesized softcore에 컴파일 후 narrow precision approach를 적용</li>
-<li>모델의 파라메터는 softcore 내 상주</li>
-<li><img src="/p/ai-hw-design-chap03-parallel-architecture-3/3/01_Microsoft_brainwave_cloud_architect.png"
-	width="951"
-	height="528"
-	srcset="/p/ai-hw-design-chap03-parallel-architecture-3/3/01_Microsoft_brainwave_cloud_architect_hu5005c84237c5c0d108925d87f29946ce_123068_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap03-parallel-architecture-3/3/01_Microsoft_brainwave_cloud_architect_hu5005c84237c5c0d108925d87f29946ce_123068_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="180"
-		data-flex-basis="432px"
-	
-></li>
-</ul>
-<h3 id="system-configuration">System Configuration</h3>
-<ul>
-<li>Catapult Fabric은 synthesized softcore이며 이는 RTL의 recompilation 없이 low level SW library를 통해 reconfigure 될 수 있다.</li>
-<li>Catapult Fabric은 Shell과 Role 두 파트로 나눌 수 있음 (상세사항은 책을 참조)
-<ul>
-<li>Shell : 모든 application에서 재사용 가능한 programmable logic (통신/off-chip 등의 인터페이스를 말하는 듯)</li>
-<li>Roll : Application logic (그림을 보면 Softcore를 지칭하는 듯)</li>
-</ul>
-</li>
-</ul>
-<h3 id="catapult-fabric-architecture">Catapult Fabric Architecture</h3>
-<ul>
-<li>Catapult Fabric은 Matrix-Vector Multiplier(MVM), MultiFunction Uint(MFU), Vector Arbitration Network로 구성
-<ul>
-<li>MVM : Matrix-Vector 및 Vector-Vector 연산 수행, PRF/VRF/MRF에 ifmap/fmap 저장</li>
-</ul>
-</li>
-<li>VAN : PRF/DRAM/IO-queue 간 데이터 전송 담당</li>
-<li><img src="/p/ai-hw-design-chap03-parallel-architecture-3/3/02_The_Catapult_fabric_microarchitecture.png"
-	width="568"
-	height="543"
-	srcset="/p/ai-hw-design-chap03-parallel-architecture-3/3/02_The_Catapult_fabric_microarchitecture_hub0253fb48da88283ddf54bccb7267131_45778_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap03-parallel-architecture-3/3/02_The_Catapult_fabric_microarchitecture_hub0253fb48da88283ddf54bccb7267131_45778_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="104"
-		data-flex-basis="251px"
-	
-></li>
-</ul>
-<h3 id="matrix-vector-multiplier">Matrix-Vector Multiplier</h3>
-<ul>
-<li>FP16을 MS-FP8/MS-FP-9으로 변환하여 연산(mantissa가 2~3bit)</li>
-<li>input data는 VRF, filter weight는 MFR에 저장</li>
-<li>3개의 tile engine과 3개의 accumulator에서 병렬 연산을 지원(상세내용을 책을 참조)</li>
-<li>MVM의 출력은 MFU로 연결, MFU는 vector-vector operation, activation등을 수행</li>
-</ul>
-<h3 id="hierarchical-decode-and-dispatch-hdd">Hierarchical Decode and Dispatch (HDD)</h3>
-<ul>
-<li>Catapult Fabric은 전통적인 scalar processor(Single Instruction Single Data)를 채택</li>
-<li>scheduler는 6개의 Decoder가 4-layer구조로 배치 (상세 내용은 책 참조)</li>
-</ul>
-<h3 id="sparse-matrix-vector-multiplication-smvm">Sparse Matrix-Vector Multiplication (SMVM)</h3>
-<ul>
-<li>SMVM을 위해 Condensed Interleaved Sparse Representation (CISR) encoding 사용
-<ul>
-<li>Compressed Sparse Raw (CSR) 포맷이 가변 row 길이로 인해 Parallel contorl이 어려움을 극복</li>
-<li>첫 번째 0이 아닌 요소가 첫 번째 슬롯에 배치, 해당 열 인덱스는 인덱스 배열에서 동일한 순서로 배치, 행 요소가 모두 사용되면 다음 두 행 요소가 빈 슬롯에 할당, 이를 반복
-(상세 내용은 책 참조,사실 이해가 잘 안감)</li>
-</ul>
-</li>
-</ul>
-
-</section>
-
 
     <footer class="article-footer">
     
@@ -656,6 +587,7 @@
                 href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
             >
 
+                
             </main>
         </div>
         <script 

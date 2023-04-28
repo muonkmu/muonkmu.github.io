@@ -327,81 +327,17 @@
 
 </header>
 
-    <section class="article-content">
     
+        <div class="article-private-content">
+    <br></br>
+    <h3 class="article-subtitle">
+        <p>&emsp;&emsp;&emsp;This page contains information such as copyright materials.</p>
+        <p>&emsp;&emsp;&emsp;So this page is a private post.</p>
+    </h3>
+    <br></br>
+</div>
+
     
-    <p>본 챕터에서는 graph-based deep-learnig accelerator에 대해 공부한다 (Blaize GSP, Graphcore IPU).
-이들은 Mutiple Instructions Multiple Data(MIMD) 처럼 동작한다.</p>
-<h2 id="blaize-graph-streaming-processorgsp">Blaize Graph Streaming Processor(GSP)</h2>
-<p>무언가 칩에 대한 설명보단 Graph Streaming 기본 이론에 대한 내용이 주를 이룬다.</p>
-<h3 id="stream-graph-model">Stream Graph Model</h3>
-<ul>
-<li>Stream Graph는 네트워크 트래픽, 데이터베이스 등에 널리 쓰이는 모델로 dynamic stream data를 처리하기 위해 data stream model(TCS)을 사용
-<ul>
-<li>거대 그래프 스트리밍 Transit(T), 큰 데이터 처리 Compute(C), 일시/롱텀 데이터 저장 Store(S)</li>
-</ul>
-</li>
-<li>Turnstile 모델이 TCS모델 중에서 데이터 출발/도착과 같은 data behavior을 가장 잘 표현하며 task scheduling에 사용.</li>
-<li><img src="/p/ai-hw-design-chap04-streaming-graph-theory-1/2/01_Data_streaming_TCS_Model.png"
-	width="317"
-	height="483"
-	srcset="/p/ai-hw-design-chap04-streaming-graph-theory-1/2/01_Data_streaming_TCS_Model_hud047163813c097f2344ae308b4f685e4_77661_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap04-streaming-graph-theory-1/2/01_Data_streaming_TCS_Model_hud047163813c097f2344ae308b4f685e4_77661_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Data streaming TCS Model"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="65"
-		data-flex-basis="157px"
-	
-></li>
-</ul>
-<h3 id="depth-first-scheduling-approach">Depth First Scheduling Approach</h3>
-<ul>
-<li>Blaize GSP는 뉴럴넷모델을 Direct Acyclic Graph(DAG) format (V,E)로 변환
-<ul>
-<li>V는 PE vertex, E는 PE간 weighted connection을 위한 edge</li>
-</ul>
-</li>
-<li>scheduling을 위해 Depth First Scheduling (DFS)를 사용하며 dynamic graph excution을 가능하게 하고 sparse/conditional graph를 지원한다. (dfs 설명은 유명하니 생략)</li>
-<li>GSP는 4가지 Parallelism을 달성했다. 자세한 설명은 책 참조
-<ul>
-<li>Task parallelism, Thread parallelism, Data parallelism, Instructon parallelism</li>
-</ul>
-</li>
-</ul>
-<h3 id="graph-streaming-processor-architecture">Graph Streaming Processor Architecture</h3>
-<ul>
-<li>GSP는 다음 그림과 같은 구조로 되어 있음</li>
-<li><img src="/p/ai-hw-design-chap04-streaming-graph-theory-1/2/02_Blaize_GSP_architecture.png"
-	width="617"
-	height="183"
-	srcset="/p/ai-hw-design-chap04-streaming-graph-theory-1/2/02_Blaize_GSP_architecture_hub0e573f6ff23a6411796e6d052794dc5_16408_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap04-streaming-graph-theory-1/2/02_Blaize_GSP_architecture_hub0e573f6ff23a6411796e6d052794dc5_16408_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Blaize GSP architecture"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="337"
-		data-flex-basis="809px"
-	
-></li>
-<li>Streaming Processing은 Sequential Processing에 비해 하기와 같은 장점이 있음 (책에 두가지 방법에 대해 비교 그림있음)
-<ul>
-<li>Small intermediate buffer for local processing</li>
-<li>Cached data is easily supported</li>
-<li>Memory bandwidth is reduced to improve the performance with less power</li>
-<li>Support both task and data-parallel processing</li>
-<li>Data is sent to the next node when it is ready</li>
-</ul>
-</li>
-<li>GSP는 opeartion을 데이터가 준비되는 즉시 기다리지 않고 수행하도록 스케줄링 함으로써 성능을 향상시키고 메모리 access를 감소시킴</li>
-</ul>
-
-</section>
-
 
     <footer class="article-footer">
     
@@ -649,6 +585,7 @@
                 href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
             >
 
+                
             </main>
         </div>
         <script 

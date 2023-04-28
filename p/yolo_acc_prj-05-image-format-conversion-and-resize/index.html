@@ -329,170 +329,17 @@
 
 </header>
 
-    <section class="article-content">
     
+        <div class="article-private-content">
+    <br></br>
+    <h3 class="article-subtitle">
+        <p>&emsp;&emsp;&emsp;This page contains information such as copyright materials.</p>
+        <p>&emsp;&emsp;&emsp;So this page is a private post.</p>
+    </h3>
+    <br></br>
+</div>
+
     
-    <p>ZCU104 - See3CAM_CU30를 이용하여 이미지 포맷 변환 및 리사이즈 Pipeline을 구성하였다.
-Xilinx에서 제공하는 M2M 기본 예제를 이용하였으며 삽질의 연속으로 2주 정도 걸린 것 같다.
-결론적으로 Xilinx에서 제공하는 VPSS의 경우 다양한 기능을 지원하여 LUT의 사용량이 많고 M2M 드라이버의 경우 지원이 종료되었다.
-향후에는 HLS로 직접 구현해야 할 것으로 생각된다.</p>
-<h2 id="기본-지식">기본 지식</h2>
-<ol>
-<li>Xilinx IP list
-<ul>
-<li>Video Processing SubSystem(VPSS) : Color Space Conversion(CSC)와 SCaler(SC) 기능을 지원한다. 기본적으로 Xilinx_Video_Driver와 호환된다.</li>
-<li>Framebuffer Read/Write : VDMA의 후속(?)으로 이미지 전용 DMA이다. Gstreamer와 호환이 되어 편리하게 이용이 가능하다.</li>
-</ul>
-</li>
-<li>Xilinx Linux Driver
-<ul>
-<li>Mem 2 Mem Composite Video Framework : Framebuffer Read/Write를 이용하여 비디오 파이프라인을 기술해주는 <code>Bridge Driver</code>이다. 현재 지원 종료되었으므로 테스트로만 이용한다.(지원종료된 이유를 확인 중)</li>
-</ul>
-</li>
-</ol>
-<h2 id="hw-design">HW Design</h2>
-<p>레퍼런스에 나와 있는데로 FB_R -&gt; CSC -&gt; SC -&gt; FB_W 파이프 라인으로 구성한다.
-필자가 실수하여 삽질한 부분은 하기와 같다.</p>
-<ol>
-<li>파이프라인의 동작 클럭은 300Mhz로 하였다. 내부 클럭을 이용하므로 clock wizard ip의 입력 패드를 No buffer로 설정</li>
-<li>FB_R과 FB_W의 리셋은 드라이버에 의해 구동되므로 PS EMIO로 제어 가능하게 구성한다.(pl reset으로 구동하지 말것)</li>
-</ol>
-<p><img src="/p/yolo_acc_prj-05-image-format-conversion-and-resize/01_video_pipe_csc_sc_design.png"
-	width="2904"
-	height="774"
-	srcset="/p/yolo_acc_prj-05-image-format-conversion-and-resize/01_video_pipe_csc_sc_design_hu34acd0385fb61d80af575be2f3585f16_170639_480x0_resize_box_3.png 480w, /p/yolo_acc_prj-05-image-format-conversion-and-resize/01_video_pipe_csc_sc_design_hu34acd0385fb61d80af575be2f3585f16_170639_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="375"
-		data-flex-basis="900px"
-	
-></p>
-<p>생각보다 CSC/SC가 리소스를 많이 잡아 먹어서 나중에 HLS로 변경해야 할 듯 하다.
-<img src="/p/yolo_acc_prj-05-image-format-conversion-and-resize/02_video_pipe_csc_sc_utilization.png"
-	width="2262"
-	height="494"
-	srcset="/p/yolo_acc_prj-05-image-format-conversion-and-resize/02_video_pipe_csc_sc_utilization_hu7b9bb6e7e51e6df27004997d78290e79_148400_480x0_resize_box_3.png 480w, /p/yolo_acc_prj-05-image-format-conversion-and-resize/02_video_pipe_csc_sc_utilization_hu7b9bb6e7e51e6df27004997d78290e79_148400_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="457"
-		data-flex-basis="1098px"
-	
-></p>
-<h2 id="sw-design">SW Design</h2>
-<p>파이프라인 SW component의 구성을 보면 하기와 같다(필자의 생각이므로 틀릴 수 있음)
-<img src="/p/yolo_acc_prj-05-image-format-conversion-and-resize/03_M2M_SW_Struct.drawio.svg"
-	
-	
-	
-	loading="lazy"
-	
-	
-></p>
-<h3 id="deviece-tree">Deviece Tree</h3>
-<p>Petalinux는 빌드 시 HW Description 파일(.xsa)을 분석하여 PL Side의 Device Tree를 자동으로 생성해준다.
-<code>&lt;plnx-proj-root&gt;/component/plnx_workspace/device-tree/device-tree/pl.dtsi</code>에서 생성된 Device-tree를 확인할 수 있다
-(petalinux-config에서 자동으로 디바이스트리를 생성하도록 설정되어 있어야한다). 우리는 vidoe-M2M 드라이버를 사용해야 하므로 디바이스 트리를
-수정해야 하는데 이는 <code>&lt;plnx-proj-root&gt;/project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi</code>에 기술 시 적용된다.
-하기 내역을 수정한다.</p>
-<ol>
-<li>FrameBufferRead/Write IP에 의해 브리지 노드가 생성되는데 이 노드를 Disable하고 Properity 및 node를 삭제한다.</li>
-<li>video_m2m 노드를 생성하고 DMA기술하고 및 포트 연결을 기술한다.</li>
-<li>CSC/SC 노드의 포트의 연결을 수정하여 video_m2m과 연결될 수 있도록 한다.</li>
-<li>CSC/SC 노드의 compatible 속성을 xlnx,v-vpss-csc 와 xlnx,v-vpss-sc로 고정한다. 이 v-vpss-*가 비디오 드라이버와 연결되는 드라이버이다.</li>
-</ol>
-<h2 id="test">Test</h2>
-<p>보드가 정상적으로 부팅이 된다면 <code>/dev/video#</code>, <code>/dev/media#</code>, <code>/dev/v4l-subdev#</code>이 등록되었을 것이다.
-상기 디바이스가 보이지 않는다면 <code>dmesg</code> 등을 이용해 커널 로그 및 부팅 로그를 확인하여 문제를 분석하자.</p>
-<p>Test는 media-ctl로 CSC/SC를 설정하고 Gstreamer로 스트리밍 파이프라인을 구성하여 결과를 파일로 저장하였다.
-카메라 출력은 UYUV/1280x720이며 CSC/SC에서 이를 RGB/640x480으로 변환한다.</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">media-ctl -d /dev/media0 -V <span class="s2">&#34;\&#34;a0100000.v_proc_ss\&#34;:0 [fmt:UYVY8_1X16/1280x720 field:none colorspace:rec709]&#34;</span>
-</span></span><span class="line"><span class="cl">media-ctl -d /dev/media0 -V <span class="s2">&#34;\&#34;a0100000.v_proc_ss\&#34;:1 [fmt:RBG888_1X24/1280x720 field:none colorspace:srgb]&#34;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">media-ctl -d /dev/media0 -V <span class="s2">&#34;\&#34;a0040000.v_proc_ss\&#34;:0 [fmt:RBG888_1X24/1280x720 field:none colorspace:srgb]&#34;</span>
-</span></span><span class="line"><span class="cl">media-ctl -d /dev/media0 -V <span class="s2">&#34;\&#34;a0040000.v_proc_ss\&#34;:1 [fmt:RBG888_1X24/640x480 field:none colorspace:srgb]&#34;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">gst-launch-1.0 v4l2src <span class="nv">device</span><span class="o">=</span>/dev/video1 num-buffers<span class="o">=</span><span class="m">1</span> ! video/x-raw, <span class="nv">width</span><span class="o">=</span>1280, <span class="nv">height</span><span class="o">=</span>720, <span class="nv">format</span><span class="o">=</span>UYVY ! v4l2convert capture-io-mode<span class="o">=</span><span class="m">4</span> output-io-mode<span class="o">=</span><span class="m">4</span> ! video/x-raw, <span class="nv">width</span><span class="o">=</span>640, <span class="nv">height</span><span class="o">=</span>480, <span class="nv">format</span><span class="o">=</span>RGB ! filesink <span class="nv">location</span><span class="o">=</span>test.rgb
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>gst-launch-1.0에서 파이프라인 입출력 설정이 한번에 되지 않는 거 같은데 테스트 스크립트임으로 넘어가자..</p>
-<p>상기 저장된 파일은 RGB raw 데이터 파일인데 이를 확인하기 위해 간단한 파이썬 코드를 이용한다.</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">os</span>
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">cv2</span>
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">sys</span>
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">HEIGHT</span> <span class="o">=</span> <span class="mi">480</span>
-</span></span><span class="line"><span class="cl"><span class="n">WIDTH</span> <span class="o">=</span> <span class="mi">640</span>
-</span></span><span class="line"><span class="cl"><span class="n">CHANNEL</span> <span class="o">=</span> <span class="mi">3</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">  <span class="c1">#argment number check</span>
-</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="p">:</span>
-</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;Arguments is missing</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">  <span class="n">rawRgbFileName</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl">  <span class="n">rawRgbFd</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">rawRgbFileName</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">  <span class="n">cvImage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">rawRgbFd</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">HEIGHT</span><span class="o">*</span><span class="n">WIDTH</span><span class="o">*</span><span class="n">CHANNEL</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">HEIGHT</span><span class="p">,</span><span class="n">WIDTH</span><span class="p">,</span><span class="n">CHANNEL</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">  <span class="n">image_rgb</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">cvImage</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2BGR</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">  <span class="n">rawRgbFd</span><span class="o">.</span><span class="n">close</span>
-</span></span><span class="line"><span class="cl">  <span class="c1"># cv2.imshow(&#39;&#39;, cvImage)</span>
-</span></span><span class="line"><span class="cl">  <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">image_rgb</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">  <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">  <span class="n">cv2</span><span class="o">.</span><span class="n">destroyAllWindows</span><span class="p">()</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h2 id="참고-자료">참고 자료</h2>
-<ul>
-<li>M2M reference : <a class="link" href="https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/80707675/Mem&#43;2&#43;Mem&#43;VPSS-CSC&#43;VPSS-SC&#43;device"  target="_blank" rel="noopener"
-    >https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/80707675/Mem+2+Mem+VPSS-CSC+VPSS-SC+device</a></li>
-<li>Petalinux Devie Tree Tip : <a class="link" href="https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18842482/Device&#43;Tree&#43;Tips"  target="_blank" rel="noopener"
-    >https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18842482/Device+Tree+Tips</a></li>
-</ul>
-
-</section>
-
 
     <footer class="article-footer">
     
@@ -531,6 +378,19 @@ Xilinx에서 제공하는 M2M 기본 예제를 이용하였으며 삽질의 연�
     <h2 class="section-title">Related content</h2>
     <div class="related-content">
         <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/yolo_acc_prj-06-ubuntu-setting/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[YOLO_Acc_prj] 06 Ubuntu setting</h2>
+        </div>
+    </a>
+</article>
+
             
                 
 <article class="">
@@ -729,6 +589,7 @@ Xilinx에서 제공하는 M2M 기본 예제를 이용하였으며 삽질의 연�
                 href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
             >
 
+                
             </main>
         </div>
         <script 

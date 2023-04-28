@@ -29,11 +29,13 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
 &lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
 &lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
 &lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;set&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;root&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=(&lt;/span&gt;hd0,1&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;linux /boot/vmlinuz &lt;span class=&#34;nv&#34;&gt;root&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/dev/sda1
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;initrd /boot/initrd.img
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;boot
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;이후 매뉴얼의 7.3, 7.4절에서 기술한 내용으로 &lt;code&gt;LFS chroot&lt;/code&gt; 환경으로 진입한다.&lt;/p&gt;
@@ -191,11 +193,11 @@
 </description>
         </item>
         <item>
-        <title>[LFS_prj] 03 Building the LFS Cross Toolchain and Temporary Tools</title>
-        <link>https://muonkmu.github.io/p/lfs_prj-03-building-the-lfs-cross-toolchain-and-temporary-tools/</link>
+        <title>[LFS_prj] 06 Ubutu porting</title>
+        <link>https://muonkmu.github.io/p/lfs_prj-06-ubutu-porting/</link>
         <pubDate>Sat, 18 Mar 2023 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/lfs_prj-03-building-the-lfs-cross-toolchain-and-temporary-tools/</guid>
+        <guid>https://muonkmu.github.io/p/lfs_prj-06-ubutu-porting/</guid>
         <description>&lt;p&gt;LFS 시스템 빌드를 위한 cross tool chain의 설정과정을 다룬다.&lt;/p&gt;
 &lt;h2 id=&#34;techical-note&#34;&gt;Techical note&lt;/h2&gt;
 &lt;p&gt;LFS 시스템의 빌드 단계는 아래의 단계를 따른다&lt;/p&gt;

@@ -333,96 +333,17 @@
 
 </header>
 
-    <section class="article-content">
     
+        <div class="article-private-content">
+    <br></br>
+    <h3 class="article-subtitle">
+        <p>&emsp;&emsp;&emsp;This page contains information such as copyright materials.</p>
+        <p>&emsp;&emsp;&emsp;So this page is a private post.</p>
+    </h3>
+    <br></br>
+</div>
+
     
-    <p>6장은 In-Memory Computation, 7장은 Near-Memory Computation 에 대한 내용이다. 현재 개발하고자 하는 가속기와 동떨어지는 내용이라 판단해서 개요만 보고 스킵할 예정이다.
-삼성이나 하이닉스를 다녀야 쓸모있지 않을까 싶다.</p>
-<h2 id="in-memory-computation">In-Memory Computation</h2>
-<p>여기서는 메모리와 로직을 stacking 하는 방식의 Processor-In-Memory(PIM)에 대해 설명한다. 다른 방식의 PIM도 있는 걸로 아는데&hellip;</p>
-<h3 id="neurocube-architecture">Neurocube Architecture</h3>
-<ul>
-<li>Nerocube는 parallel neural processing unit과 High Bandwidth Memory(HBM)을 스택한 Hybrid Memory Cube(HMC)를 이용</li>
-<li>이는 stacked memrory에서 PE로 직접 데이터 로드가 가능함(레이턴시 감소)</li>
-<li><img src="/p/ai-hw-design-chap06-07-in/near-memory-computation/01_Neurocube_archi.png"
-	width="850"
-	height="484"
-	srcset="/p/ai-hw-design-chap06-07-in/near-memory-computation/01_Neurocube_archi_hu7e3ac3480d8fffeef819172836ca0123_89087_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap06-07-in/near-memory-computation/01_Neurocube_archi_hu7e3ac3480d8fffeef819172836ca0123_89087_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Neurocube architecture"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="175"
-		data-flex-basis="421px"
-	
-></li>
-</ul>
-<h3 id="teris-accelerator">Teris Accelerator</h3>
-<ul>
-<li>Teris는 Eyeriss의 3D Memory와 함께 Row Stationary(RS) dataflow 채택</li>
-<li><img src="/p/ai-hw-design-chap06-07-in/near-memory-computation/02_Tetris_archi.png"
-	width="1200"
-	height="814"
-	srcset="/p/ai-hw-design-chap06-07-in/near-memory-computation/02_Tetris_archi_hue0cec8dafc2424a6cf3e0101670db0cd_520795_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap06-07-in/near-memory-computation/02_Tetris_archi_hue0cec8dafc2424a6cf3e0101670db0cd_520795_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Tetris system architecture"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="147"
-		data-flex-basis="353px"
-	
-></li>
-</ul>
-<h3 id="neurostream-accelerator">NeuroStream Accelerator</h3>
-<ul>
-<li>NeuroStream은 HMC의 modular extension인 Smart Memory Cube(SMC)를 이용</li>
-<li><img src="/p/ai-hw-design-chap06-07-in/near-memory-computation/03_NeuroStream_arch.png"
-	width="1226"
-	height="1306"
-	srcset="/p/ai-hw-design-chap06-07-in/near-memory-computation/03_NeuroStream_arch_hucb12ff9120ba45e699b7649d69b4155b_231205_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap06-07-in/near-memory-computation/03_NeuroStream_arch_hucb12ff9120ba45e699b7649d69b4155b_231205_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="NeuroStream and NeuroCluster architecture"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="93"
-		data-flex-basis="225px"
-	
-></li>
-</ul>
-<h2 id="near-memory-computation">Near-Memory Computation</h2>
-<h3 id="didiannao-supercomputer">DiDianNao Supercomputer</h3>
-<ul>
-<li>대용량 eDRAM을 통해 DianNao의 memory bottleneck을 해결하고자 함</li>
-<li>모든 synapse를 수용할 후 있는 거대 storage를 제공하는 Neural Function Unit(NFU)를 지닌 16개의 tile로 구성</li>
-<li>NFU는 4개의 eDRAM bank와 time-interleaved 통신(?) 함 (eDRAM의 레이턴시가 크기 때문)</li>
-<li><img src="/p/ai-hw-design-chap06-07-in/near-memory-computation/04_DaDianNao_archi.png"
-	width="1214"
-	height="622"
-	srcset="/p/ai-hw-design-chap06-07-in/near-memory-computation/04_DaDianNao_archi_hu3dc4a4aa5e68fb351920261bd2859b52_93958_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap06-07-in/near-memory-computation/04_DaDianNao_archi_hu3dc4a4aa5e68fb351920261bd2859b52_93958_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="DaDianNao system architecture"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="195"
-		data-flex-basis="468px"
-	
-></li>
-</ul>
-<h3 id="cnvlutin-accelerator">Cnvlutin Accelerator</h3>
-<ul>
-<li>DiDianNao에서 파생되었으며 다수의 DiDianNao를 고속 인터페이스로 연결, 거대 parallel mutiplication lane 구조 채택</li>
-</ul>
-
-</section>
-
 
     <footer class="article-footer">
     
@@ -678,6 +599,7 @@
                 href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
             >
 
+                
             </main>
         </div>
         <script 

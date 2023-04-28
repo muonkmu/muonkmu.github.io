@@ -329,107 +329,17 @@
 
 </header>
 
-    <section class="article-content">
     
+        <div class="article-private-content">
+    <br></br>
+    <h3 class="article-subtitle">
+        <p>&emsp;&emsp;&emsp;This page contains information such as copyright materials.</p>
+        <p>&emsp;&emsp;&emsp;So this page is a private post.</p>
+    </h3>
+    <br></br>
+</div>
+
     
-    <p>IDEC에서 수강한 KiCad 강좌 요약 이다. 디자인 플로우 중 Symbol and Schemetic에 대해 정리한다.</p>
-<h2 id="kicad-개요">KiCad 개요</h2>
-<ul>
-<li>회로도 및 PCB가 함께 설계되는 오픈소스 통합 설계도구</li>
-<li>거버 /드릴/ 부품위치 파일 생성 및 PCB 계산기, 거버 뷰어, 3D 뷰어, SPICE 시뮬레이터 포함</li>
-<li>프로젝트 기반 관리로 한번에 하나의 프로젝트만 열 수 있음</li>
-</ul>
-<h3 id="파일구성">파일구성</h3>
-<ul>
-<li>*.kicad_pro : 회로도와 pcb간 공유되는 설정이 포함된 프로젝트 파일</li>
-<li>*.kicad_sch : 모든 정보와 구성 요소 자체를 포함시키는 회로도 파일</li>
-<li>*.kicad_sym : 회로도 심볼 라이브러리 파일로 심볼 요소 설명을 포함</li>
-<li>*.kicad_pcb : pcb 보드 파일</li>
-<li>*.pretty    : 풋프린트 라이브러리 폴더</li>
-<li>*.kicad_dru : pcb 사용자 설계 규칙 파일</li>
-<li>*.net.      : 회로도에 의해 생성되는 넷리스트 파일</li>
-</ul>
-<h3 id="kicad-pcb-design-workflow">KiCad PCB design workflow</h3>
-<ol>
-<li>프로젝트 생성</li>
-<li>회로도 그리기</li>
-<li>회로도 심볼을 심볼 라이브러리에서 찾아 지정된 선 연결, 심볼이 없을 경우 새로 심볼을 새로 만듬</li>
-<li>각 구성 요소에 대해 풋프린트를 배정하고 풋프린트가 없는 경우 풋프린트를 생성하여 반영</li>
-<li>회로도 완성 시 전기 규칙 점검(ERC 수행)</li>
-<li>pcb 편집기로 전송하여 레이아웃 시작(넷리스트 생성 및 부품 간 선 연결 일치 시킴)</li>
-<li>기판 크기(Edge.Cuts) 그리기 및 풋프린트 위치를 선정 배치</li>
-<li>배치 후 요소 사이 트랙 연결
-<ul>
-<li>트랙은 규정에 따라 전류 용량, 임피던스, 고전압 누화 등을 고려 선폭/선간 설정 (pcb계산기 참조)</li>
-<li>트랙은 신호선의 경우 보통 12mil, 6mil 이하로 하면 pcb 제작 단가 상승</li>
-</ul>
-</li>
-<li>레이아웃이 완료되고 설계 규칙 검사(DRC) 및 수정</li>
-<li>거버 파일 제작 출력 및 PCB 제작 의회</li>
-</ol>
-<h2 id="프로젝트-관리-창">프로젝트 관리 창</h2>
-<ul>
-<li>Tip 1 : 프로젝트 생성 시 템플릿을 지정하여 생성 가능 (큰 회사에서 기초 설정 등을 지정한 형식)</li>
-<li>Tip 2 : 환경 설정에서 텍스트 편집기를 등록하면 텍스트 편집기 사용이 가능하다.
-<img src="/p/kicad-01-symbol-and-schemetic/project_manage_page.png"
-	width="2908"
-	height="1356"
-	srcset="/p/kicad-01-symbol-and-schemetic/project_manage_page_hufdf11732201a6d094dfe0f0284e9b39a_662332_480x0_resize_box_3.png 480w, /p/kicad-01-symbol-and-schemetic/project_manage_page_hufdf11732201a6d094dfe0f0284e9b39a_662332_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="214"
-		data-flex-basis="514px"
-	
-></li>
-</ul>
-<h2 id="symbol-생성">Symbol 생성</h2>
-<ol>
-<li>필요 시 심볼 라이브러리 생성 (파일-&gt;새라이브러리)</li>
-<li>라이브러리 선택 후 새 심볼 생성</li>
-<li>생성된 심볼에서 레퍼런스, 심볼값을 원하는 위치로 이동</li>
-<li>외형선 그리기, 핀 부가, 핀 더블 클릭 하여 속성(이름, 번호, 유형 등) 설정</li>
-<li>필요 시 원점 설정 (단축키 space)(심볼 로딩 위치 및 로테이션 시 회전 점)</li>
-<li>저장
-Tip) 편집 시 원하는 위치에 지정할 수 없을 때 그리드 속성을 편집하여 그리드 간격을 조절하자
-<img src="/p/kicad-01-symbol-and-schemetic/symbol_edit_page.png"
-	width="2218"
-	height="1246"
-	srcset="/p/kicad-01-symbol-and-schemetic/symbol_edit_page_hu818501ea25b8fb246a26a0c3f0a5736b_772973_480x0_resize_box_3.png 480w, /p/kicad-01-symbol-and-schemetic/symbol_edit_page_hu818501ea25b8fb246a26a0c3f0a5736b_772973_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="178"
-		data-flex-basis="427px"
-	
-></li>
-</ol>
-<h2 id="회로도-그리기">회로도 그리기</h2>
-<ol>
-<li>프로젝트 매니저에서 {프로젝트 이름}.kicad_sch 파일을 연다</li>
-<li>심볼을 배치한다 (전원의 경우 pspice 라이브러리는 시뮬레이션 용이니 Power라이브러리 사용)</li>
-<li>선을 연결하고 텍스트 위치 조정한다.</li>
-<li>레퍼런스 (부품번호, ex. R100) 지정자 채우기 로 레퍼런스 설정</li>
-<li>PCB 풋 프린트 배정</li>
-<li>ERC 수행/수정 및 BOM 출력
-<img src="/p/kicad-01-symbol-and-schemetic/schemetic_edit_page.png"
-	width="2710"
-	height="1402"
-	srcset="/p/kicad-01-symbol-and-schemetic/schemetic_edit_page_hua6e34afde46f1c26994059153698c020_602015_480x0_resize_box_3.png 480w, /p/kicad-01-symbol-and-schemetic/schemetic_edit_page_hua6e34afde46f1c26994059153698c020_602015_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="193"
-		data-flex-basis="463px"
-	
-></li>
-</ol>
-
-</section>
-
 
     <footer class="article-footer">
     
@@ -625,6 +535,7 @@ Tip) 편집 시 원하는 위치에 지정할 수 없을 때 그리드 속성을
                 href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
             >
 
+                
             </main>
         </div>
         <script 

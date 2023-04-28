@@ -333,159 +333,17 @@
 
 </header>
 
-    <section class="article-content">
     
+        <div class="article-private-content">
+    <br></br>
+    <h3 class="article-subtitle">
+        <p>&emsp;&emsp;&emsp;This page contains information such as copyright materials.</p>
+        <p>&emsp;&emsp;&emsp;So this page is a private post.</p>
+    </h3>
+    <br></br>
+</div>
+
     
-    <p>앞의 포스트가 너무 길어져서 Eyeriss version2 부분은 현 포스트로 나눔</p>
-<h2 id="eyeriss-accelerator-ver2">Eyeriss Accelerator Ver.2</h2>
-<p>irregular data pattern 과 network sparsity 지원을 위한 Eyeriss V2 공개</p>
-<ul>
-<li>새로운 NoC 구조 : data reuse가 적을 땐 external memory에서 더 많은 데이터를 PE로 가져오고  data reuse가 많을 땐 spartial Data를 sharing</li>
-<li>CSC 엔코딩 적용</li>
-<li>RS+ 적용</li>
-</ul>
-<p>Eyeriss V1이 GLB&lt;-&gt;PE 연결을 위해 flat multicast NoC를 사용했지만 V2에서는 flexible and mesh NoC 사용,
-이 hierarchical mesh는 GLB cluster, Router Cluster, PE cluster로 구성되며 하기 3가지 타입의 데이터 이동 지원</p>
-<ul>
-<li>ifmap은 GLB cluster에 로드됨, 이는 GLB 메모리에 저장되고 Router Cluster로 전송</li>
-<li>psum은 GLB 메모리에 저장 되고, ofmap은 external memory에 바로 저장 됨</li>
-<li>fmap은 Router Cluster로 전송되고 PE spad에 저장</li>
-<li><img src="/p/ai-hw-design-chap05-convolution-optimization-3/3/01_Eyeriss_v2_system_archi.png"
-	width="1090"
-	height="622"
-	srcset="/p/ai-hw-design-chap05-convolution-optimization-3/3/01_Eyeriss_v2_system_archi_hu72a2311e75580f2efbca22981e0f948c_86395_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap05-convolution-optimization-3/3/01_Eyeriss_v2_system_archi_hu72a2311e75580f2efbca22981e0f948c_86395_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Eyeriss v2 system architecture"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="175"
-		data-flex-basis="420px"
-	
->
-(책에 v1 과 v2 구조에 대한 비교 그림이 있으니 찾아보자)</li>
-</ul>
-<h3 id="hierarchical-mesh-network-hm-noc">Hierarchical Mesh Network (HM-NoC)</h3>
-<p>전통적인 Network-on-Chip 구조는 하기와 같으며 장단점을 가지고 있음 (책 그림 참조)</p>
-<ul>
-<li>Broadcast Network : high reuse / low bandwidth</li>
-<li>Unicast Network : high bandwidth / low reuse</li>
-<li>All-to-All Network : high reuse, high bandwidth / scale difficulty</li>
-</ul>
-<p>Eyeriss V2는 RS+를 지원하기 위해 HM-NoC 구조를 제안, all-to-all network에서 파생되었으나 4가지 모드를 가짐</p>
-<ul>
-<li>Broadcast: single input and single weight</li>
-<li>Unicast: multiple inputs and multiple weights</li>
-<li>Grouped multicast: shared weights</li>
-<li>Interleaved multicast: shared inputs</li>
-<li><img src="/p/ai-hw-design-chap05-convolution-optimization-3/3/02_Mesh_network_config.png"
-	width="1095"
-	height="270"
-	srcset="/p/ai-hw-design-chap05-convolution-optimization-3/3/02_Mesh_network_config_hu7c65497e49921880cc047795eaed4cf9_175240_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap05-convolution-optimization-3/3/02_Mesh_network_config_hu7c65497e49921880cc047795eaed4cf9_175240_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Mesh network configuration"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="405"
-		data-flex-basis="973px"
-	
-></li>
-</ul>
-<p>HM-NoC는 source, destination, router로 구성되며 design phase에서 cluster로 그룹핑되고 operation mode에서는 고정됨.</p>
-<ul>
-<li>Router cluster가 다른 cluster와 one-to-one, many-to-many, source/destination 구조로 연결</li>
-<li>Router cluster는 4개의 source/destination port를 가지며 4가지 routing mode (broadcast, unicate, grouped/interleaved multicast)를 가짐</li>
-</ul>
-<p>책에서는 다음과 같이 예시를 듬</p>
-<ul>
-<li>Convolution layer : ifmap과 fmap이 reuse 되며 grouped multicast 또는 interleaved mode 로 구성</li>
-<li>Depth-wise Convolution layer : fmap만 reuse 되며 fmap이 PE로 broadcast, ifmap은 GLB에서 로드</li>
-<li>Fully connected layer : ifmap이 모든 PE로 broadcast, fmap은 unicast mode로 로드</li>
-</ul>
-<h4 id="input-activation-hm-noc">Input Activation HM-NoC</h4>
-<ul>
-<li>Router Cluster 안의 3개 ifmap router는 GLB cluster의 ifmap SRAM과 연결</li>
-<li>ifmap routerd의 3개의 source/destination port 다른 클러스터와 연결, 1개는 메모리에서 데이터로드, 1개는 PE 연결</li>
-<li>책에 그림과 상세 설명이 있으니 참조하자</li>
-</ul>
-<h4 id="filter-weight-hm-noc">Filter Weight HM-NoC</h4>
-<ul>
-<li>Router Cluster 안의 각 fmap router는 PE cluster 안의 PE row와 연결</li>
-<li>vertical mesh는 사라지고 horizontal mesh 만 데이터 reuse를 위해 남음</li>
-<li>책에 그림과 상세 설명이 있으니 참조하자</li>
-</ul>
-<h4 id="partial-sum-hm-noc">Partial Sum HM-NoC</h4>
-<ul>
-<li>Router Cluster 안의 4개의 psum router는 GLB cluster의 psum SRAM과 PE cluster의 PE column과 연결됨</li>
-<li>horizontal mesh는 사라지고  vertical mesh만 psum accumulation을 위해 남음</li>
-<li>책에 그림과 상세 설명이 있으니 참조하자</li>
-</ul>
-<h3 id="compressed--sparse-column-csc-format">Compressed  Sparse Column (CSC) Format</h3>
-<p>Eyeriss V2는 ifmap과 fmap 둘 다에 CSC 포맷 적용 (zero operation skipping), CSC 포맷의 구조는 다음과 같다</p>
-<ul>
-<li>Data vector : 0이 아닌 값</li>
-<li>Counter vector : Data vector의 item 기준, 해당 열에서 앞에 있는 0의 값의 갯수</li>
-<li>Address vector : 각 열을 기준으로 이전 열까지 0이 아닌 item의 누적 갯수</li>
-<li><img src="/p/ai-hw-design-chap05-convolution-optimization-3/3/03_CSC_format.png"
-	width="988"
-	height="683"
-	srcset="/p/ai-hw-design-chap05-convolution-optimization-3/3/03_CSC_format_hub1bb5f53114ac8ca37a38a301b9de523_189171_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap05-convolution-optimization-3/3/03_CSC_format_hub1bb5f53114ac8ca37a38a301b9de523_189171_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Compressed sparse column format"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="144"
-		data-flex-basis="347px"
-	
-></li>
-</ul>
-<p>Eyeriss V2는 PE는 zero operation skip을 위해 7 pipeline stage와 5 spad (ifmap, fmap, psum 저장)로 수정</p>
-<ul>
-<li>첫째로 non-zero data인지 확인하기 위해 address를 검사하고 fmap 로드 전 먼저 ifmap을 로드(zero ifmap skip을 위해)</li>
-<li>ifmap/fmap이 0이 아니면 계산 pipeline 수행, fmap이 0이면 pipeline disable</li>
-<li><img src="/p/ai-hw-design-chap05-convolution-optimization-3/3/04_Eyeriss_v2_PE_archi.png"
-	width="1098"
-	height="520"
-	srcset="/p/ai-hw-design-chap05-convolution-optimization-3/3/04_Eyeriss_v2_PE_archi_hu6538d1528bc1b96b882dcb94c7cd426f_43122_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap05-convolution-optimization-3/3/04_Eyeriss_v2_PE_archi_hu6538d1528bc1b96b882dcb94c7cd426f_43122_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Eyeriss v2 PE architecture"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="211"
-		data-flex-basis="506px"
-	
-></li>
-</ul>
-<h3 id="row-stationary-plus-rs-dataflow">Row Stationary Plus (RS+) Dataflow</h3>
-<p>PE utilization을 높이기 위해 RS+ dataflow 적용</p>
-<ul>
-<li>model dimension을 다른 PE dimension에 매핑하기 위해 데이터를 tiling, spatial fragmentation 함</li>
-<li>depth-wise convolution 시 PE utilization이 낮은 문제점 해결</li>
-<li><img src="/p/ai-hw-design-chap05-convolution-optimization-3/3/05_RS&#43;_dataflow.png"
-	width="978"
-	height="348"
-	srcset="/p/ai-hw-design-chap05-convolution-optimization-3/3/05_RS&#43;_dataflow_hud8aa43c1c4159e4637e897eeb4c09dc1_22311_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap05-convolution-optimization-3/3/05_RS&#43;_dataflow_hud8aa43c1c4159e4637e897eeb4c09dc1_22311_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="row stationary plus dataflow"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="281"
-		data-flex-basis="674px"
-	
-></li>
-</ul>
-
-</section>
-
 
     <footer class="article-footer">
     
@@ -733,6 +591,7 @@
                 href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
             >
 
+                
             </main>
         </div>
         <script 

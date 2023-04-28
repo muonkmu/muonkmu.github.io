@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='the project propsal of Building the Linux-From-Scratch'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='the Linux-From-Scratch debugging'>
 <title>[LFS_prj] 05 Final debugging</title>
 
 <link rel='canonical' href='https://muonkmu.github.io/p/lfs_prj-05-final-debugging/'>
 
 <link rel="stylesheet" href="/scss/style.min.f3b6945bee58731371ef6d5a992e6775ef6e63b9642101b9f59903b1c9e16941.css"><meta property='og:title' content='[LFS_prj] 05 Final debugging'>
-<meta property='og:description' content='the project propsal of Building the Linux-From-Scratch'>
+<meta property='og:description' content='the Linux-From-Scratch debugging'>
 <meta property='og:url' content='https://muonkmu.github.io/p/lfs_prj-05-final-debugging/'>
 <meta property='og:site_name' content='MW Devlog'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='LFS' /><meta property='article:published_time' content='2023-03-28T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-03-28T00:00:00&#43;00:00'/>
 <meta name="twitter:title" content="[LFS_prj] 05 Final debugging">
-<meta name="twitter:description" content="the project propsal of Building the Linux-From-Scratch">
+<meta name="twitter:description" content="the Linux-From-Scratch debugging">
     </head>
     <body class="
     article-page
@@ -279,7 +279,7 @@
     
         
         <h3 class="article-subtitle">
-            the project propsal of Building the Linux-From-Scratch
+            the Linux-From-Scratch debugging
         </h3>
         
     </div>
@@ -327,7 +327,8 @@
 
 </header>
 
-    <section class="article-content">
+    
+        <section class="article-content">
     
     
     <p>매뉴얼 대로 했는데 커널 패닉이 일어난다. 로그를 보니 rootfs 디바이스가 로드 되지 않는 듯 하다.
@@ -347,11 +348,13 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">set</span> <span class="nv">root</span><span class="o">=(</span>hd0,1<span class="o">)</span>
 </span></span><span class="line"><span class="cl">linux /boot/vmlinuz <span class="nv">root</span><span class="o">=</span>/dev/sda1
 </span></span><span class="line"><span class="cl">initrd /boot/initrd.img
+</span></span><span class="line"><span class="cl">boot
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>이후 매뉴얼의 7.3, 7.4절에서 기술한 내용으로 <code>LFS chroot</code> 환경으로 진입한다.</p>
@@ -382,6 +385,7 @@
 
 </section>
 
+    
 
     <footer class="article-footer">
     
@@ -434,12 +438,12 @@
             
                 
 <article class="">
-    <a href="/p/lfs_prj-03-building-the-lfs-cross-toolchain-and-temporary-tools/">
+    <a href="/p/lfs_prj-06-ubutu-porting/">
         
         
 
         <div class="article-details">
-            <h2 class="article-title">[LFS_prj] 03 Building the LFS Cross Toolchain and Temporary Tools</h2>
+            <h2 class="article-title">[LFS_prj] 06 Ubutu porting</h2>
         </div>
     </a>
 </article>
@@ -616,6 +620,7 @@
                 href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
             >
 
+                
             </main>
         </div>
         <script 

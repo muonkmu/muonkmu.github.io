@@ -6,7 +6,171 @@
         <description>Recent content in MW_prj_YOLO_acc on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Wed, 22 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/mw_prj_yolo_acc/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Wed, 19 Apr 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/mw_prj_yolo_acc/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[YOLO_Acc_prj] 06 Ubuntu setting</title>
+        <link>https://muonkmu.github.io/p/yolo_acc_prj-06-ubuntu-setting/</link>
+        <pubDate>Wed, 19 Apr 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/yolo_acc_prj-06-ubuntu-setting/</guid>
+        <description>&lt;p&gt;Petalinux로 사용하다 보니 여러가지 면에서 불편한다.
+apt패키지 매너저도 사용하고 싶고 향후 여러 라이브러리의 호한성을 맞추기 위해 rootFS를 ubuntu로 바꾸어 보자&lt;/p&gt;
+&lt;h2 id=&#34;기본-지식&#34;&gt;기본 지식&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;xilinx는 zynq의 운영체제로 리눅스를 자신의 입맛에 맞게 개조한 petalinux를 제공한다.
+&lt;ul&gt;
+&lt;li&gt;좀 더 정확하게 말하면 petalinux란 자신들의 zynq를 위한 리눅스 시스템을 빌드 할 수 있는 YOCTO wrapper 이다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;상기 시스템에서 제공하는 커널 및 rootFS를 그냥 사용해도 되지만 librealsense 등을 포팅하기 힘들고 패키지 매니저 사용들이 불편함으로 ubuntu base를 포팅하자
+&lt;ul&gt;
+&lt;li&gt;ubuntu desktop을 사용하여 GUI 환경을 바로 꾸밀 수 도 있지만 desktop 환경은 LXDE/KDE를 직접 설치해도 되므로 우선 CLI 환경만 구성한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;펌웨어, uboot, 커널, 디바이스 트리는 petalinux에서 제공하는 것을 사용하고 rootFS 만 Ubuntu base로 사용한다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;porting-절차&#34;&gt;Porting 절차&lt;/h2&gt;
+&lt;h3 id=&#34;커널-및-모듈-빌드&#34;&gt;커널 및 모듈 빌드&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;xilinx에서 Ubuntu 사용을 위해 권장하는 petalinux의 커널 세팅은 하기와 같다.
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/148668419/Zynq&amp;#43;UltraScale&amp;#43;MPSoC&amp;#43;Ubuntu&amp;#43;VCU&amp;#43;Gstreamer&amp;#43;-&amp;#43;Building&amp;#43;and&amp;#43;Running&amp;#43;Ubuntu&amp;#43;Desktop&amp;#43;from&amp;#43;Sources&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/148668419/Zynq+UltraScale+MPSoC+Ubuntu+VCU+Gstreamer+-+Building+and+Running+Ubuntu+Desktop+from+Sources&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;근데 PCI 는 왜 disable 하라는지 몰라서 그냥 enable 시켜 놓았다. (아마 제공하는 예제에서는 AP 부분 DP dual lane을 사용하느라 PCIe를 안써서 그런것 같다.)&lt;/li&gt;
+&lt;li&gt;향후 사용성을 위해 mali driver도 같이 넣기로 하였다.
+&lt;ol&gt;
+&lt;li&gt;Following are some of the mandatory configurations needed for successful booting of Ubuntu Desktop.
+&lt;ul&gt;
+&lt;li&gt;Disable initramfs in kernel configuration GUI at ‘General setup -&amp;gt; Initial RAM file system and RAM disk (initramfs/initrd) support’&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Following settings are required to enable Input device, multimedia and USB related settings
+&lt;ul&gt;
+&lt;li&gt;Device Drivers-&amp;gt;Input device support-&amp;gt;Event interface&lt;/li&gt;
+&lt;li&gt;Device Drivers-&amp;gt;Input device support-&amp;gt;Keyboards&lt;/li&gt;
+&lt;li&gt;Device Drivers-&amp;gt;Input device support-&amp;gt;Mouse interface&lt;/li&gt;
+&lt;li&gt;Device Drivers-&amp;gt;Multimedia support-&amp;gt;Media USB Adapters-&amp;gt;USB Video Class (UVC)&lt;/li&gt;
+&lt;li&gt;Device Drivers-&amp;gt;Multimedia support-&amp;gt;Cameras/video grabbers support&lt;/li&gt;
+&lt;li&gt;Device Drivers-&amp;gt;Multimedia support-&amp;gt;V4L platform devices&lt;/li&gt;
+&lt;li&gt;Device Drivers-&amp;gt;USB support and enable all required classes&lt;/li&gt;
+&lt;li&gt;Device Drivers-&amp;gt;HID support-&amp;gt;Generic HID driver&lt;/li&gt;
+&lt;li&gt;Device Drivers-&amp;gt;HID support-&amp;gt;USB HID support-&amp;gt;USB HID transport layer&lt;/li&gt;
+&lt;li&gt;Disabling the PMBUS PMIC so that power demo can use them without any issues&lt;/li&gt;
+&lt;li&gt;Device Drivers-&amp;gt;Hardware Monitoring support-&amp;gt;PMBus support-&amp;gt;Maxim MAX20751&lt;/li&gt;
+&lt;li&gt;Enable the PHY settings&lt;/li&gt;
+&lt;li&gt;Device Drivers-&amp;gt;PHY Subsystem&lt;/li&gt;
+&lt;li&gt;Device Drivers-&amp;gt;PHY Subsystem-&amp;gt;Xilinx ZynqMP PHY driver&lt;/li&gt;
+&lt;li&gt;Disable the PCI settings&lt;/li&gt;
+&lt;li&gt;Bus Support-&amp;gt;PCI support’ This needs to be disabled for this version&lt;/li&gt;
+&lt;li&gt;Enable the sound related settings:&lt;/li&gt;
+&lt;li&gt;Device Drivers-&amp;gt;Sound card support&lt;/li&gt;
+&lt;li&gt;Device Drivers-&amp;gt;Sound card support-&amp;gt;Advanced Linux Sound Architecture’ enabling ALSA support&lt;/li&gt;
+&lt;li&gt;Kernel hacking &amp;gt; Tracers &amp;gt; Kernel Function Tracer&lt;/li&gt;
+&lt;li&gt;Enable VCU driver Device Drivers-&amp;gt;SOC (System On Chip) Specific Drivers-&amp;gt;Xilinx SoC Drivers-&amp;gt;[ m ] Xilinx VCU logicoreIP Initsupport&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;mali 및 vcu 커널모듈을 만들기 위해 petalinux rootfs 세팅을 다음과 같이 설정한다.
+&lt;ul&gt;
+&lt;li&gt;Filesystem Packages-&amp;gt;libs-&amp;gt;libmali-xlnx-&amp;gt;[ * ] libmali-xlnx&lt;/li&gt;
+&lt;li&gt;Packages-&amp;gt;libs-&amp;gt;libmali-xlnx-&amp;gt;[ * ] libmali-xlnx-dev&lt;/li&gt;
+&lt;li&gt;Filesystem Packages-&amp;gt;misc-&amp;gt;hdmi-module-&amp;gt;[ * ] kernel-module-hdmi&lt;/li&gt;
+&lt;li&gt;혹시 mali backend를 x11에서 fb나 wayland로 하고 싶다면 &lt;code&gt;&amp;lt;plnx-proj-root&amp;gt;/project-spec/meta-user/conf/petalinuxbsp.conf&lt;/code&gt;에 &lt;code&gt;MALI_BACKEND_DEFAULT = &amp;quot;wayland&amp;quot;&lt;/code&gt;를 추가하자 (&lt;a class=&#34;link&#34; href=&#34;https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18841928/Xilinx&amp;#43;Arm&amp;#43;Mali-400&amp;#43;Driver#XilinxArmMali-400Driver-X11backend%3A&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18841928/Xilinx+Arm+Mali-400+Driver#XilinxArmMali-400Driver-X11backend%3A&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;petalinux를 빌드한다.
+&lt;ul&gt;
+&lt;li&gt;빌드 중에 cpio에서 에러가 나는 경우가 있는데 이는 파일용량이 2GB를 넘어가서이다. 해결방법은 아래와 같다.&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://docs.xilinx.com/r/2021.2-English/ug1144-petalinux-tools-reference-guide/do_image_cpio-Function-Failed&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://docs.xilinx.com/r/2021.2-English/ug1144-petalinux-tools-reference-guide/do_image_cpio-Function-Failed&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;rootfs-포팅&#34;&gt;rootfs 포팅&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;하기 사이트에 우분투 base의 rootfs를 받을 수 있다. 그러나 이것을 사용하면 사용자 입맛에 맞게 이미지를 만들 수 있으나 설정에 시간이 너무 오래 걸린다.
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://cdimage.ubuntu.com/ubuntu-base/releases/focal/release/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://cdimage.ubuntu.com/ubuntu-base/releases/focal/release/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;그래서 eewiki에서 제공하는 이미지를 사용하기로 하였다. 이미지를 다운 받아 rootfs 영역에 카피한다.(압축 풀 때 파일 권한이 변경되지 않도록 tar의 p옵션 필수)
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://nuclearrambo.com/wordpress/running-ubuntu-20-04-on-zynq-soc/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://nuclearrambo.com/wordpress/running-ubuntu-20-04-on-zynq-soc/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;mali와 vcu 커널 모듈을 rootfs복사한다.(옵션)
+&lt;ul&gt;
+&lt;li&gt;sudo cp -rfv build/tmp/sysroots-components/xilinx_zcu104/kernel-module-vcu/lib/modules/5.15.19-xilinx-v2022.1/extra/* ${target_root}/root/modules/&lt;/li&gt;
+&lt;li&gt;sudo cp -rfv build/tmp/sysroots-components/xilinx_zcu104/kernel-module-mali/lib/modules/5.15.19-xilinx-v2022.1/extra/*  ${target_root}/root/modules/&lt;/li&gt;
+&lt;li&gt;sudo cp -rfv build/tmp/sysroots-components/zynqmp/vcu-firmware/lib/firmware/*  ${target_root}/lib/firmware/&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;zynq---ubuntu-기본설정&#34;&gt;zynq - ubuntu 기본설정&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;zynq 보드를 부팅시키고 로그인한다.&lt;/li&gt;
+&lt;li&gt;네트워크 매니저를 세팅한다. 현재 네트워크 매니저 세팅파일이 없으므로 만들어 준다. 호스트가 ubuntu라면 동일 파일이 있으니 복사해도 된다. 그후 리부팅&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo cat &amp;gt; /etc/netplan/01-network-manager-all.yaml &amp;lt;&amp;lt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;EOF&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;network:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  version: &lt;span class=&#34;m&#34;&gt;2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  renderer: NetworkManager
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo netplan generate
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo netplan apply
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo reboot
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;무슨 문제인지 부팅 후에도 dhcp에서 DNS를 받아오지 못한다(원인 파악 중) 다음 방법으로 해결해보자
+&lt;ul&gt;
+&lt;li&gt;임시 : echo &amp;ldquo;nameserver ${네임서버주소}&amp;rdquo; | sudo tee /etc/resolv.conf &amp;gt; /dev/null&lt;/li&gt;
+&lt;li&gt;영구 : /etc/systemd/resolved.conf 파일에 DNS 입력 후 재부팅&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;업데이트 및 시간대 설정&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo apt-get update &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; sudo apt-get upgrade &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; sudo apt-get dist-upgrade
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;timedatectl set-timezone Asia/Seoul
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;참고-자료&#34;&gt;참고 자료&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/148668419/Zynq&amp;#43;UltraScale&amp;#43;MPSoC&amp;#43;Ubuntu&amp;#43;VCU&amp;#43;Gstreamer&amp;#43;-&amp;#43;Building&amp;#43;and&amp;#43;Running&amp;#43;Ubuntu&amp;#43;Desktop&amp;#43;from&amp;#43;Sources&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/148668419/Zynq+UltraScale+MPSoC+Ubuntu+VCU+Gstreamer+-+Building+and+Running+Ubuntu+Desktop+from+Sources&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/docs/Design_Tutorials/MPSoC_Graphic_Subsystem/README.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://xilinx.github.io/Embedded-Design-Tutorials/docs/2022.2/build/html/docs/Design_Tutorials/MPSoC_Graphic_Subsystem/README.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18841732/Ubuntu&amp;#43;on&amp;#43;Zynq&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18841732/Ubuntu+on+Zynq&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://nuclearrambo.com/wordpress/running-ubuntu-20-04-on-zynq-soc/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://nuclearrambo.com/wordpress/running-ubuntu-20-04-on-zynq-soc/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>[YOLO_Acc_prj] 05 Image format conversion and resize</title>
         <link>https://muonkmu.github.io/p/yolo_acc_prj-05-image-format-conversion-and-resize/</link>
         <pubDate>Wed, 22 Mar 2023 00:00:00 +0000</pubDate>

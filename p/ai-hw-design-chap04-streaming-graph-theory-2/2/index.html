@@ -330,89 +330,17 @@
 
 </header>
 
-    <section class="article-content">
     
+        <div class="article-private-content">
+    <br></br>
+    <h3 class="article-subtitle">
+        <p>&emsp;&emsp;&emsp;This page contains information such as copyright materials.</p>
+        <p>&emsp;&emsp;&emsp;So this page is a private post.</p>
+    </h3>
+    <br></br>
+</div>
+
     
-    <p>본 챕터에서는 graph-based deep-learnig accelerator 중 Graphcore IPU에 대해 알아본다.
-Graphcore IPU는 Microsoft와 Dell의 차세대 데이터 센터 딥러닝 가속기로 선정되었다.</p>
-<h2 id="graphcore-intelligence-processing-unitipu">Graphcore Intelligence Processing Unit(IPU)</h2>
-<p>Graphcore IPU는 fine-grained operation을 수행하기 위하여 graph theory를 적용하며 MIMD paralleism을 제공</p>
-<ul>
-<li>Fine-Grained : 하나의 작업을 작은 단위의 프로세스로 나눈 뒤 다수의 호출을 통해, 작업 결과를 생성해내는 방식, 반대말은 Coarse-Grained.</li>
-</ul>
-<h3 id="intelligence-processor-unit-architecture">Intelligence Processor Unit Architecture</h3>
-<ul>
-<li>IPU는 tiles라 불리는 1216 PE로 구성</li>
-<li>PE는 256kb local memory를 가지며 레지스터 파일을 제외한 추가 memory storage를 가지지 않음</li>
-<li>tiles 간 IPU Exchange라 불리는 on-chip interconnect로 연결되어 있으며 IPU간 연결을 위한 IPU link를 제공</li>
-<li>IPU는 6개의 개별 processing thread를 제공하며 각 thread는 별개의 instruction과 excution flow를 제공</li>
-<li>각 tile은 static round-robin schedule에 따라 thread 들을 순환한다.</li>
-<li><img src="/p/ai-hw-design-chap04-streaming-graph-theory-2/2/01_IPU_architecture.png"
-	width="617"
-	height="989"
-	srcset="/p/ai-hw-design-chap04-streaming-graph-theory-2/2/01_IPU_architecture_huc029ac9d4313a641df7f4585440b0aa8_991509_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap04-streaming-graph-theory-2/2/01_IPU_architecture_huc029ac9d4313a641df7f4585440b0aa8_991509_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="Intelligence processing unit architecture"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="62"
-		data-flex-basis="149px"
-	
-></li>
-</ul>
-<h3 id="accumulating-matrix-product-amp-unit">Accumulating Matrix Product (AMP) Unit</h3>
-<ul>
-<li>IPU는 pipelined structure AMP를 채택, AMP는 64bit mix-precison 또는 16bit single-point 연산을 클럭 사이클 마다 수행 가능
-<ul>
-<li>mix-precison : 훈련 중에 모델에서 16-bit 및 32-bit 부동 소수점 유형을 모두 사용하여 더 빠르게 실행하고 메모리를 적게 사용하는 것, 모델의 특정 부분을 32-bit 유형으로 유지</li>
-</ul>
-</li>
-</ul>
-<h3 id="memory-architecture">Memory Architecture</h3>
-<ul>
-<li>PE 당 256kb local memory를 가지며 IPU는 총 304Mb 메모리를 가짐</li>
-<li>각 tile은 21bit address space를 가지며 6개의 execution unit과 이를 공유함</li>
-</ul>
-<h3 id="interconnect-architecture">Interconnect Architecture</h3>
-<ul>
-<li>IPU 간 연결은 IPU link를 사용하며 2개 IPU 연결은 3개의 IPU link를 사용 (65Gb/s)</li>
-<li>Host완s PCIE-4로 연결</li>
-</ul>
-<h3 id="bulk-synchronous-parallel-bsp-model">Bulk Synchronous Parallel (BSP) Model</h3>
-<ul>
-<li>IPU operation은 BSP 모델을 기반으로 하며, BSP 모델은 아래 3개의 Phase Operation으로 구분된다.
-<ul>
-<li>Computation Phase : 모든 프로세서가 로컬 메모리로 computation을 수행하며 프로세서간 어떤 통신도 없다.</li>
-<li>Communication Phase : 각 프로세서는 정보를 교환하며 어떤 computation도 없다.</li>
-<li>Barrier Synchronization : 모든 프로세서는 computation이나 communication 없이 모든 프로세서가 barrier에 도달할 때까지 대기한다.</li>
-</ul>
-</li>
-<li>IPU는 computation이 시작되기 전에 instruction이 코어로 전송되는 BSP 모델을 실행한다. core는 computation을 수행하고 이가 끝난 뒤 다른 코어와 communication을 수행한다. 그후 모든 코어는 동기화를 수행한다.</li>
-<li><img src="/p/ai-hw-design-chap04-streaming-graph-theory-2/2/02_IPU_BSP_model.png"
-	width="611"
-	height="307"
-	srcset="/p/ai-hw-design-chap04-streaming-graph-theory-2/2/02_IPU_BSP_model_hu0e2373d75f221ade042503bd4543a98b_34792_480x0_resize_box_3.png 480w, /p/ai-hw-design-chap04-streaming-graph-theory-2/2/02_IPU_BSP_model_hu0e2373d75f221ade042503bd4543a98b_34792_1024x0_resize_box_3.png 1024w"
-	loading="lazy"
-	
-		alt="IPU BSP model"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="199"
-		data-flex-basis="477px"
-	
-></li>
-</ul>
-<h2 id="결론">결론</h2>
-<ul>
-<li>Blaize GSP와 Graphcore IPU는 분산 프로세서를 통해 거대 parallel operation을 처리할 수 있기에 Cloud-base application에 좋은 솔루션이다.</li>
-<li>그러나 이들은 power/area 문제로 임베디드 추론 application에는 적합하지 않다.</li>
-</ul>
-
-</section>
-
 
     <footer class="article-footer">
     
@@ -660,6 +588,7 @@ Graphcore IPU는 Microsoft와 Dell의 차세대 데이터 센터 딥러닝 가�
                 href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
             >
 
+                
             </main>
         </div>
         <script 

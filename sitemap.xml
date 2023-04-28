@@ -3,30 +3,42 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://muonkmu.github.io/</loc>
-    <lastmod>2023-03-28T00:00:00+00:00</lastmod>
+    <lastmod>2023-04-22T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://muonkmu.github.io/p/lfs_prj-05-final-debugging/</loc>
-    <lastmod>2023-03-28T00:00:00+00:00</lastmod>
+    <loc>https://muonkmu.github.io/p/linux_system_programming-03/</loc>
+    <lastmod>2023-04-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/categories/</loc>
-    <lastmod>2023-03-28T00:00:00+00:00</lastmod>
+    <lastmod>2023-04-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/lfs/</loc>
-    <lastmod>2023-03-28T00:00:00+00:00</lastmod>
+    <lastmod>2023-04-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/lin_sys_prog/</loc>
+    <lastmod>2023-04-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/post/</loc>
+    <lastmod>2023-04-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/</loc>
+    <lastmod>2023-04-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/yolo_acc_prj-06-ubuntu-setting/</loc>
+    <lastmod>2023-04-19T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</loc>
+    <lastmod>2023-04-19T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/ubuntu-minimal/</loc>
+    <lastmod>2023-04-19T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/p/lfs_prj-05-final-debugging/</loc>
     <lastmod>2023-03-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/categories/prj_lfs/</loc>
     <lastmod>2023-03-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://muonkmu.github.io/tags/</loc>
-    <lastmod>2023-03-28T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://muonkmu.github.io/p/yolo_acc_prj-05-image-format-conversion-and-resize/</loc>
-    <lastmod>2023-03-22T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</loc>
     <lastmod>2023-03-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/xilinx-vpss/</loc>
@@ -38,7 +50,7 @@
     <loc>https://muonkmu.github.io/p/lfs_prj-04-building-the-lfs-system/</loc>
     <lastmod>2023-03-19T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://muonkmu.github.io/p/lfs_prj-03-building-the-lfs-cross-toolchain-and-temporary-tools/</loc>
+    <loc>https://muonkmu.github.io/p/lfs_prj-06-ubutu-porting/</loc>
     <lastmod>2023-03-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/p/lfs_prj-02-host-setting/</loc>
@@ -143,6 +155,12 @@
     <loc>https://muonkmu.github.io/tags/blaize-gsp/</loc>
     <lastmod>2023-01-27T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://muonkmu.github.io/p/yolo_acc_prj-hdmi-sync-interface-%EA%B5%AC%EC%84%B1/</loc>
+    <lastmod>2023-01-25T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/tags/hdmi/</loc>
+    <lastmod>2023-01-25T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://muonkmu.github.io/p/git-%EC%82%AC%EC%9A%A9-tip-%EC%A0%95%EB%A6%AC/</loc>
     <lastmod>2023-01-20T00:00:00+00:00</lastmod>
   </url><url>
@@ -230,7 +248,13 @@
     <loc>https://muonkmu.github.io/tags/zynq/</loc>
     <lastmod>2022-12-22T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://muonkmu.github.io/p/hls-petalinux-basic/</loc>
+    <lastmod>2022-12-19T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://muonkmu.github.io/p/petalinux-petalinux-basic/</loc>
+    <lastmod>2022-12-19T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://muonkmu.github.io/categories/xilinx_hls/</loc>
     <lastmod>2022-12-19T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://muonkmu.github.io/tags/github/</loc>
