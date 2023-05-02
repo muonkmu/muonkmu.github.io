@@ -6,12 +6,20 @@
         <description>Recent content in Tags on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sat, 22 Apr 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>LFS</title>
-        <link>https://muonkmu.github.io/tags/lfs/</link>
+        <lastBuildDate>Wed, 26 Apr 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>HLS</title>
+        <link>https://muonkmu.github.io/tags/hls/</link>
+        <pubDate>Wed, 26 Apr 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/hls/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Linux</title>
+        <link>https://muonkmu.github.io/tags/linux/</link>
         <pubDate>Sat, 22 Apr 2023 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/tags/lfs/</guid>
+        <guid>https://muonkmu.github.io/tags/linux/</guid>
         <description></description>
         </item>
         <item>
@@ -20,6 +28,14 @@
         <pubDate>Wed, 19 Apr 2023 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/tags/ubuntu-minimal/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>LFS</title>
+        <link>https://muonkmu.github.io/tags/lfs/</link>
+        <pubDate>Tue, 28 Mar 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/lfs/</guid>
         <description></description>
         </item>
         <item>

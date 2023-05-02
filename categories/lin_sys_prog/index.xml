@@ -7,11 +7,11 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <lastBuildDate>Sat, 22 Apr 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/lin_sys_prog/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>[Linux_System_programming] 03 </title>
-        <link>https://muonkmu.github.io/p/linux_system_programming-03/</link>
+        <title>[Linux_System_programming] 02 File I/O</title>
+        <link>https://muonkmu.github.io/p/linux_system_programming-02-file-i/o/</link>
         <pubDate>Sat, 22 Apr 2023 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/linux_system_programming-03/</guid>
+        <guid>https://muonkmu.github.io/p/linux_system_programming-02-file-i/o/</guid>
         <description>&lt;h2 id=&#34;파일-열기&#34;&gt;파일 열기&lt;/h2&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;

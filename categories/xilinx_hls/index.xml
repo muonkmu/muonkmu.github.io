@@ -6,13 +6,229 @@
         <description>Recent content in Xilinx_HLS on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Mon, 19 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/xilinx_hls/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>[HLS] Petalinux Basic</title>
-        <link>https://muonkmu.github.io/p/hls-petalinux-basic/</link>
-        <pubDate>Mon, 19 Dec 2022 00:00:00 +0000</pubDate>
+        <lastBuildDate>Wed, 26 Apr 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/xilinx_hls/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[HLS] Xilinx HLS Chap 01</title>
+        <link>https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/</link>
+        <pubDate>Tue, 25 Apr 2023 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/hls-petalinux-basic/</guid>
-        <description>&lt;h2 id=&#34;hls&#34;&gt;HLS&lt;/h2&gt;
+        <guid>https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/</guid>
+        <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;HLS는 High Level Synthesis의 약자로 C를 RTL 언어로 컴파일해주는 상위 언어이다.
+&lt;ul&gt;
+&lt;li&gt;기본적으로 C언어에 사용자가 기입한 Directive에 따라 HW로 컴파일됨 (ex, unroll, pipeline, dataflow)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;HLS는 현재 표준이 없기에 많은 업체에서 자신의 툴체인을 제공한다. 그러나 Xilinx는 자신의 툴체인을 무료로 배포한다.&lt;/li&gt;
+&lt;li&gt;장점은 빠른 개발이 가능하다는 것이다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;vivado-hls-tool-flow&#34;&gt;Vivado HLS Tool Flow&lt;/h2&gt;
+&lt;h3 id=&#34;hls-phases&#34;&gt;HLS Phases&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;scheduling
+&lt;ul&gt;
+&lt;li&gt;각 Clock Cycle 마다 어떤 Operation이 실행될지를 결정&lt;/li&gt;
+&lt;li&gt;지정된 clock frequency와 user directive를 이용&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Binding
+&lt;ul&gt;
+&lt;li&gt;스케줄링된 Operation이 어떤 HW resource를 사용할지 결정&lt;/li&gt;
+&lt;li&gt;즉, dsp를 쓸지 addsub 등을 사용할 지 결정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Control Logic Extraction
+&lt;ul&gt;
+&lt;li&gt;RTL 내 FSM 로직을 만들기 위해 control logic을 추출&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;terminology&#34;&gt;Terminology&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;Latency : 입력에서 부터 출력까지 걸린 클럭수&lt;/li&gt;
+&lt;li&gt;Throughput : input과 input 간의 클럭수(다시 인풋을 읽어가는 시간)&lt;/li&gt;
+&lt;li&gt;Initiation Interval(II) : 파이프라인에서 Input 간의 시간(Throughput과 같지만 파이프라인에서만 쓰임)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;c-to-rtl-conversion&#34;&gt;C to RTL Conversion&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;Top level function의 arguments는 I/O port로 합성됨&lt;/li&gt;
+&lt;li&gt;C function들은 RTL hierarchy를 가진 블럭으로 합성됨(대충 계층이 유지된다는 뜻인듯)&lt;/li&gt;
+&lt;li&gt;C언어의 Loop는 기본이 rolled로 합성(Directive로 변경)&lt;/li&gt;
+&lt;li&gt;C언어의 array는 Block RAM으로 합성&lt;/li&gt;
+&lt;li&gt;시스템콜, Dynamic Memory, pointer casting, recursive function, STL은 지원하지 않음&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;library-support&#34;&gt;Library Support&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Arbitray Pricision Data type Lib(ex uint5_t 이런거)(ap_cint.h,ap_fixed.h)&lt;/li&gt;
+&lt;li&gt;HLS MATH / Stream / Video library (hls_math.h, hls_stream.h, hls_video.h)&lt;/li&gt;
+&lt;li&gt;fir, fft, shift register, linear algebra, dsp 라이브러리&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;validation&#34;&gt;Validation&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;검증은 하기 2단계로 나뉨
+&lt;ul&gt;
+&lt;li&gt;Pre-synthesis : C 코드의 에러를 검증(C simulation)&lt;/li&gt;
+&lt;li&gt;post-synthesis : RTL을 검증(C/RTL co-simulation)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;C function의 Test bench는 Top level function을 포함한 main function을 이용하며 성공시 0, 실패시 1을 출력하게 함&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;command-line&#34;&gt;Command line&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;TCL 콘솔을 이용해서 명령을 내릴 수 있다.&lt;/li&gt;
+&lt;li&gt;vivado_hls 등등등(필요하면 교재를 보자)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;introduction-to-hls-ultrafast-design&#34;&gt;Introduction to HLS ultrafast Design&lt;/h2&gt;
+&lt;p&gt;xilinx에서 추천하는 디자인 방법론은 하기와 같다. 대략적으로 로직짜고 인터페이스 정하고, pipeline 등을 이용해 성능최적화, 레이턴시 최적화, 면적 최적화 순으로 진행
+&lt;img src=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/01_HLS_optimization_meth.png&#34;
+	width=&#34;976&#34;
+	height=&#34;666&#34;
+	srcset=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/01_HLS_optimization_meth_hud2b21b2b2c22a1588c089139b8c2bd93_244402_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/01_HLS_optimization_meth_hud2b21b2b2c22a1588c089139b8c2bd93_244402_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;HLS Optimization Methodology&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;146&#34;
+		data-flex-basis=&#34;351px&#34;
+	
+&gt;&lt;/p&gt;
+&lt;h2 id=&#34;io-interface&#34;&gt;I/O Interface&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;Interface는 block과 port 레벨 두가지 타입으로 분류
+&lt;ul&gt;
+&lt;li&gt;Block-level interface protocol : RTL 블럭을 컨트롤 다른 port-level I/O protocol과 구분되며 ap_start, ap_ready, ap_idle, ap_done을 나타냄, Directive는 port=return&lt;/li&gt;
+&lt;li&gt;Port-level interface protocol : 데이터 포트를 위한 시그날 그룹, C의 Top-level function의 argument에 타입에 따라 결정됨, Directive는 port=&amp;lt;포트이름&amp;gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Function Argument는 데이터 포트로 합성되며 타입별 특성은 하기와 같음
+&lt;ul&gt;
+&lt;li&gt;Function return : ap_return으로 매핑&lt;/li&gt;
+&lt;li&gt;pointer는 읽기를 위한 입력 포트, 출력을 위한 쓰기 포트가 포트가 분리되어 합성&lt;/li&gt;
+&lt;li&gt;array 는 pointer 처럼 합성&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;지원되는 Interface type은 하기와 같음
+&lt;img src=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/02_HLS_interface_type.png&#34;
+	width=&#34;1234&#34;
+	height=&#34;980&#34;
+	srcset=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/02_HLS_interface_type_hufe902126271379f8efdbe311d36bfb22_258762_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/02_HLS_interface_type_hufe902126271379f8efdbe311d36bfb22_258762_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;HLS Interface type&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;125&#34;
+		data-flex-basis=&#34;302px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;block-level-io&#34;&gt;Block Level I/O&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;HLS 모듈의 behavior를 컨트롤&lt;/li&gt;
+&lt;li&gt;ap_ctrl_none/hs/chain 3가지 type의 block level-I/O가 있으며 s_axi_lite도 지원
+&lt;ul&gt;
+&lt;li&gt;ap_ctrl_hs(hand-shake) : ap_start, ap_ready, ap_idle, ap_done이 나타남(타이밍 차트는 교재에 있음)&lt;/li&gt;
+&lt;li&gt;ap_ctrl_chain : ap_ctrl_hs에서 ap_continue가 추가됨, ap_continue는 체인연결에서 ap_ready와 연결되어 이전 블럭을 stall시킴&lt;/li&gt;
+&lt;li&gt;ap_none : 신호 행성이 안됨, II=1인 컨트롤이 필요없는 블럭에 사용&lt;/li&gt;
+&lt;li&gt;s_axi_lite로 만들 수 있으며 control signal, interupt control 등이 생성(map은 교재에 있음)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;solution setting에서 clock period, clock uncertainty을 설정할 수 있다.&lt;/li&gt;
+&lt;li&gt;reset 컨트롤을 config_rtl에서 none, control, state, all등으로 설정할 수 있다. array등을 리셋할 때 이를 주의해야한다.(교재 참조)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;port-level-io&#34;&gt;Port-level I/O&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;프로토콜의 type은 C의 포트 타입에 따라 결정됨 : pass-by-value scalar, Pass-by-reference pointers, pass-by-reference arrays.&lt;/li&gt;
+&lt;li&gt;AXI Interface protocol 지원
+&lt;ul&gt;
+&lt;li&gt;axis(AXI4-Stream I/O), s_axilite(AXI4-Lite slave), m_axi(AXI4 Master)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;No I/O protocol
+&lt;ul&gt;
+&lt;li&gt;ap_none : 데이터 read/write 시 이를 나타내는 컨트롤 포트가 없음&lt;/li&gt;
+&lt;li&gt;ap_stable : ap_none과 같지만 레지스터의 컨트롤 세팅입력과 같이 리셋이후(?) normal operation에서 값이 변하지 않는 입력등을 위해 사용&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Wire handshake Protocol
+&lt;ul&gt;
+&lt;li&gt;ap_hs : valid와 acknowledge신호를 가진 two-way handshake&lt;/li&gt;
+&lt;li&gt;ap_ack, ak_vld : valid와 acknowledge 중 하나만 가짐&lt;/li&gt;
+&lt;li&gt;ap_ovld : in-out port를 위한 것으로 in_port는 ap_none, out_port는 ap_vld로 설정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Memory Interface(RAM,FIFO)
+&lt;ul&gt;
+&lt;li&gt;ap_memroy, bram : array argument 구현을 위해 사용되며 random access를 위한 memory element(RAM/ROM)과의 통신포트(data, addr, ce, we 포트), 기본적으로 dual-port로 구성되며, ap_memory는 discreate port로 합성 bram은 그룹 포트로 합성&lt;/li&gt;
+&lt;li&gt;ap_fifo : array가 시퀀셜하게 접근 시 사용가능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Bus Protocol
+&lt;ul&gt;
+&lt;li&gt;ap_bus : 특정한 버스 스탠다드를 따르지 않는 bus bridge를 위한 인터페이스&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;input은 ap_none, output은 ap_vld, inout은 ap_ovld가 default임&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;port-level-io-protocol&#34;&gt;Port-level I/O Protocol&lt;/h2&gt;
+&lt;h3 id=&#34;axi4-interface&#34;&gt;AXI4 Interface&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;AXI4 Lite
+&lt;ul&gt;
+&lt;li&gt;Array제외한 다양한 포트가 그룹핑이 가능(same bundle name)&lt;/li&gt;
+&lt;li&gt;reset은 자동적으로 active low로 설정&lt;/li&gt;
+&lt;li&gt;grouped port에서 input은 ap_none, output은 ap_vld, return은 ap_ctrl_hs가 defualt.&lt;/li&gt;
+&lt;li&gt;별도의 클럭과 리셋을 세팅할 수 있음(별도 클럭은 ap_clk에 sync되고 느려야함, 별도 클럭 도메인을 위한 FIFO 등이 없음)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;AXI4 Master
+&lt;ul&gt;
+&lt;li&gt;다수 포트가 그룹될 수 있다&lt;/li&gt;
+&lt;li&gt;C/RTL cosimulation을 위해 Depth옵션이 필요하다(pointer에서 array는 아님)&lt;/li&gt;
+&lt;li&gt;Individual/Burst transfer 모드를 위해 array나 pointer arguement 사용시 사용 가능&lt;/li&gt;
+&lt;li&gt;memcpy 등을 사용하여 데이터를 옮길 수 있으며 이때 offset을 지정할 수 있다. burst Access가 지원 가능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;AXI4 Stream
+&lt;ul&gt;
+&lt;li&gt;input 또는 array/pointer output argument에 사용 가능&lt;/li&gt;
+&lt;li&gt;side channel 및 register option 옵션 설정 가능 (공부가 더 필요&amp;hellip;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;memory-interface&#34;&gt;Memory Interface&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;RAM port(ap_memory)
+&lt;ul&gt;
+&lt;li&gt;array를 위한 인터페이스로 Single/dual port 인터페이스 제공&lt;/li&gt;
+&lt;li&gt;RESOURCE directive를 사용하여 off-chip RAM 인터페이스처럼 사용&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;FIFO port(ap_fifo)
+&lt;ul&gt;
+&lt;li&gt;array, pointer, reference에 사용되며 input/output이 분리됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Block RAM Interface(BRAM)
+&lt;ul&gt;
+&lt;li&gt;ap_memory와 비슷하며 grouped single port interface&lt;/li&gt;
+&lt;li&gt;ap_memory가 off-chip sram과 연결이 쉽고 BRAM 인터페이스가 없지만 ap_bram은 BRAM 인터페이스가 쉬움&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;bus-protocol&#34;&gt;BUS protocol&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;ap_bus
+&lt;ul&gt;
+&lt;li&gt;비산업표준의 generic bus, pointer와 pass-by-reference를 위한 인터페이스&lt;/li&gt;
+&lt;li&gt;complex pointer arithmetic을 쓸 경우 ap_bus를 사용(포인터 연산은 ap_bus만 지원)&lt;/li&gt;
+&lt;li&gt;standard 모드는 개별 read/write 동작, memcpy를 통한 burst transfer 지원&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
 </description>
         </item>
         
