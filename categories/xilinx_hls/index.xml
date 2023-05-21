@@ -7,11 +7,148 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <lastBuildDate>Wed, 26 Apr 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/xilinx_hls/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>[HLS] Xilinx HLS Chap 01</title>
-        <link>https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/</link>
+        <title>[HLS] Xilinx HLS Chap_02 Performance optimization</title>
+        <link>https://muonkmu.github.io/p/hls-xilinx-hls-chap_02-performance-optimization/</link>
+        <pubDate>Wed, 26 Apr 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/hls-xilinx-hls-chap_02-performance-optimization/</guid>
+        <description>&lt;h2 id=&#34;pipeline&#34;&gt;PIPELINE&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;PIPELINE directive를 사용하여 loop와 function들을 순차적이 아닌 병렬적으로 처리 가능
+&lt;img src=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap_02-performance-optimization/01_HLS_pipeline_concept.png&#34;
+	width=&#34;1160&#34;
+	height=&#34;588&#34;
+	srcset=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap_02-performance-optimization/01_HLS_pipeline_concept_hu157b6aa4165d96ecfa39653b679acf38_70148_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/hls-xilinx-hls-chap_02-performance-optimization/01_HLS_pipeline_concept_hu157b6aa4165d96ecfa39653b679acf38_70148_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;PIPELINE concept&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;197&#34;
+		data-flex-basis=&#34;473px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;li&gt;loop pipeline에서 면적과 퍼포먼스 최적화를 위해 inner-most-loop에 파이프라인 설정 (교재 그림 참조)
+&lt;ul&gt;
+&lt;li&gt;PIPELINE directive 이하의 루프는 unroll 되므로 바깥쪽에 위치하면 리소스를 많이 사용하게 됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Top-level loop는 Buble이 생길 수 있다.
+&lt;ul&gt;
+&lt;li&gt;function pipeline는 계속해서 돌지만 loop pipeline은 반복 횟수가 있음&lt;/li&gt;
+&lt;li&gt;loop pipeline은 시작전에 한사이클의 초기화 동작(start/stop/done signal 동작 등) 필요&lt;/li&gt;
+&lt;li&gt;이로 인해 buble이 생기는데 rewind option으로 제거 가능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Pipeline은 input이 없으면 (input data valid low) 파이프라인을 멈춤, 그러나 FLUSH option 사용 시 입력 행동은 멈추지만 이미 들어온 입력의 처리는 멈추지 않고 계속됨&lt;/li&gt;
+&lt;li&gt;다음 상황은 pipelining을 막음
+&lt;ul&gt;
+&lt;li&gt;loop에서 variable bound(반복횟수가 가변일 때)&lt;/li&gt;
+&lt;li&gt;코드 안의 feedback (if else 문 같은 조건 분기)&lt;/li&gt;
+&lt;li&gt;resource contention(in/outport에서 경쟁조건, 포트 동시 읽기 쓰기)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;dataflow&#34;&gt;DATAFLOW&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;DATAFLOW directive는 task level의 pipelining 지원, function과 loop 병렬 수행되게 함
+&lt;ul&gt;
+&lt;li&gt;sample base의 데이터 packet/array에서 동작&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;DATAFLOW는  서브모듈 사이에 채널(ping-pong buffer 또는 FIFO)를 구현
+&lt;ul&gt;
+&lt;li&gt;data rate 유지를 위함&lt;/li&gt;
+&lt;li&gt;array는 memory element(default ping-pong buffer)를 사용하고, scalar는 handshake가 있는 레지스터 사용&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;하기 상황은 Dataflow optimization을 제한한다.(예제는 교재 참조)
+&lt;ul&gt;
+&lt;li&gt;single producer-consumer violations&lt;/li&gt;
+&lt;li&gt;bypassing task&lt;/li&gt;
+&lt;li&gt;feedback between tasks&lt;/li&gt;
+&lt;li&gt;conditional execution of task&lt;/li&gt;
+&lt;li&gt;loop with multiple exit condition&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;DATAFLOW와 PIPELINE의 차이는 다음과 같다
+&lt;ul&gt;
+&lt;li&gt;DATAFLOW는 &amp;ldquo;coarse grain&amp;rdquo; 개념(function/loop), PIPELINE은 &amp;ldquo;fine grain&amp;rdquo;(operator  +,&amp;raquo;)&lt;/li&gt;
+&lt;li&gt;DATAFLOW는 top level의 loop/function에서 쓰이며 PIPELINE은 function/loop 내부에서 사용가능&lt;/li&gt;
+&lt;li&gt;PIPELINE는 loop를 unroll 함&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;optimizing-structure&#34;&gt;Optimizing Structure&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;HLS에서 array는 default로 dual-port RAM으로 합성(FIF도 가능), single/dualport-RAM/FIFO/LUT 등 다양한 옵션을 제공(UG902에 설명 있음)&lt;/li&gt;
+&lt;li&gt;dual-port RAM이라도 read/write가 한 사이클에 끝나지 않기에 성능의 병목구간으로 작용, 이의 해결을 위해 Partitioning과 Bottleneck을 지원&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;partitioning&#34;&gt;Partitioning&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;Array Partitioning은 물리적으로 메모리 인스턴스를 추가하여 동시에 접근할 수 있는 데이터의 개수를 늘리는 방법&lt;/li&gt;
+&lt;li&gt;ARRAY_PARTITON directive를 사용하며 factor 옵션으로 memory element의 갯수를 결정할 수 있음, 하기 3가지 방법
+&lt;ul&gt;
+&lt;li&gt;Block : 연속된 element를 가진 동일 사이즈의 블럭으로 분리&lt;/li&gt;
+&lt;li&gt;cyclic : interleaving element를 가진 동일 사이즈의 블럭으로 분리&lt;/li&gt;
+&lt;li&gt;complete : array를 개별 레지스터 element로(LUT?) 합성(factor 옵션 미지원)
+&lt;img src=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap_02-performance-optimization/02_array_partitioning.png&#34;
+	width=&#34;1820&#34;
+	height=&#34;486&#34;
+	srcset=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap_02-performance-optimization/02_array_partitioning_huc2523c01f6232ed9bfa323379e0b56f7_428215_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/hls-xilinx-hls-chap_02-performance-optimization/02_array_partitioning_huc2523c01f6232ed9bfa323379e0b56f7_428215_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;Array Patitioning&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;374&#34;
+		data-flex-basis=&#34;898px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;dimension 옵션은 array의 물리적 dimension을 결정
+&lt;ul&gt;
+&lt;li&gt;int my_array[10][6][4]는 width가 32-bit, depth가 240개인 메모리 인스턴스 한 개를 생성&lt;/li&gt;
+&lt;li&gt;한 번에 4 픽셀을 접근해야 한다면 dimension 3에 대해서 분할하면 됨. 그러면 4개의 메모리 인스턴스가 생성&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Solution setting에서 config_array_partioning을 이용하면 다음 파라메터를 설정할 수 있음(공부 필요)
+&lt;ul&gt;
+&lt;li&gt;auto_partitioning_threshold&lt;/li&gt;
+&lt;li&gt;auto_promotion_threshold&lt;/li&gt;
+&lt;li&gt;include_extern_global, scalarize_all&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;reshaping&#34;&gt;Reshaping&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;메모리 인스턴스의 개수는 그대로 둔채로 메모리 워드의 너비를 늘리는 방식&lt;/li&gt;
+&lt;li&gt;block, cyclic, complete 방식이 있음&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;data-pack-and-data-dependencies&#34;&gt;Data pack and Data dependencies&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;struct 타입은 기본적으로 포트 구성이 구조체 내부의 element에 따라 구성됨, 구조체 내부에 배열이 있으면 배열은 하나의 포트로 구성 됨
+&lt;ul&gt;
+&lt;li&gt;DATA_PACK directive를 사용하면 single wide port로 구성할 수 있다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;BRAM은 한 사이클에 읽기 쓰기가 동시에 안되므로(dual-port RAM도 마찬가지) 루프안에 내부 디펜던시가 있으면 Dependency가 있으면 pipeline이 정상적으로 안될 수 있다.
+&lt;ul&gt;
+&lt;li&gt;DEPENDENCY directive를 이용해서 dependecy에 대한 추가 정보를 줄 수 있다.(dependency가 루프 내부에만 있는지 외부랑 연결되어 있는지)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        <item>
+        <title>[HLS] Xilinx HLS Chap_01 Intro and Port I/O</title>
+        <link>https://muonkmu.github.io/p/hls-xilinx-hls-chap_01-intro-and-port-i/o/</link>
         <pubDate>Tue, 25 Apr 2023 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/</guid>
+        <guid>https://muonkmu.github.io/p/hls-xilinx-hls-chap_01-intro-and-port-i/o/</guid>
         <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
 &lt;ol&gt;
 &lt;li&gt;HLS는 High Level Synthesis의 약자로 C를 RTL 언어로 컴파일해주는 상위 언어이다.
@@ -80,10 +217,10 @@
 &lt;/ol&gt;
 &lt;h2 id=&#34;introduction-to-hls-ultrafast-design&#34;&gt;Introduction to HLS ultrafast Design&lt;/h2&gt;
 &lt;p&gt;xilinx에서 추천하는 디자인 방법론은 하기와 같다. 대략적으로 로직짜고 인터페이스 정하고, pipeline 등을 이용해 성능최적화, 레이턴시 최적화, 면적 최적화 순으로 진행
-&lt;img src=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/01_HLS_optimization_meth.png&#34;
+&lt;img src=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap_01-intro-and-port-i/o/01_HLS_optimization_meth.png&#34;
 	width=&#34;976&#34;
 	height=&#34;666&#34;
-	srcset=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/01_HLS_optimization_meth_hud2b21b2b2c22a1588c089139b8c2bd93_244402_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/01_HLS_optimization_meth_hud2b21b2b2c22a1588c089139b8c2bd93_244402_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap_01-intro-and-port-i/o/01_HLS_optimization_meth_hud2b21b2b2c22a1588c089139b8c2bd93_244402_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/hls-xilinx-hls-chap_01-intro-and-port-i/o/01_HLS_optimization_meth_hud2b21b2b2c22a1588c089139b8c2bd93_244402_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;HLS Optimization Methodology&#34;
@@ -110,10 +247,10 @@
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;지원되는 Interface type은 하기와 같음
-&lt;img src=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/02_HLS_interface_type.png&#34;
+&lt;img src=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap_01-intro-and-port-i/o/02_HLS_interface_type.png&#34;
 	width=&#34;1234&#34;
 	height=&#34;980&#34;
-	srcset=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/02_HLS_interface_type_hufe902126271379f8efdbe311d36bfb22_258762_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/hls-xilinx-hls-chap-01/02_HLS_interface_type_hufe902126271379f8efdbe311d36bfb22_258762_1024x0_resize_box_3.png 1024w&#34;
+	srcset=&#34;https://muonkmu.github.io/p/hls-xilinx-hls-chap_01-intro-and-port-i/o/02_HLS_interface_type_hufe902126271379f8efdbe311d36bfb22_258762_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/hls-xilinx-hls-chap_01-intro-and-port-i/o/02_HLS_interface_type_hufe902126271379f8efdbe311d36bfb22_258762_1024x0_resize_box_3.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;HLS Interface type&#34;

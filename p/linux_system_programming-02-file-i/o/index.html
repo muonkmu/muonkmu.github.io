@@ -248,6 +248,20 @@
     <li><a href="#파일-탐색">파일 탐색</a></li>
     <li><a href="#지정한-위치-읽고-쓰기">지정한 위치 읽고 쓰기</a></li>
     <li><a href="#파일-잘라내기">파일 잘라내기</a></li>
+    <li><a href="#다중입출력">다중입출력</a>
+      <ol>
+        <li><a href="#select">select()</a></li>
+        <li><a href="#poll">poll()</a></li>
+        <li><a href="#select-vs-poll">select VS poll</a></li>
+      </ol>
+    </li>
+    <li><a href="#커널-부분">커널 부분</a>
+      <ol>
+        <li><a href="#가상파일-시스템">가상파일 시스템</a></li>
+        <li><a href="#페이지-캐시">페이지 캐시</a></li>
+        <li><a href="#페이지-쓰기-저장">페이지 쓰기 저장</a></li>
+      </ol>
+    </li>
   </ol>
 </nav>
         </div>
@@ -266,7 +280,7 @@
     
     <header class="article-category">
         
-            <a href="/categories/lin_sys_prog/" >
+            <a href="/categories/lin_sys_prog/" style="background-color: #458C40; color: #fff;">
                 Lin_Sys_prog
             </a>
         
@@ -316,7 +330,7 @@
 
 
                 <time class="article-time--reading">
-                    3 minute read
+                    5 minute read
                 </time>
             </div>
         
@@ -498,6 +512,108 @@
 <li>파일을 len 크기로 잘라내는 시스템 콜</li>
 <li>호출 성공 0 반환, 에러가 발생하면 -1을 반환, errno를 설정</li>
 <li>파일의 크기보다 큰 값으로 잘라내기 가능, 확장된 바이트는 모두 0으로 채워 짐</li>
+</ul>
+<h2 id="다중입출력">다중입출력</h2>
+<ul>
+<li>여러 개의 파일 디스크립터를 동시에 블록하고 그중 하나라도 블록되지 않고 읽고 쓸 준비가 되면 알려주는 기능
+<ul>
+<li>논블록 입출력을 사용하면 프로세스가 계속 기다리면서 임의의 순서대로 입출력을 요청해야 함(비효율적임)</li>
+</ul>
+</li>
+<li>3가지 다중입출력 방식 제공 : select, poll, epoll</li>
+</ul>
+<h3 id="select">select()</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/select.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">select</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="n">fd_set</span><span class="o">*</span> <span class="n">readfds</span><span class="p">,</span> <span class="n">fd_set</span><span class="o">*</span> <span class="n">writefds</span><span class="p">,</span> <span class="n">fd_set</span><span class="o">*</span> <span class="n">exceptfds</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">timeval</span><span class="o">*</span> <span class="n">timeout</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">FD_CLR</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="n">fd_set</span><span class="o">*</span> <span class="n">set</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">FD_ISSET</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="n">fd_set</span><span class="o">*</span> <span class="n">set</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">FD_SET</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="n">fd_set</span><span class="o">*</span> <span class="n">set</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">FD_ZERO</span><span class="p">(</span><span class="n">fd_set</span><span class="o">*</span> <span class="n">set</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>동기화된 다중 입출력 메커니즘 제공, 파일 디스크립터가 입출력을 수행할 준비가 되거나 옵션으로 정해진 시간이 경과할 때 까지만 블럭</li>
+<li>argument
+<ul>
+<li>n : 파일디스크립터 집합에서 가장 큰 파일 디스크립터 숫자</li>
+<li>readfds : 데이터 읽기가 가능한지 파악하기 위한 파일 디스크립터 집합</li>
+<li>writefds :  데이터 쓰기가 가능한지 파악하기 위한 파일 디스크립터 집합</li>
+<li>exceptfds : 예외 발생 또는 소켓에서 대역을 넘어서는 데이터가 존재하는지 파악하기 위한 파일 디스크립터 집합</li>
+<li>timeout : NULL이 아니면 timeout 시간 설정, 함수 반환시 남은 시간을 넣어서 반환 됨</li>
+</ul>
+</li>
+<li>timeout을 제외한 나머지 fds집합을 NULL로 넘겨서 다양한 시스템에서 동작하는 쉬운 잠들기 구현 가능</li>
+<li>pselect() : 파일 디스크립터와 시그널을 기다리는 사이에 발생할 수 있는 경쟁상태 해결을 위해 sigmask인자 추가</li>
+</ul>
+<h3 id="poll">poll()</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/poll.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">pollfd</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">short</span> <span class="n">events</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">short</span> <span class="n">revents</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">poll</span><span class="p">(</span><span class="k">struct</span> <span class="nc">pollfd</span><span class="o">*</span> <span class="n">fds</span><span class="p">,</span> <span class="n">nfds_t</span> <span class="n">nfds</span><span class="p">,</span> <span class="kt">int</span> <span class="n">timeout</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>systemv에서 제공하는 다중입출력, poll의 단점을 보완(그러나 이식성의 이유로 select가 많이 사용)</li>
+<li>argument
+<ul>
+<li>fds : 감시하고자 하는 단일 파일 디스크립터를 명시, events 필드는 감시할 이벤트 비트마스크, revents는 반환 이벤트</li>
+<li>nfds : 감시할 파일 디스크립터 갯수</li>
+<li>timeout : timeout 밀리 초단위, 음수 사용시 무한 대기</li>
+</ul>
+</li>
+</ul>
+<h3 id="select-vs-poll">select VS poll</h3>
+<ul>
+<li>poll이 파일 디스크립터 숫자가 큰경우 점 더 효율정</li>
+<li>select를 사용하면 파일 디스크립터 집합을 반환하는 시점에 재구성되므로 잇단 호출과정에서 매번 초기화 필요</li>
+<li>select가 상대적으로 이식성이 높다</li>
+</ul>
+<h2 id="커널-부분">커널 부분</h2>
+<h3 id="가상파일-시스템">가상파일 시스템</h3>
+<ul>
+<li>추상화된 파일 시스템에 대한 설명(책 참조)</li>
+</ul>
+<h3 id="페이지-캐시">페이지 캐시</h3>
+<ul>
+<li>디스크 파일 시스템에서는 캐시를 가지고 있음</li>
+</ul>
+<h3 id="페이지-쓰기-저장">페이지 쓰기 저장</h3>
+<ul>
+<li>커널은 버퍼를 통해 쓰기 작업을 지연(플러셔 스레드가 별도로 있음)</li>
 </ul>
 
 </section>
