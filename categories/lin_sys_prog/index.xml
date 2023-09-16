@@ -6,7 +6,957 @@
         <description>Recent content in Lin_Sys_prog on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Thu, 25 May 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/lin_sys_prog/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Tue, 15 Aug 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/lin_sys_prog/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[Linux_System_programming] 05 프로세스 관리</title>
+        <link>https://muonkmu.github.io/p/linux_system_programming-05-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4-%EA%B4%80%EB%A6%AC/</link>
+        <pubDate>Tue, 15 Aug 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/linux_system_programming-05-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4-%EA%B4%80%EB%A6%AC/</guid>
+        <description>&lt;p&gt;유닉스는 바이너리 이미지를 메모리에 적재하는 과정에서 새로운 프로세스를 생성하는 부분을 분리함
+이는 fork(), exec()라는 두 개의 시스템 콜을 필요&lt;/p&gt;
+&lt;h2 id=&#34;프로그램-프로세스-스레드&#34;&gt;프로그램, 프로세스, 스레드&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;바이너리 : 디스크에 저장되어 있는 컴파일된 실행 할 수 있는 코드&lt;/li&gt;
+&lt;li&gt;프로세스 : 실행 중인 프로그램 (가상화된 메모리 인스턴스, 커널리소스, 보안정보 및 스레드를 지님)&lt;/li&gt;
+&lt;li&gt;스레드 : 프로세스 내 실행단위(각 스레드는 가상화된 프로세서, 스택, 레지스터, 명령어 포인터를 가짐)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;프로세스-id-pid&#34;&gt;프로세스 ID (PID)&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;PID는 프레세스의 식별자로  해당 프로세스가 살아있는 동안 유일한 값&lt;/li&gt;
+&lt;li&gt;idle프로세스의 PID는 0이고 init 프로세스의 PID는 1&lt;/li&gt;
+&lt;li&gt;사용자가 커널에 명시적으로 요청하지 않으면 커널은 다음 순서로 init프로세스를 확인하여 실행, 실패 시 커널 패닉
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;/sbin/init&lt;/code&gt; -&amp;gt; &lt;code&gt;/etc/init&lt;/code&gt; -&amp;gt; &lt;code&gt;/bin/init&lt;/code&gt; -&amp;gt; &lt;code&gt;/bin/sh&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;pid-할당&#34;&gt;PID 할당&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;보통 PID의 최대값은 32768이며 &lt;code&gt;/proc/sys/kernel/pid_max&lt;/code&gt;로 설정 가능&lt;/li&gt;
+&lt;li&gt;pid값이 pid_max 값에 도달해서 처음부터 다시 할당하기전까지는 앞선 pid 값이 비어 있더라도 재사용 하지 않음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;프로세스-계층&#34;&gt;프로세스 계층&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;새로운 프로세스를 생성(spawn)하는 프로세스를 부모 프로세스, 새롭게 생성된 프로세스를 자식 프로세스&lt;/li&gt;
+&lt;li&gt;모든 프로세스는 사용자와 그룹이 소유, 소유란 리소스에 대한 접근권한을 제어하기 위해 사용&lt;/li&gt;
+&lt;li&gt;모든 프로세스는 다른 프로세스와의 관계를 표한하고 있는 프로세스 그룹의 일부, 자식 프로세스는 부모 프로세스의 프로세스 그룹에 속함&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;pid_t&#34;&gt;pid_t&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;pid는 pid_t 자료형으로 표현되며 &amp;lt;sys/type.h&amp;gt;에 정의, 보통 int자료형에 대한 typedef 임&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;프로세스id와-부모-프로세스-id-얻기&#34;&gt;프로세스ID와 부모 프로세스 ID 얻기&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;getpid() 시스템콜은 호출한 프로세스의 pid를 반환&lt;/li&gt;
+&lt;li&gt;getppid() 시스템 콜은 호출한 프로세스의 부모 프로세스 pid를 반환&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;새로운-프로세스-실행하기&#34;&gt;새로운 프로세스 실행하기&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;exec 시스템 콜 : 프로그램 바이너리를 메모리에 적재, 프로세스의 주소공간에 있는 이전 내용 대체 후 새로운 프로그램의 실행 시작&lt;/li&gt;
+&lt;li&gt;fork 시스템 콜 : 부모 프로세스를 거의 그대로 복제하여 새로운 프로세스를 생성&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;exec-함수들&#34;&gt;exec 함수들&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;execl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;arg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;...);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;execlp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;file&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;arg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;...);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;execle&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;arg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;...,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;envp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[]);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;execv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;envp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[]);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;execvp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;file&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;envp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[]);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;execve&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;filename&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;argv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[],&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;envp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[]);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;execl 시스템콜을 호출 시 현재 프로세스를 path가 가리키는 프로그램으로 대체&lt;/li&gt;
+&lt;li&gt;&amp;hellip;은 가변인자로 가변인자의 목록은 반드시 NULL로 끝나야 함&lt;/li&gt;
+&lt;li&gt;일반적으로 반환 값이 없으나 에러가 발생할 경우 -1을 반환하고 errno를 적절한 값으로 설정&lt;/li&gt;
+&lt;li&gt;호출이 성공시 다음의 프로세스 속성도 변화
+&lt;ul&gt;
+&lt;li&gt;대기중인 시그널은 사라짐&lt;/li&gt;
+&lt;li&gt;프로세스가 받은 시그널은 시그널 핸들러가 더이상 프로세스의 주소 공간에 존재하지 않으므로 디폴트 방식으로 처리&lt;/li&gt;
+&lt;li&gt;메모리 락이 해제&lt;/li&gt;
+&lt;li&gt;스레드의 속성 대부분이 기본값으로 변경&lt;/li&gt;
+&lt;li&gt;프로세스의 통계 대부분이 재설정&lt;/li&gt;
+&lt;li&gt;메모리에 매핑된 파일을 포함하여 그 프로세스 메모리 주소 공간과 관련된 내용 사라짐&lt;/li&gt;
+&lt;li&gt;atexit()의 내용 처럼 사용자 영역에만 존재하는 모든 내용이 사라짐&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;pid, ppid, 우선순위, 소유자/그룹 속성은 유지&lt;/li&gt;
+&lt;li&gt;열린 파일은 그대로 상속되나 실제로는 exec 호출 전 파일을 모두 close(), 하거나 fcntl()을 이용하여 커널이 모두 닫도록 하는 것을 많이 사용&lt;/li&gt;
+&lt;li&gt;시스템 콜 함수는 execve이며 나머지는 래퍼 함수
+&lt;ul&gt;
+&lt;li&gt;l &amp;amp; V : 인자를 리스트로 제공해야 하는지 배열(벡터)로 제공해야 하는지&lt;/li&gt;
+&lt;li&gt;p : file 인자값을  사용자의 실행 경로 환경 변수에서 찾음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;fork-시스템콜&#34;&gt;fork() 시스템콜&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/types.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;fork&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;fork()는 fork()를 실행한 프로세스(부모)와 거의 모든 내용이 동일한 새로운 프로세스(자식)을 생성
+&lt;ul&gt;
+&lt;li&gt;자식 프로세스의 pid는 부모와 다르며 ppid는 부모의 pid&lt;/li&gt;
+&lt;li&gt;자식 프로세스의 리소스 통계는 0으로 초기화&lt;/li&gt;
+&lt;li&gt;처리되지 않은 시그널은 모두 사라지고 자식 프로세스로 상속되지 않음&lt;/li&gt;
+&lt;li&gt;부모 프로세스의 파일 락은 자식에게 상속되지 않음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;자식 프로세스에서 fork()시스템콜 반환 값은 0, 부모에서는 자식의 pid&lt;/li&gt;
+&lt;li&gt;실패시 -1을 반환하고 errno를 적절한 값으로 설정, 실패시 자식프로세스는 생성 안됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;copy-on-write&#34;&gt;copy-on-write&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;리눅스는 fork()시 부모 프로세스의 주소 공간을 모두 복사하는 것이 아니라 페이지에 대한 COW를 수행
+&lt;ul&gt;
+&lt;li&gt;페이지가 변경될 때 까지 복사를 미루고 페이지가 변경되면 복사 후 쓰기&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;vfork&#34;&gt;vfork()&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;fork()와 같은 동작을 하지만 자식프로세스는 즉시 exec계열의 함수를 호출하던가 _exit()함수를 호출해야함&lt;/li&gt;
+&lt;li&gt;주소공간 복사를 하지 않기 위한 시스템 콜이나 COW 도입 후 잘 안쓰임, 쓰지말자&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;프로세스-종료하기&#34;&gt;프로세스 종료하기&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;exit&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;status&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;exit() 호출 시 몇 가지 기본적인 종료 단계를 거쳐 커널이 프로세스 종료&lt;/li&gt;
+&lt;li&gt;반환값 없음(프로세스가 종료되기 때문에)&lt;/li&gt;
+&lt;li&gt;status 인자는 프로세스의 종료 상태를 나타내기 위한 값으로 쉘 같은 다른 프로그램에서 확인
+&lt;ul&gt;
+&lt;li&gt;status &amp;amp; 0377 이 부모프로세스로 반환(ex. exit(EXIT_SUCCESS))&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;C 라이브러리 프로세스 종료 절차
+&lt;ul&gt;
+&lt;li&gt;atexit()나 on_exit()에 등록된 함수를 등록 역순 호출&lt;/li&gt;
+&lt;li&gt;열려있는 모든 표준 입출력 스트림버퍼 비움&lt;/li&gt;
+&lt;li&gt;tmpfile()함수를 통해 생성한 임시파일 삭제&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;위의 절차 종료후 _exit() 시스템콜을 호출(남은 종료 절차를 커널이 처리하도록)
+&lt;ul&gt;
+&lt;li&gt;리소스 정로(할당된 메모리, 열린파일, 시스템 V 세마포어)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;프로세스를-종료하는-다른-방법&#34;&gt;프로세스를 종료하는 다른 방법&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;프로그램 끝가지 진행(main 함수 반환)
+&lt;ul&gt;
+&lt;li&gt;프로그램 정상 종료 시 exit(0), return 0을 반환하여 명시적으로 종료상태를 반환하는 것이 좋음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;시그널 SIGTERM, SIGKILL 송신&lt;/li&gt;
+&lt;li&gt;커널에게 밉보이기(잘못된 연산 및 세그멘테이션 폴트)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;atexit&#34;&gt;atexit&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;atexit&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;func&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;프로세스의 정상 종료 시 호출할 함수를 등록
+&lt;ul&gt;
+&lt;li&gt;시그널에 의한 종료 시 등록된 함수는 미호출&lt;/li&gt;
+&lt;li&gt;exec 함수 호출 시 등록된 함수 목록 삭제&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;등록된 함수는 등록된 함수의 역순으로 호출&lt;/li&gt;
+&lt;li&gt;등록 가능한 함수의 개수는 ATEXIT_MAX 임(32개)&lt;/li&gt;
+&lt;li&gt;성공 시 0을 반환, 에러 발생 시 -1 반환&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;sigchld&#34;&gt;SIGCHLD&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;프로세스 종료 시 커널은 SIGCHLD 시그널을 부모 프로세스로 전송&lt;/li&gt;
+&lt;li&gt;signal(), sigaction() 시스템 콜을 사용해서 이 시그널을 처리하도록 할 수 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;자식-프로세스-종료-기다리기&#34;&gt;자식 프로세스 종료 기다리기&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;자식프로세스가 부모 프로세스보다 먼저 죽으면 자식 프로세스는 좀비 프로세스로 변경 됨 (종료값 회수를 위해)
+&lt;ul&gt;
+&lt;li&gt;좀비 프로세스는 커널 자료 구조만 가지고 있는 프로세스 뼈대&lt;/li&gt;
+&lt;li&gt;좀비가 된 프로세스는 부모가 자산의 상태를 조사하도록 기다리고 부모가 자신의 정보를 회수한 다음에서야 공식 종료 됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/types.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/wait.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;wait&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;status&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;wait() 호출 시 종료된 프로세스의 pid를 반환, 자식 프로세스 미종료 시 종료 때까지 블록&lt;/li&gt;
+&lt;li&gt;에러가 발생한 경우 -1을 반환 후 errno 설정(ECHILD, EINTR)&lt;/li&gt;
+&lt;li&gt;status가 NULL이 아닐 경우 추가 정보가 그 포인터에 저장, 이를 해석하기 위한 매크로를 함께 제공
+&lt;ul&gt;
+&lt;li&gt;int WIFEXOTED(status) 등 (책 참조)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;특정-프로세스-기다리기&#34;&gt;특정 프로세스 기다리기&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/types.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/wait.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;waitpid&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;status&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;pid인자는 기다리기를 원하는 프로세스를 지정
+&lt;ul&gt;
+&lt;li&gt;&amp;lt; -1 : 절대값 gid 일치, -1 : 모든 프로세스, 0 : 호출한 프로세서와 동일한 프로세스 그룹, 0 &amp;gt; : pid 일치&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;status인자는 wait()와 같음&lt;/li&gt;
+&lt;li&gt;option인자는 WNOHANG 등을 OR한 값 (책참조)&lt;/li&gt;
+&lt;li&gt;반환값은 상태가 변경된 프로세스의 pid, 에러 발생시 -1 반환하고 errno를 변경(ECHILD, EINTR, EINVAL)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;좀-더-다양한-방법으로-기다리기&#34;&gt;좀 더 다양한 방법으로 기다리기&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/wait.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;waitid&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;idtype_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;idtype&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;id_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;id&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;siginfo_t&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;infop&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;waitid()는 POSIX의 XSI확장에서 정의하고 리눅스에서 제공&lt;/li&gt;
+&lt;li&gt;wait()보다 다양한 옵션 및 정보(siginfo_t 등)를 제공하나 리눅스가 아닌 시스템의 이식성을 고려하면 단순한 함수를 쓰는게 낫다&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;bsd-방식으로-기다리기&#34;&gt;BSD 방식으로 기다리기&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/types.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/time.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/resource.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/wait.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;wait3&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;status&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rusage&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rusage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;wait4&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;status&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;options&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rusage&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rusage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;BSD에서 제공하는 독자적인 함수&lt;/li&gt;
+&lt;li&gt;POSIX에서 정의한 함수가 아니므로 리소스 사용 정보가 매우 중요한 경우에만 사용할 것&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;새로운-프로세스를-띄운-다음-기다리기&#34;&gt;새로운 프로세스를 띄운 다음 기다리기&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#define _XOPEN_SOURCE &lt;/span&gt;&lt;span class=&#34;cm&#34;&gt;/* WEXITSTATUS 등을 사용할 경우 */&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;system&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;command&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;새로운 프로세스를 생성하고 종료를 기다르는 동작을 하나로 묶은, 즉 동기식 프로세스 생성 인터페이스&lt;/li&gt;
+&lt;li&gt;command 인자는 &lt;code&gt;/bin/sh -c&lt;/code&gt; 뒤에 붙을 명령으로, command가 NULL이면 &lt;code&gt;/bin/sh&lt;/code&gt;가 유효한 경우 0이 아닌 값을 반환(반대 시 0반환)&lt;/li&gt;
+&lt;li&gt;호출 성공 시 wait()와 같이 그 명령의 상태를 반환, 실행한 명령의 종료코드는 WEXITSTATUS로 알 수 있음&lt;/li&gt;
+&lt;li&gt;명령을 실행하는 동안 SIGCHLD는 블록되고 SIGINT와 SIGQUIT는 무시됨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;좀비프로세스&#34;&gt;좀비프로세스&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;프로세스가 종료될 때 리눅스 커널은 그 프로세스의 자식 프로세스들을 모두 init프로세스(pid 0)으로 입양&lt;/li&gt;
+&lt;li&gt;init프로세스는 차례대로 주기적으로 자식 프로세스를 기다리며 오랫동안 좀비 상태로 남아있지 않도록 함&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;사용자와-그룹&#34;&gt;사용자와 그룹&lt;/h2&gt;
+&lt;h3 id=&#34;실제-유효-저장된-사용자-id와-그룹-id&#34;&gt;실제, 유효, 저장된 사용자 ID와 그룹 ID&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;프로세스에 연관된 사용자ID는 4종료
+&lt;ul&gt;
+&lt;li&gt;실제 사용자ID : 그 프로세스를 최초로 실행한 사용자의 uid&lt;/li&gt;
+&lt;li&gt;유효 사용자ID : 그 프로세스가 현재 영향을 미치고 있는 사용자id(접근권한은 이 값을 기준으로 점검)&lt;/li&gt;
+&lt;li&gt;저장된 사용자ID : 프로세스의 최초 유효 사용자ID, 프로세스가 포크되면 자식프로세스는 부모의 저장된 사용자ID를 상속&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;프로세스 초기에 실제 사용자ID와 유효 사용자ID는 동일, exec호출 도중 유효 사용자ID는 프로그램 파일을 소유한 사용자ID로 변경&lt;/li&gt;
+&lt;li&gt;실제 사용자ID는 프로그램을 실제로 실행하는 사용자에서 속한 유효 사용자ID이며 저장된 사용자IDsms exec과정에서 suid 바이너리로 변경되기 전까지 유효한 사용자ID&lt;/li&gt;
+&lt;li&gt;유효 사용자ID가 가장 중요한 값(자격 검증)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;실제-저장된-사용자-그룹id-변경하기&#34;&gt;실제, 저장된 사용자, 그룹ID 변경하기&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/types.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setuid&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;uid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;uid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setgid&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;uid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;gid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;setuid()를 호출 시 현재 프로세스의 유효 사용자 ID를 설정한다
+&lt;ul&gt;
+&lt;li&gt;프로세스의 현재 유효 사용자ID가 0(root)일 때 실제 사용자와 저장된 사용자ID 역시 설정됨, root는 uid로 어떤 값이든 사용가능&lt;/li&gt;
+&lt;li&gt;프로세스의 현재 유효 사용자ID가 0이 아닐 때, 실제 사용자와 저장된 사용자ID만 유효 사용자ID로 설정 가능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;성공할 경우 0반환, 실패 시 -1 반환 errno를 변경 (EAGAIN, EPERM)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;유효-사용자id나-유효-그룹-id-변경하기&#34;&gt;유효 사용자ID나 유효 그룹 ID 변경하기&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/types.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;seteuid&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;uid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;euid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setegid&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;uid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;egid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;seteuid()를 호출 시 유효 사용자ID를 euid로 설정
+&lt;ul&gt;
+&lt;li&gt;root 사용자는 euid 값으로 어떤 값이든 사용 가능&lt;/li&gt;
+&lt;li&gt;비 root 사용자는 euid 값으로 실제 사용자와 저장된 사용자ID만 유효 사용자ID로 설정 가능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;성공할 경우 0반환, 실패 시 -1 반환 errno를 변경 (EAGAIN, EPERM)&lt;/li&gt;
+&lt;li&gt;비 root사용자의 경우 seteuid()와 setuid()는 동일하게 동작
+&lt;ul&gt;
+&lt;li&gt;즉 항상 seteuid()를 사용하는 것이 표준에 맞음&lt;/li&gt;
+&lt;li&gt;프로세스가 root로 실행된다면 setuid()를 사용하는 것이 합리적&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;bsd-방식으로-사용자-그룹-id-변경하기&#34;&gt;BSD 방식으로 사용자, 그룹 ID 변경하기&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;BSD는 사용자ID와 그룹ID를 설정할 수 있는 독자적인 인터페이스를 제공(setreuid(), setregid())&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;hp-ux-방식으로-사용자-그룹-id-변경하기&#34;&gt;HP-UX 방식으로 사용자, 그룹 ID 변경하기&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;HP-UX도 사용자ID와 그룹ID를 설정할 수 있는 독자적인 인터페이스를 제공(setreuid(), setregid())&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;바람직한-사용자그룹-id-조작법&#34;&gt;바람직한 사용자/그룹 ID 조작법&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;비 root 프로세스는 seteuid()를 사용해서 유효 사용자 ID를 변경&lt;/li&gt;
+&lt;li&gt;root 프로세스는 세가지 사용자ID를 모두 바꾸려면 setuid()를 유효 사용자ID만 임시로 바꾸려고 한다면 seteuid()를 사용&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;세션과-프로세스-그룹&#34;&gt;세션과 프로세스 그룹&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;프로세스 그룹이란 작업 제어 목적으로 하나 이상의 프로세스를 모아 놓은 집합&lt;/li&gt;
+&lt;li&gt;프로세스 그룹의 주된 속성은 그룹 내 모든 프로세스에게 시그널을 보낼 수 있음&lt;/li&gt;
+&lt;li&gt;프로세스 그룹은 프로세스 그룹ID(pgid)로 구분되며 이는 프로세스 그룹 리더의 pid와 동일&lt;/li&gt;
+&lt;li&gt;구성원이 하나라도 남아있다면 프로세스 그룹은 사라지지 안흠(리더가 종료되더라도 프로세스 그룹은 남음)&lt;/li&gt;
+&lt;li&gt;새로운 사용자가 처음으로 시스템 로그인 시 로그인 프로세스는 사용자 로그인 셸 프로세스 하나로 이루어진 새로운 세션을 생성(로그인 셀은 세션리더로 동작)&lt;/li&gt;
+&lt;li&gt;세션은 하나 이상의 프로세스 그룹이 들어 있는 집합. 세션 리더의 pid는 세션 ID&lt;/li&gt;
+&lt;li&gt;세션은 로그인한 사용자 활동을 처리 및 제어터미널(tty)과 사용자 사이를 연결(세션은 대부분 쉘과 관련을 맺음)&lt;/li&gt;
+&lt;li&gt;세션은 제어 터미널을 둘러싼 로그인을 통합하는 기능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;세션-시스템-콜&#34;&gt;세션 시스템 콜&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setsid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;setsid()는 새로운 세션 내부에 새로운 프로세스 그룹을 생성하며 호출한 프로세스를 그 세션과 프로세스 그룹의 리더로 함&lt;/li&gt;
+&lt;li&gt;setsid() 호출이 성공 시 새롭게 생성한 세션의 ID를 반환, 실패시 -1 반환하며 errno를 EPERM으로 설정(호출한 프로세스가 이미 프로세스 그룹 리더)&lt;/li&gt;
+&lt;li&gt;어떤 프로세스가 프로세스 그룹 리더가 되지 않게 하는 가장 손쉬운 방법은 프로세스를 포크하고 부모 프로세스를 종료한다움 자식프로세스에서 setsid()를 호출&lt;/li&gt;
+&lt;li&gt;getsid()로 현재 세션ID를 얻을 수 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;프로세스-그룹-시스템-콜&#34;&gt;프로세스 그룹 시스템 콜&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#define _XOPEN_SOURCE 500
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setpgid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pgid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;setpgid()는 pid인자로 지정한 프로세스의 프로세스 그룹ID를 pgid로 설정&lt;/li&gt;
+&lt;li&gt;pid가 0이면 현재 프로세스의 프로세스 그룹ID를 변경, pgid인자가 0인경우 pid인자로 지정한 프로세스ID를 프로세스 그룹ID로 설정&lt;/li&gt;
+&lt;li&gt;setpgid() 호출이 성공 시 0을 반환, 에러 발생시 -1을 반환하고 errno를 설정(EACCES, EINVAL, EPERM, ESRCH)
+&lt;ul&gt;
+&lt;li&gt;pid로 지정한 프로세스가 해당 시스템콜을 호출하는 프로세스이거나 호출하는 프로세의 자식프로세스이며 아직 exec를 호출하지 않았고 부모프로세스와 동일한 세션일 것&lt;/li&gt;
+&lt;li&gt;pid로 지정한 프로세스가 세션의 리도가 아닐 것&lt;/li&gt;
+&lt;li&gt;pgid가 이미 있으면 호출하는 프로세스와 동일한 세션에 속해 있을 것&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;getpgid()로 프로세스의 프로세스 그룹ID를 얻는 것도 가능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;사용되지-않는-프로세스-그룹-관련-함수들&#34;&gt;사용되지 않는 프로세스 그룹 관련 함수들&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;setpgrp()/getpgrp() 같은 오래된 BSD 인터페이스도 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;데몬&#34;&gt;데몬&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;데몬은 백그라운드에서 수행되며 제어 터미널이 없는 프로세스&lt;/li&gt;
+&lt;li&gt;데몬은 일반적으로 부팅 시에 시작되며 root 혹은 다른 특수한 사용자 계정 권한으로 실행 되어 시스템 수준의 작업을 처리&lt;/li&gt;
+&lt;li&gt;crond, sshd처럼 편의를 위해 데몬의 이름은 d로 끝나는 경우가 많은데 필수적이거나 보편적인 것은 아님&lt;/li&gt;
+&lt;li&gt;데몬의 필수조건은 반드시 init의 자식 프로세스여야 하며 터미널과 연결되어 있으면 안됨&lt;/li&gt;
+&lt;li&gt;데몬이 되는 과정은 다음과 같다, 대부분의 유닉스 시스템은 daemon()함수를 제공하여 하기 과정을 자동화
+&lt;ol&gt;
+&lt;li&gt;fork()를 호출해서 데몬이 될 새로운 프로세스 생성&lt;/li&gt;
+&lt;li&gt;부모 프로세스에서 exit()를 호출해 데몬 프로세스의 부모 프로세스 종료(데몬 프로세스가 프로세스 그룹의 리더가 되지 않도록)&lt;/li&gt;
+&lt;li&gt;setsid()를 호출하여 데몬이 새로운 프로세스 그룹과 세션의 리더가 되도록 함(데몬프로세스가 제어터미널에 연관되지 않도록)&lt;/li&gt;
+&lt;li&gt;chdir()을 사용하여 작업디렉토리를 루트 디렉토리로 변경(임의의 디렉토리가 계속 열린 상태로 실행되어 그 디렉토리를 해제하지 못하는 경우 방지)&lt;/li&gt;
+&lt;li&gt;모든 파일 디스크립터를 닫음&lt;/li&gt;
+&lt;li&gt;0,1,2 파일 디스트립터(표준 입력, 출력, 에러)를 열고 /dev/null로 다이렉트한다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>[Linux_System_programming] 04 고급파일 입출력</title>
+        <link>https://muonkmu.github.io/p/linux_system_programming-04-%EA%B3%A0%EA%B8%89%ED%8C%8C%EC%9D%BC-%EC%9E%85%EC%B6%9C%EB%A0%A5/</link>
+        <pubDate>Wed, 14 Jun 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/linux_system_programming-04-%EA%B3%A0%EA%B8%89%ED%8C%8C%EC%9D%BC-%EC%9E%85%EC%B6%9C%EB%A0%A5/</guid>
+        <description>&lt;h2 id=&#34;벡터-입출력&#34;&gt;벡터 입출력&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;벡터 입출력은 한번의 시스템콜을 사용해서 여러개의 버퍼 벡터에 쓰거나 여러 개의 버퍼 벡터로 읽어 들일때 사용&lt;/li&gt;
+&lt;li&gt;2장의 표준 읽기 쓰기는 선형 입출력이라 하며 이에 비해 다음의 장점이 있다.
+&lt;ul&gt;
+&lt;li&gt;여러 필드에 걸쳐 데이터가 분리되어 있다면 직관적인 방법으로 조작 가능&lt;/li&gt;
+&lt;li&gt;여러번의 선형입출력 대체 가능하므로 효율적&lt;/li&gt;
+&lt;li&gt;시스템콜의 횟수를 줄이고 선형입출력 구현에 비해 최적화 되어 효율적&lt;/li&gt;
+&lt;li&gt;선형 입출력과 대조적으로 벡터 입출력 연산은 원자성을 보장&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;readv와-writev&#34;&gt;readv()와 writev()&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;9
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/uio.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;iovec&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;iov_base&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;//버퍼의 시작포인터
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;  &lt;span class=&#34;n&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;iov_len&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;//버퍼의 크기(바이트)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;readv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;iovec&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;iov&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;count&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;writev&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;iovec&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;iov&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;count&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;readv()는 파일 디스크립터 fd에서 데이터를 읽어서 count 개수만큼 iov버퍼에 저장&lt;/li&gt;
+&lt;li&gt;writev()는 count 개수의 iov버퍼 데이터를 파일 디스크립터 fd에 씀&lt;/li&gt;
+&lt;li&gt;iovec구조체는 세그멘트라고 하는 독립적으로 분리된 버퍼, 세그멘테이션 집합을 벡터라 부름&lt;/li&gt;
+&lt;li&gt;readv(), writev()는 성공 시 읽거나 쓴 바이트 개수 반환, 에러 발생 시 -1을 반환 후 errno를 설정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;epoll&#34;&gt;epoll&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;커널 2.6에서 poll과 select의 한계를 극복하기 위한 epoll 도입
+&lt;ul&gt;
+&lt;li&gt;poll과 select가 실행시 마다 전체 파일 디스크립터를 요구하는 문제, epoll은 실제 검사할 파일디스크립터를 등록 부분을 분리&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;epoll-인스턴스-생성&#34;&gt;epoll 인스턴스 생성&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/epoll.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;epoll_create1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;flag&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;// epoll_create는 구식 방법임
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;epoll 인스턴스 생성 및 그 인스턴스와 연관된 파일 디스크립터를 반환, 에러 발생시 -1 반환 후 errno를 설정&lt;/li&gt;
+&lt;li&gt;flag는 EPOLL_CLOSEXEC만 유효, 새 프로세스가 실행될 때 이 파일을 자동적으로 닫아 줌&lt;/li&gt;
+&lt;li&gt;epoll_create1에서 반환되는 파일 디스크립터는 사용 완료후 close()로 닫아 줄 것&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;epoll-제어&#34;&gt;epoll 제어&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/epoll.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;epoll_event&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;__u32&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;event&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;k&#34;&gt;union&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;__u32&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;u32&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;__u64&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;u64&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;data&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;epoll_ctl&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;epfd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;op&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;epoll_event&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;event&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;epoll context에 파일 디스크립터를 추가하거나 삭제할때 사용, 호출이 성공하면 0을 반환, 실패시 -1을 반환 후 errno를 설정&lt;/li&gt;
+&lt;li&gt;epfd : 호출이 성공시 epoll 인스턴스는 epfd 와 연결&lt;/li&gt;
+&lt;li&gt;op : 파일드스크립터 fd가 가리키는 파일에 대한 작업을 명시
+&lt;ul&gt;
+&lt;li&gt;EPOLL_CTL_ADD 감시 추가, EPOLL_CTL_DEL 감시 삭제, EPOLL_CTL_MOD 감시 이벤트 갱신&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;epoll_event 구조체 event 필드는 감시할 이벤트 목록으로 OR연산으로 묶을 수 있음
+&lt;ul&gt;
+&lt;li&gt;EPOLLIN 지연되지 않고 읽기 가능 감시, EPOLLOUT 지연되지 않고 파일 쓰기 가능 감시, EPOLLPRI 읽어야할 OOB데이터 존재 여부 감시&lt;/li&gt;
+&lt;li&gt;EPOLLERR 에러 상황 감시(default), EPOLLHUP 행업 감시(default)&lt;/li&gt;
+&lt;li&gt;EPOLLET 감시 시 에지 트리거 사용, EPOLLONESHOT 한번 만 감시(다시 활성화 하려면 EPOLL_CTL_MOD로 다시 설정 필요)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;epoll_evnet 구조체 data 필드는 사용자를 위한 필드로 이벤트가 발생해서 사용자에게 반환될때 함께 반환, 보통 data.fd를 fd로 채워씀&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;epoll-이벤트-대기&#34;&gt;epoll 이벤트 대기&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/epoll.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;epoll_wait&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;epfd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;epoll_event&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;events&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;maxevents&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;timeout&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;epoll_wait()를 호출하면 timeout 밀리 초 동안 epfd와 연관된 파일의 이벤트 대기, 호출이 성공 시 발생 이벤트 갯수를 실패시 -1을 반환 후 errno를 기록&lt;/li&gt;
+&lt;li&gt;호출 성공 events에 해당 이벤트를 기록, 최대 maxevent만큼의 이벤트 기록&lt;/li&gt;
+&lt;li&gt;timeout시 반환값음 0&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;에지-트리거와-레벨트리거&#34;&gt;에지 트리거와 레벨트리거&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;트리거 종류, 당신이 생가하는 그거&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;메모리에-파일-매핑&#34;&gt;메모리에 파일 매핑&lt;/h2&gt;
+&lt;h3 id=&#34;mmap&#34;&gt;mmap()&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/mman.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;mmap&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;addr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;len&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;prot&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;flags&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;off_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;offset&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;mmap()을 호출하면 파일디스크립터 fd가 가리키는 파일의 offset위치에서 len 바이트만큼 메모리에 매핑하도록 요청&lt;/li&gt;
+&lt;li&gt;addr이 포함되면 메모리에서 해당주소를 선호한다고 커널에 알림(단지 제안일 뿐)&lt;/li&gt;
+&lt;li&gt;mmap()은 성공시 맵핑의 실제 시작주소를 반환, 실패 시 MAP_FAILED 반환 후 errno를 설정&lt;/li&gt;
+&lt;li&gt;prot인자는 맵핑에 원하는 메모리 보호 정책을 명시, OR 연산으로 묶어서 설정 가능
+&lt;ul&gt;
+&lt;li&gt;PROT_NONE 접근불가(거의 미사용), PROT_READ 읽기 가능, PROT_WRITE 쓰기가능, PROT_EXEC 실행가능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;flags 인자에는 맵핑의 유형 및 동작 요소
+&lt;ul&gt;
+&lt;li&gt;MAP_FIXED : addr인자를 제안이 아닌 요구사항으로 취급, 커널이 해당주소를 확보 못할 시  호출 실패&lt;/li&gt;
+&lt;li&gt;MAP_PRIVATE : 맵핑 미공유, 파일은 copy-on-write로 매핑, 매핑된 내용에 변경이 발생하더라도 실제파일이나 다른 프로세스에 미영향&lt;/li&gt;
+&lt;li&gt;MAP_SHARED 같은 파일을 맵핑한 모든 프로세스와 맵핑 공유, 변경이 일어나면 실제 파일에서도 동일한 내용 기록&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;mmap()시스템콜은 페이지를 다루며 addr과 offset은 페이지 크기로 정렬되어야 함(정렬이 되지않은 값이 전달되면 정렬된 값으로 할당)&lt;/li&gt;
+&lt;li&gt;페이지의 크기를 구하는 방법은 &lt;code&gt;sysconf(_SC_PAGESIZE)&lt;/code&gt;, &lt;code&gt;getpagesize()&lt;/code&gt; 등이 있음(이식성을 고려 시 sysconf를 사용)&lt;/li&gt;
+&lt;li&gt;mmap()관련 시그널은 SIGBUS(프로세스가 유효하지 않은 맵핑영역 접근), SIGSEGV(읽기전용 매핑영역에 쓰려고 할 때)가 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;munmap&#34;&gt;munmap()&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/mman.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;munmap&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;addr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;len&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;munmap()은 addr에서 len 바이트만큼 이어지는 프로세스 주소 공간 내 존재하는 페이지를 포함하는 맵핑을 해제&lt;/li&gt;
+&lt;li&gt;성공시 0을 반환, 실패 시 -1을 반환하고 errno를 적절한 값으로 설정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;mmap-장점&#34;&gt;mmap 장점&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;read/write 시스템콜을 사용할 때 발생하는 불필요한 복사 방지&lt;/li&gt;
+&lt;li&gt;잠재적인 페이지 폴트를 제외하면 매핑된 파일을 읽고 쓰는데 다른 시스템 콜이나 컨택스트 스위칭이 발생하지 않음&lt;/li&gt;
+&lt;li&gt;여러 프로세스가 같은 객체를 메모리에 매핑한다면 데이터는 모든 프로세스 사이에서 공유&lt;/li&gt;
+&lt;li&gt;lseek()같은 시스템콜을 사용하지 않고 매핑영역 탐색 가능&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;mmap-단점&#34;&gt;mmap 단점&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;메모리 매핑은 페이지 크기의 정수배만 가능하므로 작은 파일이 많다면 공간이 낭비됨&lt;/li&gt;
+&lt;li&gt;32비트 주소공간에서 다양한 크기의 수많은 매핑 사용시 주소공간이 파편화 됨(64비트 주소공간에서는 상관없음)&lt;/li&gt;
+&lt;li&gt;메모리 매핑과 관련된 자료구조를 커널 내부에서 생성, 유지하는 오버헤드가 있음&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;매핑-크기-변경&#34;&gt;매핑 크기 변경&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#define _GNU_SOURSE
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/mman.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;mremap&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;addr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;old_size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;new_size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;flags&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;mremap()은 [addr, addr+old_size)에 매핑된 영역을 new_size만큼의 크기로 변경&lt;/li&gt;
+&lt;li&gt;flags인자는 0이거나 MREMAP_MAYMOVE(크기변경 수행하는데 필요시 맵핑의 위치가 변경되도 됨)가 될 수 있다.&lt;/li&gt;
+&lt;li&gt;성공 시 크기가 조정된 메모리 맵핑의 시작주소 반환, 실패시 MAP_FAILED 반환 후 errno를 설정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;매핑의-보호모드-변경&#34;&gt;매핑의 보호모드 변경&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/mman.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;mprotect&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;addr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;len&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;prot&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;mremap()은 [addr, addr+len)내에 포함된 메모리의 페이지 보호모드를 prot로 변경(추가 아님)&lt;/li&gt;
+&lt;li&gt;성공시 0을 반환, 실패 시 -1을 반환하고 errno를 설정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;파일과-매핑의-동기화&#34;&gt;파일과 매핑의 동기화&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/mman.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;msync&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;addr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;len&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;flags&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;msync()는 addr에서 len 바이트 만큼 매핑된 파일이나 파일의 일부를 디스크로 동기화&lt;/li&gt;
+&lt;li&gt;msync()를 호출하지 않으면 매핑이 해제되기 전까지는 맵핑된 메모리에 쓰여진 내용이 디스크로 반영됨을 보장할 수 없다.&lt;/li&gt;
+&lt;li&gt;flags는 동기화 방식 제어
+&lt;ul&gt;
+&lt;li&gt;MS_SYNC 동기화 호출, MS_ASYNC 비동기식 동기화, MS_INVALIDATE 맵핑의 캐시 복사본을 모두 무효화&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;성공시 0을 반환, 실패 시 -1을 반환하고 errno를 설정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;맵핑의-사용처-알려주기&#34;&gt;맵핑의 사용처 알려주기&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/mman.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;madvise&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;addr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;len&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;advice&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;madvice() 시스템콜은 주어진 힌트에 따라 맵핑의 동작 방식을 최적화(캐시 및 미리읽기 방식) 가능&lt;/li&gt;
+&lt;li&gt;advice 인자는 커널에 알려줄 힌트 기술
+&lt;ul&gt;
+&lt;li&gt;MADV_NOMAL : 일반적 영역, 적당양 미리 읽기&lt;/li&gt;
+&lt;li&gt;MADV_RANDOM : 랜덤하게 접근하는 영역, 미리읽기 미사용(최소한의 데이터만 가져옴)&lt;/li&gt;
+&lt;li&gt;MADV_SEQUENTIAL : 순차적으로 접근하는 영역, 공격적인 미리 일기 수행&lt;/li&gt;
+&lt;li&gt;MADV_WILLNEDD : 곧 접근하는 영역, 미리읽기 활성화 후 주어진 페이지를 메모리로 읽음&lt;/li&gt;
+&lt;li&gt;MADV_DONTNEED : 당분간 접근하지 않는 영역, 페이지와 곤련된 자원 해제 후 동기화 되지 않은 페이지 버림&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;성공시 0을 반환, 실패 시 -1을 반환하고 errno를 설정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;일반-파일-입출력에-대한-힌트&#34;&gt;일반 파일 입출력에 대한 힌트&lt;/h2&gt;
+&lt;h3 id=&#34;posix_fadvise-시스템콜&#34;&gt;posix_fadvise() 시스템콜&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;fcntl.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;posix_fadvise&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;off_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;offset&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;off_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;len&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;advice&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;fd의 [offset, offset+len] 범위에 대한 흰트를 제공&lt;/li&gt;
+&lt;li&gt;주로 len을 0으로 넘겨서 파일 전체에 대한 힌트를 제공하는 방식으로 사용&lt;/li&gt;
+&lt;li&gt;힌트에 대해 커널이 등으하는 방식은 구현에 따라 커널버전에 따라 다름
+&lt;ul&gt;
+&lt;li&gt;POSIX_FADV_NORMAL : 힌트없음, 적당한 미리읽기&lt;/li&gt;
+&lt;li&gt;POSIX_FADV_RANDOM : 랜덤 접근, 미리읽기를 하지 않고 매번 일기마다 최소한의 데이터만 읽음&lt;/li&gt;
+&lt;li&gt;POSIX_FADV_SEQUENTIAL : 순차접근, 미리읽기 윈도우 크기를 두배로 늘림&lt;/li&gt;
+&lt;li&gt;POSIX_FADV_WILLNEED : 곧 접근함, 미리읽기 활성화하고 주어진 페이지를 메모리로 읽음&lt;/li&gt;
+&lt;li&gt;POSIX_FADV_NOREUSE : 곧 한번만 접근, POSIX_FADV_WILLNEED와 동일하게 동작&lt;/li&gt;
+&lt;li&gt;POSIX_FADV_DONTNEED : 당분간 안 접근함, 범위내의 캐싱 중인 데이터를 페이지 캐시에서 제거&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;성공 시 0 반환, 실패 시 -1 반환 후 errno 값을 설정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;readahead-시스템콜&#34;&gt;readahead() 시스템콜&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#define _GNU_SOURCE
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;fcntl.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;ssize_t&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;readahead&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;off64_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;offset&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;count&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;리눅스 전용으로 POSIX_FADV_WILLNEED와 동일한 방식을 제공하기 위해 사용&lt;/li&gt;
+&lt;li&gt;fd가 가리키는 파일의 [offset, offset+counter) 영역의 페이지를 캐시 생성&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;부담없이-힌트를-사용하자&#34;&gt;부담없이 힌트를 사용하자&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;책에서는 힌트는 도움이 많이 된다고 기술&lt;/li&gt;
+&lt;li&gt;POSIX_FADV_WILLNEED를 이용하여 읽으려는 파일을 미리 캐시에 넣어 어플리케이션에서 블로킹을 방지하거나&lt;/li&gt;
+&lt;li&gt;비디오 스트림 기록 같은 경우 POSIX_FADV_DONTNEED로 캐시에서 제거 할 수 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;동기화-동기식-비동기식-연산&#34;&gt;동기화, 동기식, 비동기식 연산&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;동기식, 비동기식 용어는 입출력 연산이 반환하기 전 어떤 이벤트(ex. 데이터 저장)을 기다리는지 여부&lt;/li&gt;
+&lt;li&gt;동기화, 비동기화 용어는 정학한 어떤 이벤트(ex. 데이터를 디스크에 기록)이 발생해야 함을 나타냄&lt;/li&gt;
+&lt;li&gt;책에 표를 읽어보자&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;비동기식-입출력&#34;&gt;비동기식 입출력&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;aio라이브러리는 비동기식 입출력을 요청하고 작업이 완료되면 알림을 받는 함수를 제공&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;aio.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aiocb&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aio_fildes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;     &lt;span class=&#34;c1&#34;&gt;// 파일 디스크립터
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;  &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aio_lio_opcode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// 수행할 작업
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;  &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aio_reqrio&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;     &lt;span class=&#34;c1&#34;&gt;// 요청 우선순위 오프셋
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;  &lt;span class=&#34;k&#34;&gt;volatile&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aio_buf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// 버퍼에 대한 포인터
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;  &lt;span class=&#34;kt&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aio_nbytes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// 연산의 크기
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;  &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sigevent&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aio_sigevent&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// 시그널의 번호와 값
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;  &lt;span class=&#34;cm&#34;&gt;/* 내부적으로 사용하는 프라이빗 멤버 */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;aio_read&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aiocb&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aiocbp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;aio_write&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aiocb&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aiocbp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;aio_error&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aiocb&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aiocbp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;aio_return&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aiocb&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aiocbp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;aio_cancel&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aiocb&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aiocbp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;aio_fsync&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;op&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aiocb&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aiocbp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;l&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;aio_suspend&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;aiocb&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cblist&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[],&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;n&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;timespec&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;timeout&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;입출력-스케줄러와-성능&#34;&gt;입출력 스케줄러와 성능&lt;/h2&gt;
+&lt;h3 id=&#34;디스크-주소-지정-방식&#34;&gt;디스크 주소 지정 방식&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;하드디스크는 CHS(cylinder, Head, Sector) 주소 지정방식 사용하며 요즘은 이 값대신 유일한 블록 번호를 CHS에 맵핑&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;입출력-스케줄러-동작-방식&#34;&gt;입출력 스케줄러 동작 방식&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;입출력 스케줄러는 병합과 정렬이라는 두가지 기본 동작 수행(하드디스크의 입출력 성능 극대화를 위함)
+&lt;ul&gt;
+&lt;li&gt;병합은 둘 이상의 인접한 입출력 요청을 단일 요청으로 합침&lt;/li&gt;
+&lt;li&gt;대기 중인 입출력 요청을 블록 순서의 오름 차순으로 정렬&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;읽기-개선&#34;&gt;읽기 개선&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;입출력 스케줄러에는 다음과 같은 방식이 있다.
+&lt;ul&gt;
+&lt;li&gt;데드라인 입출력 스케줄러&lt;/li&gt;
+&lt;li&gt;예측 입출력 스케줄러&lt;/li&gt;
+&lt;li&gt;CFQ 입출력 스케줄러&lt;/li&gt;
+&lt;li&gt;Noop 입출력 스케줄러&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;입출력-스케줄러-선택과-설정&#34;&gt;입출력 스케줄러 선택과 설정&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;기본 입출력 스케줄러는 부팅 시 커널 명령행 인자인 iosched를 통해서 선택 가능&lt;/li&gt;
+&lt;li&gt;`/sys/block/[device]/queue/scheduler 값을 변경해서 입출력 스케줄러 선택가능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;입출력-성능-최적화&#34;&gt;입출력 성능 최적화&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;자잘한 연산을 묶어 입출력 연산을 최소화 하거나 입출력을 블록 크기에 정렬되도록 수행하거나 3장의 사용자 버퍼링, 벡터 입출력, 2장의 위치를 지정한 입출력, 비동기식 입출력 등을 고려할 수 있다.&lt;/li&gt;
+&lt;li&gt;사용자 영역 어플리케이션에서 커널과 유사한 방식을 사용하여 더 나은 성능을 얻을 수 있도록 노력해야함
+&lt;ul&gt;
+&lt;li&gt;사용자 영역에서 입출력 스케줄링 하기&lt;/li&gt;
+&lt;li&gt;경로로 정렬하기&lt;/li&gt;
+&lt;li&gt;inode로 정렬하기&lt;/li&gt;
+&lt;li&gt;물리 블록으로 정렬하기&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>[Linux_System_programming] 03 Buffer I/O</title>
         <link>https://muonkmu.github.io/p/linux_system_programming-03-buffer-i/o/</link>
         <pubDate>Thu, 25 May 2023 00:00:00 +0000</pubDate>
@@ -306,7 +1256,7 @@
 &lt;li&gt;파일을 열고 파일 디스크립터에 매핑&lt;/li&gt;
 &lt;li&gt;flags 인자는 O_RDONLY, O_WRONLY, O_RDWR중 하나를 포함해야 함, 그외 O_APPEND, O_NONBLOCK 등이 있음 (책참조)&lt;/li&gt;
 &lt;li&gt;mode에서는 새로운 파일의 권한(ex 0644, S_IRWXU 등이 있음, 책참조)&lt;/li&gt;
-&lt;li&gt;O_WRONLY|O_CREAT|O_TRUNC 조합은 너무 일반적이라 creat()시스템 콜ㅇㄹ 제공&lt;/li&gt;
+&lt;li&gt;O_WRONLY|O_CREAT|O_TRUNC 조합은 너무 일반적이라 creat()시스템 콜을 제공&lt;/li&gt;
 &lt;li&gt;에러 발생 시 -1 리턴 후 errno를 적절한 에러값으로 설정&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&#34;파일-읽기&#34;&gt;파일 읽기&lt;/h2&gt;

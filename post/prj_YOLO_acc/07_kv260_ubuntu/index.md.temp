@@ -30,10 +30,90 @@ opencv_contrib 4.4
 export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/
 Run the command: cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=< path-to-install-directory> -D CMAKE_CXX_COMPILER=< path-to-Vivado-directory-in-Vitis-installation>/tps/lnx64/gcc-6.2.0/bin/g++ -D OPENCV_EXTRA_MODULES_PATH=< path-to-source_contrib-directory>/modules/ -D WITH_V4L=ON -DBUILD_TESTS=OFF -DBUILD_ZLIB=ON -DBUILD_JPEG=ON -DWITH_JPEG=ON -DWITH_PNG=ON -DBUILD_EXAMPLES=OFF -DINSTALL_C_EXAMPLES=OFF -DINSTALL_PYTHON_EXAMPLES=OFF -DWITH_OPENEXR=OFF -DBUILD_OPENEXR=OFF < path-to-source-directory>
 
+### 카메라 이미지 얻기
 gst-launch-1.0 v4l2src device=/dev/video4 num-buffers=1 ! video/x-raw, width=640, height=480, format=YUY2 ! filesink location=rs_cap.yuy2
 v4l2-ctl --set-fmt-video=width=640,height=480,pixelformat=YUYV --stream-mmap --stream-count=1 --device /dev/video4 --stream-to=data.raw
 
+### rootfs 구성
+1) {petalinux_project_root}/project_spec/meta-user/user-rootfsconfg 파일에 하기 패키지를 petalinux-config -c rootfs에서 하기 내역을 활성화
+  - 커널소스(필요시) : CONFIG_kernel-devsrc
+  - ROS2_humble : CONFIG_packagegroup-petalinux-ros
+
+2)  petalinux-config -c rootfs에서 하기 내역은 비활성화
+  - packagegroup-petalinux-som
+  - 상기 내역을 활성화하면 PL영역 IP들이 접근이 안되는데 아마도 PL overlay를 위해 PL영역을 초기화 하는게 아닐까 하는 생각이 든다.
+
+3) 추가할 패키지들
+ - vim,resize2fs(SD카드 파티션 용량 확장)
 
 
+### petalinux 부팅이미지 만들기
+#### boot.bin생성
+petalinux-package --boot --u-boot --force (이건 bit 파일 미포함, force는 강제 덮어쓰기)
+petalinux-package --boot --u-boot --fpga --force (bit 파일 미포함)
+K26보드 fwup 버튼 누른후 부팅 그후 192.168.0.111 접속후 펌업
+https://xilinx.github.io/kria-apps-docs/bootfw/build/html/docs/bootfw_overview.html
+
+### sd카드 이미지 생성
+petalinux-package --wic --images-dir images/linux/ --bootfiles "rootfs.cpio.gz.u-boot,boot.scr,Image,system.dtb,system-zynqmp-sck-kv-g-revB.dtb" --disk-name "mmcblk1"
+
+### 이미지 굽고
+ - growpart와 resize2fs를 이용해 루트fs의 파티션을 용량 확장
+
+### petalinux 개발환경 설정
+ - petalinux의 `project-spec/meta-user/conf/user-rootfsconfig'에서 하기 내용을 추가 후 `petalinux-config -c rootfs`에서 패키지 활성화
+
+### petalinux상에서 ROS2 Humble 설치
+dnf install packagegroup-petalinux-ros
+
+### petalinux상에서 커널모둘 크로스 컴파일
+- 크로스 컴파일 시에는 Petalinux의 하기 옵션을 꺼야함, modversion관리가 되면 빌드 시점에 따라 CRC값이 달라지므로 동일 커널소스를 사용하더라도 로딩이 안됨
+- Enable loadable module support --> module versioning support
+
+```c++
+#include <linux/module.h>       /* Needed by all modules */
+#include <linux/kernel.h>       /* Needed for KERN_INFO */
+#include <linux/init.h>         /* Needed for the macros */
+
+static int __init hello_start(void)
+{
+printk(KERN_INFO "Loading hello module...\n");
+printk(KERN_INFO "Hello world\n");
+return 0;
+}
+
+static void __exit hello_end(void)
+{
+printk(KERN_INFO "Goodbye!! \n");
+}
+
+module_init(hello_start);
+module_exit(hello_end);
+```
+
+```makefile
+export ARCH:=arm64
+export CROSS_COMPILE:=aarch64-linux-gnu-
+
+CC=$(CROSS_COMPILE)gcc
+
+obj-m = test_module.o
+
+KVERSION =
+PWD := $(shell pwd)
+
+all:
+	make -C $(KVERSION) M=$(PWD) modules
+clean:
+	make -C $(KVERSION) M=$(PWD) clean
+```
+
+
+### accelation design
+https://xilinx.github.io/Vitis-Tutorials/2022-1/build/html/docs/Vitis_Platform_Creation/Design_Tutorials/01-Edge-KV260/step1.html
+https://www.hackster.io/whitney-knitter/vitis-acceleration-flow-on-kv260-extensible-vitis-platform-c3f947
+
+https://www.hackster.io/whitney-knitter/accelerated-design-development-on-kria-kr260-in-vitis-2022-1-883799
 https://github.com/Xilinx/Vitis_Libraries/tree/main/vision
-
+https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/1641152513/Kria+K26+SOM
+https://xilinx.github.io/kria-apps-docs/creating_applications/2022.1/build/html/docs/baremetal.html

@@ -6,10 +6,26 @@
         <description>Recent content in Tags on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Thu, 25 May 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 15 Sep 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>kv260</title>
+        <link>https://muonkmu.github.io/tags/kv260/</link>
+        <pubDate>Fri, 15 Sep 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/kv260/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>vitis_acc_flow</title>
+        <link>https://muonkmu.github.io/tags/vitis_acc_flow/</link>
+        <pubDate>Fri, 15 Sep 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/tags/vitis_acc_flow/</guid>
+        <description></description>
+        </item>
+        <item>
         <title>Linux</title>
         <link>https://muonkmu.github.io/tags/linux/</link>
-        <pubDate>Thu, 25 May 2023 00:00:00 +0000</pubDate>
+        <pubDate>Tue, 15 Aug 2023 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/tags/linux/</guid>
         <description></description>

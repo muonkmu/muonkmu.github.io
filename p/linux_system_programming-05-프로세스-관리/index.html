@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Linux System Programming (Robert Love) chapter 05 Process management'>
+<title>[Linux_System_programming] 05 프로세스 관리</title>
+
+<link rel='canonical' href='https://muonkmu.github.io/p/linux_system_programming-05-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4-%EA%B4%80%EB%A6%AC/'>
+
+<link rel="stylesheet" href="/scss/style.min.f3b6945bee58731371ef6d5a992e6775ef6e63b9642101b9f59903b1c9e16941.css"><meta property='og:title' content='[Linux_System_programming] 05 프로세스 관리'>
+<meta property='og:description' content='Linux System Programming (Robert Love) chapter 05 Process management'>
+<meta property='og:url' content='https://muonkmu.github.io/p/linux_system_programming-05-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4-%EA%B4%80%EB%A6%AC/'>
+<meta property='og:site_name' content='MW Devlog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Linux' /><meta property='article:published_time' content='2023-08-15T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-08-15T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="[Linux_System_programming] 05 프로세스 관리">
+<meta name="twitter:description" content="Linux System Programming (Robert Love) chapter 05 Process management">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/minwook_large_hu93fbe6c7fccf94bb4165ea496a9d4637_41368_300x0_resize_q75_box.jpg" width="300"
+                            height="246" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MW Devlog</a></h1>
+            <h2 class="site-description">Embedded Engineer (HW,SW,SYSTEM)</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/muonkmu'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://www.linkedin.com/in/minwook-kim-35a417154/'
+                        target="_blank"
+                        title="Linkedin"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-linkedin" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+ <path stroke="none" d="M0 0h24v24H0z" fill="none"/> <rect x="4" y="4" width="16" height="16" rx="2" /> <line x1="8" y1="11" x2="8" y2="16" /> <line x1="8" y1="8" x2="8" y2="8.01" /> <line x1="12" y1="16" x2="12" y2="11" />
+ <path d="M16 16v-3a2 2 0 0 0 -4 0" />
+</svg>
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#프로그램-프로세스-스레드">프로그램, 프로세스, 스레드</a></li>
+    <li><a href="#프로세스-id-pid">프로세스 ID (PID)</a>
+      <ol>
+        <li><a href="#pid-할당">PID 할당</a></li>
+        <li><a href="#프로세스-계층">프로세스 계층</a></li>
+        <li><a href="#pid_t">pid_t</a></li>
+        <li><a href="#프로세스id와-부모-프로세스-id-얻기">프로세스ID와 부모 프로세스 ID 얻기</a></li>
+      </ol>
+    </li>
+    <li><a href="#새로운-프로세스-실행하기">새로운 프로세스 실행하기</a>
+      <ol>
+        <li><a href="#exec-함수들">exec 함수들</a></li>
+        <li><a href="#fork-시스템콜">fork() 시스템콜</a>
+          <ol>
+            <li><a href="#copy-on-write">copy-on-write</a></li>
+            <li><a href="#vfork">vfork()</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#프로세스-종료하기">프로세스 종료하기</a>
+      <ol>
+        <li><a href="#프로세스를-종료하는-다른-방법">프로세스를 종료하는 다른 방법</a></li>
+        <li><a href="#atexit">atexit</a></li>
+        <li><a href="#sigchld">SIGCHLD</a></li>
+      </ol>
+    </li>
+    <li><a href="#자식-프로세스-종료-기다리기">자식 프로세스 종료 기다리기</a>
+      <ol>
+        <li><a href="#특정-프로세스-기다리기">특정 프로세스 기다리기</a></li>
+        <li><a href="#좀-더-다양한-방법으로-기다리기">좀 더 다양한 방법으로 기다리기</a></li>
+        <li><a href="#bsd-방식으로-기다리기">BSD 방식으로 기다리기</a></li>
+        <li><a href="#새로운-프로세스를-띄운-다음-기다리기">새로운 프로세스를 띄운 다음 기다리기</a></li>
+        <li><a href="#좀비프로세스">좀비프로세스</a></li>
+      </ol>
+    </li>
+    <li><a href="#사용자와-그룹">사용자와 그룹</a>
+      <ol>
+        <li><a href="#실제-유효-저장된-사용자-id와-그룹-id">실제, 유효, 저장된 사용자 ID와 그룹 ID</a></li>
+        <li><a href="#실제-저장된-사용자-그룹id-변경하기">실제, 저장된 사용자, 그룹ID 변경하기</a></li>
+        <li><a href="#유효-사용자id나-유효-그룹-id-변경하기">유효 사용자ID나 유효 그룹 ID 변경하기</a></li>
+        <li><a href="#bsd-방식으로-사용자-그룹-id-변경하기">BSD 방식으로 사용자, 그룹 ID 변경하기</a></li>
+        <li><a href="#hp-ux-방식으로-사용자-그룹-id-변경하기">HP-UX 방식으로 사용자, 그룹 ID 변경하기</a></li>
+        <li><a href="#바람직한-사용자그룹-id-조작법">바람직한 사용자/그룹 ID 조작법</a></li>
+      </ol>
+    </li>
+    <li><a href="#세션과-프로세스-그룹">세션과 프로세스 그룹</a>
+      <ol>
+        <li><a href="#세션-시스템-콜">세션 시스템 콜</a></li>
+        <li><a href="#프로세스-그룹-시스템-콜">프로세스 그룹 시스템 콜</a></li>
+        <li><a href="#사용되지-않는-프로세스-그룹-관련-함수들">사용되지 않는 프로세스 그룹 관련 함수들</a></li>
+      </ol>
+    </li>
+    <li><a href="#데몬">데몬</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/lin_sys_prog/" style="background-color: #458C40; color: #fff;">
+                Lin_Sys_prog
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/linux_system_programming-05-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4-%EA%B4%80%EB%A6%AC/">[Linux_System_programming] 05 프로세스 관리</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Linux System Programming (Robert Love) chapter 05 Process management
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 15, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    9 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    
+        <section class="article-content">
+    
+    
+    <p>유닉스는 바이너리 이미지를 메모리에 적재하는 과정에서 새로운 프로세스를 생성하는 부분을 분리함
+이는 fork(), exec()라는 두 개의 시스템 콜을 필요</p>
+<h2 id="프로그램-프로세스-스레드">프로그램, 프로세스, 스레드</h2>
+<ul>
+<li>바이너리 : 디스크에 저장되어 있는 컴파일된 실행 할 수 있는 코드</li>
+<li>프로세스 : 실행 중인 프로그램 (가상화된 메모리 인스턴스, 커널리소스, 보안정보 및 스레드를 지님)</li>
+<li>스레드 : 프로세스 내 실행단위(각 스레드는 가상화된 프로세서, 스택, 레지스터, 명령어 포인터를 가짐)</li>
+</ul>
+<h2 id="프로세스-id-pid">프로세스 ID (PID)</h2>
+<ul>
+<li>PID는 프레세스의 식별자로  해당 프로세스가 살아있는 동안 유일한 값</li>
+<li>idle프로세스의 PID는 0이고 init 프로세스의 PID는 1</li>
+<li>사용자가 커널에 명시적으로 요청하지 않으면 커널은 다음 순서로 init프로세스를 확인하여 실행, 실패 시 커널 패닉
+<ul>
+<li><code>/sbin/init</code> -&gt; <code>/etc/init</code> -&gt; <code>/bin/init</code> -&gt; <code>/bin/sh</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="pid-할당">PID 할당</h3>
+<ul>
+<li>보통 PID의 최대값은 32768이며 <code>/proc/sys/kernel/pid_max</code>로 설정 가능</li>
+<li>pid값이 pid_max 값에 도달해서 처음부터 다시 할당하기전까지는 앞선 pid 값이 비어 있더라도 재사용 하지 않음</li>
+</ul>
+<h3 id="프로세스-계층">프로세스 계층</h3>
+<ul>
+<li>새로운 프로세스를 생성(spawn)하는 프로세스를 부모 프로세스, 새롭게 생성된 프로세스를 자식 프로세스</li>
+<li>모든 프로세스는 사용자와 그룹이 소유, 소유란 리소스에 대한 접근권한을 제어하기 위해 사용</li>
+<li>모든 프로세스는 다른 프로세스와의 관계를 표한하고 있는 프로세스 그룹의 일부, 자식 프로세스는 부모 프로세스의 프로세스 그룹에 속함</li>
+</ul>
+<h3 id="pid_t">pid_t</h3>
+<ul>
+<li>pid는 pid_t 자료형으로 표현되며 &lt;sys/type.h&gt;에 정의, 보통 int자료형에 대한 typedef 임</li>
+</ul>
+<h3 id="프로세스id와-부모-프로세스-id-얻기">프로세스ID와 부모 프로세스 ID 얻기</h3>
+<ul>
+<li>getpid() 시스템콜은 호출한 프로세스의 pid를 반환</li>
+<li>getppid() 시스템 콜은 호출한 프로세스의 부모 프로세스 pid를 반환</li>
+</ul>
+<h2 id="새로운-프로세스-실행하기">새로운 프로세스 실행하기</h2>
+<ul>
+<li>exec 시스템 콜 : 프로그램 바이너리를 메모리에 적재, 프로세스의 주소공간에 있는 이전 내용 대체 후 새로운 프로그램의 실행 시작</li>
+<li>fork 시스템 콜 : 부모 프로세스를 거의 그대로 복제하여 새로운 프로세스를 생성</li>
+</ul>
+<h3 id="exec-함수들">exec 함수들</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">execl</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">path</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">arg</span><span class="p">,</span> <span class="p">...);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">execlp</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">file</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">arg</span><span class="p">,</span> <span class="p">...);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">execle</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">path</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">arg</span><span class="p">,</span> <span class="p">...,</span> <span class="kt">char</span><span class="o">*</span> <span class="k">const</span> <span class="n">envp</span><span class="p">[]);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">execv</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">path</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="k">const</span> <span class="n">envp</span><span class="p">[]);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">execvp</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">file</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="k">const</span> <span class="n">envp</span><span class="p">[]);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">execve</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">filename</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="k">const</span> <span class="n">argv</span><span class="p">[],</span> <span class="kt">char</span><span class="o">*</span> <span class="k">const</span> <span class="n">envp</span><span class="p">[]);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>execl 시스템콜을 호출 시 현재 프로세스를 path가 가리키는 프로그램으로 대체</li>
+<li>&hellip;은 가변인자로 가변인자의 목록은 반드시 NULL로 끝나야 함</li>
+<li>일반적으로 반환 값이 없으나 에러가 발생할 경우 -1을 반환하고 errno를 적절한 값으로 설정</li>
+<li>호출이 성공시 다음의 프로세스 속성도 변화
+<ul>
+<li>대기중인 시그널은 사라짐</li>
+<li>프로세스가 받은 시그널은 시그널 핸들러가 더이상 프로세스의 주소 공간에 존재하지 않으므로 디폴트 방식으로 처리</li>
+<li>메모리 락이 해제</li>
+<li>스레드의 속성 대부분이 기본값으로 변경</li>
+<li>프로세스의 통계 대부분이 재설정</li>
+<li>메모리에 매핑된 파일을 포함하여 그 프로세스 메모리 주소 공간과 관련된 내용 사라짐</li>
+<li>atexit()의 내용 처럼 사용자 영역에만 존재하는 모든 내용이 사라짐</li>
+</ul>
+</li>
+<li>pid, ppid, 우선순위, 소유자/그룹 속성은 유지</li>
+<li>열린 파일은 그대로 상속되나 실제로는 exec 호출 전 파일을 모두 close(), 하거나 fcntl()을 이용하여 커널이 모두 닫도록 하는 것을 많이 사용</li>
+<li>시스템 콜 함수는 execve이며 나머지는 래퍼 함수
+<ul>
+<li>l &amp; V : 인자를 리스트로 제공해야 하는지 배열(벡터)로 제공해야 하는지</li>
+<li>p : file 인자값을  사용자의 실행 경로 환경 변수에서 찾음</li>
+</ul>
+</li>
+</ul>
+<h3 id="fork-시스템콜">fork() 시스템콜</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">pid_t</span> <span class="nf">fork</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>fork()는 fork()를 실행한 프로세스(부모)와 거의 모든 내용이 동일한 새로운 프로세스(자식)을 생성
+<ul>
+<li>자식 프로세스의 pid는 부모와 다르며 ppid는 부모의 pid</li>
+<li>자식 프로세스의 리소스 통계는 0으로 초기화</li>
+<li>처리되지 않은 시그널은 모두 사라지고 자식 프로세스로 상속되지 않음</li>
+<li>부모 프로세스의 파일 락은 자식에게 상속되지 않음</li>
+</ul>
+</li>
+<li>자식 프로세스에서 fork()시스템콜 반환 값은 0, 부모에서는 자식의 pid</li>
+<li>실패시 -1을 반환하고 errno를 적절한 값으로 설정, 실패시 자식프로세스는 생성 안됨</li>
+</ul>
+<h4 id="copy-on-write">copy-on-write</h4>
+<ul>
+<li>리눅스는 fork()시 부모 프로세스의 주소 공간을 모두 복사하는 것이 아니라 페이지에 대한 COW를 수행
+<ul>
+<li>페이지가 변경될 때 까지 복사를 미루고 페이지가 변경되면 복사 후 쓰기</li>
+</ul>
+</li>
+</ul>
+<h4 id="vfork">vfork()</h4>
+<ul>
+<li>fork()와 같은 동작을 하지만 자식프로세스는 즉시 exec계열의 함수를 호출하던가 _exit()함수를 호출해야함</li>
+<li>주소공간 복사를 하지 않기 위한 시스템 콜이나 COW 도입 후 잘 안쓰임, 쓰지말자</li>
+</ul>
+<h2 id="프로세스-종료하기">프로세스 종료하기</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">exit</span><span class="p">(</span><span class="kt">int</span> <span class="n">status</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>exit() 호출 시 몇 가지 기본적인 종료 단계를 거쳐 커널이 프로세스 종료</li>
+<li>반환값 없음(프로세스가 종료되기 때문에)</li>
+<li>status 인자는 프로세스의 종료 상태를 나타내기 위한 값으로 쉘 같은 다른 프로그램에서 확인
+<ul>
+<li>status &amp; 0377 이 부모프로세스로 반환(ex. exit(EXIT_SUCCESS))</li>
+</ul>
+</li>
+<li>C 라이브러리 프로세스 종료 절차
+<ul>
+<li>atexit()나 on_exit()에 등록된 함수를 등록 역순 호출</li>
+<li>열려있는 모든 표준 입출력 스트림버퍼 비움</li>
+<li>tmpfile()함수를 통해 생성한 임시파일 삭제</li>
+</ul>
+</li>
+<li>위의 절차 종료후 _exit() 시스템콜을 호출(남은 종료 절차를 커널이 처리하도록)
+<ul>
+<li>리소스 정로(할당된 메모리, 열린파일, 시스템 V 세마포어)</li>
+</ul>
+</li>
+</ul>
+<h3 id="프로세스를-종료하는-다른-방법">프로세스를 종료하는 다른 방법</h3>
+<ul>
+<li>프로그램 끝가지 진행(main 함수 반환)
+<ul>
+<li>프로그램 정상 종료 시 exit(0), return 0을 반환하여 명시적으로 종료상태를 반환하는 것이 좋음</li>
+</ul>
+</li>
+<li>시그널 SIGTERM, SIGKILL 송신</li>
+<li>커널에게 밉보이기(잘못된 연산 및 세그멘테이션 폴트)</li>
+</ul>
+<h3 id="atexit">atexit</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">atexit</span><span class="p">(</span><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="kt">void</span><span class="p">));</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>프로세스의 정상 종료 시 호출할 함수를 등록
+<ul>
+<li>시그널에 의한 종료 시 등록된 함수는 미호출</li>
+<li>exec 함수 호출 시 등록된 함수 목록 삭제</li>
+</ul>
+</li>
+<li>등록된 함수는 등록된 함수의 역순으로 호출</li>
+<li>등록 가능한 함수의 개수는 ATEXIT_MAX 임(32개)</li>
+<li>성공 시 0을 반환, 에러 발생 시 -1 반환</li>
+</ul>
+<h3 id="sigchld">SIGCHLD</h3>
+<ul>
+<li>프로세스 종료 시 커널은 SIGCHLD 시그널을 부모 프로세스로 전송</li>
+<li>signal(), sigaction() 시스템 콜을 사용해서 이 시그널을 처리하도록 할 수 있음</li>
+</ul>
+<h2 id="자식-프로세스-종료-기다리기">자식 프로세스 종료 기다리기</h2>
+<ul>
+<li>자식프로세스가 부모 프로세스보다 먼저 죽으면 자식 프로세스는 좀비 프로세스로 변경 됨 (종료값 회수를 위해)
+<ul>
+<li>좀비 프로세스는 커널 자료 구조만 가지고 있는 프로세스 뼈대</li>
+<li>좀비가 된 프로세스는 부모가 자산의 상태를 조사하도록 기다리고 부모가 자신의 정보를 회수한 다음에서야 공식 종료 됨</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/wait.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">pid_t</span> <span class="nf">wait</span> <span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="n">status</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>wait() 호출 시 종료된 프로세스의 pid를 반환, 자식 프로세스 미종료 시 종료 때까지 블록</li>
+<li>에러가 발생한 경우 -1을 반환 후 errno 설정(ECHILD, EINTR)</li>
+<li>status가 NULL이 아닐 경우 추가 정보가 그 포인터에 저장, 이를 해석하기 위한 매크로를 함께 제공
+<ul>
+<li>int WIFEXOTED(status) 등 (책 참조)</li>
+</ul>
+</li>
+</ul>
+<h3 id="특정-프로세스-기다리기">특정 프로세스 기다리기</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/wait.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">pid_t</span> <span class="nf">waitpid</span> <span class="p">(</span><span class="kt">pid_t</span> <span class="n">pid</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">status</span><span class="p">,</span> <span class="kt">int</span> <span class="n">options</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>pid인자는 기다리기를 원하는 프로세스를 지정
+<ul>
+<li>&lt; -1 : 절대값 gid 일치, -1 : 모든 프로세스, 0 : 호출한 프로세서와 동일한 프로세스 그룹, 0 &gt; : pid 일치</li>
+</ul>
+</li>
+<li>status인자는 wait()와 같음</li>
+<li>option인자는 WNOHANG 등을 OR한 값 (책참조)</li>
+<li>반환값은 상태가 변경된 프로세스의 pid, 에러 발생시 -1 반환하고 errno를 변경(ECHILD, EINTR, EINVAL)</li>
+</ul>
+<h3 id="좀-더-다양한-방법으로-기다리기">좀 더 다양한 방법으로 기다리기</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/wait.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">pid_t</span> <span class="nf">waitid</span> <span class="p">(</span><span class="kt">idtype_t</span> <span class="n">idtype</span><span class="p">,</span> <span class="kt">id_t</span> <span class="n">id</span><span class="p">,</span> <span class="kt">siginfo_t</span> <span class="o">*</span><span class="n">infop</span><span class="p">,</span> <span class="kt">int</span> <span class="n">options</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>waitid()는 POSIX의 XSI확장에서 정의하고 리눅스에서 제공</li>
+<li>wait()보다 다양한 옵션 및 정보(siginfo_t 등)를 제공하나 리눅스가 아닌 시스템의 이식성을 고려하면 단순한 함수를 쓰는게 낫다</li>
+</ul>
+<h3 id="bsd-방식으로-기다리기">BSD 방식으로 기다리기</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/resource.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/wait.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">pid_t</span> <span class="nf">wait3</span> <span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="n">status</span><span class="p">,</span> <span class="kt">int</span> <span class="n">options</span><span class="p">,</span> <span class="k">struct</span> <span class="n">rusage</span> <span class="o">*</span><span class="n">rusage</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">pid_t</span> <span class="nf">wait4</span> <span class="p">(</span><span class="kt">pid_t</span> <span class="n">pid</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">status</span><span class="p">,</span> <span class="kt">int</span> <span class="n">options</span><span class="p">,</span> <span class="k">struct</span> <span class="n">rusage</span> <span class="o">*</span><span class="n">rusage</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>BSD에서 제공하는 독자적인 함수</li>
+<li>POSIX에서 정의한 함수가 아니므로 리소스 사용 정보가 매우 중요한 경우에만 사용할 것</li>
+</ul>
+<h3 id="새로운-프로세스를-띄운-다음-기다리기">새로운 프로세스를 띄운 다음 기다리기</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define _XOPEN_SOURCE </span><span class="cm">/* WEXITSTATUS 등을 사용할 경우 */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">system</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">command</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>새로운 프로세스를 생성하고 종료를 기다르는 동작을 하나로 묶은, 즉 동기식 프로세스 생성 인터페이스</li>
+<li>command 인자는 <code>/bin/sh -c</code> 뒤에 붙을 명령으로, command가 NULL이면 <code>/bin/sh</code>가 유효한 경우 0이 아닌 값을 반환(반대 시 0반환)</li>
+<li>호출 성공 시 wait()와 같이 그 명령의 상태를 반환, 실행한 명령의 종료코드는 WEXITSTATUS로 알 수 있음</li>
+<li>명령을 실행하는 동안 SIGCHLD는 블록되고 SIGINT와 SIGQUIT는 무시됨</li>
+</ul>
+<h3 id="좀비프로세스">좀비프로세스</h3>
+<ul>
+<li>프로세스가 종료될 때 리눅스 커널은 그 프로세스의 자식 프로세스들을 모두 init프로세스(pid 0)으로 입양</li>
+<li>init프로세스는 차례대로 주기적으로 자식 프로세스를 기다리며 오랫동안 좀비 상태로 남아있지 않도록 함</li>
+</ul>
+<h2 id="사용자와-그룹">사용자와 그룹</h2>
+<h3 id="실제-유효-저장된-사용자-id와-그룹-id">실제, 유효, 저장된 사용자 ID와 그룹 ID</h3>
+<ul>
+<li>프로세스에 연관된 사용자ID는 4종료
+<ul>
+<li>실제 사용자ID : 그 프로세스를 최초로 실행한 사용자의 uid</li>
+<li>유효 사용자ID : 그 프로세스가 현재 영향을 미치고 있는 사용자id(접근권한은 이 값을 기준으로 점검)</li>
+<li>저장된 사용자ID : 프로세스의 최초 유효 사용자ID, 프로세스가 포크되면 자식프로세스는 부모의 저장된 사용자ID를 상속</li>
+</ul>
+</li>
+<li>프로세스 초기에 실제 사용자ID와 유효 사용자ID는 동일, exec호출 도중 유효 사용자ID는 프로그램 파일을 소유한 사용자ID로 변경</li>
+<li>실제 사용자ID는 프로그램을 실제로 실행하는 사용자에서 속한 유효 사용자ID이며 저장된 사용자IDsms exec과정에서 suid 바이너리로 변경되기 전까지 유효한 사용자ID</li>
+<li>유효 사용자ID가 가장 중요한 값(자격 검증)</li>
+</ul>
+<h3 id="실제-저장된-사용자-그룹id-변경하기">실제, 저장된 사용자, 그룹ID 변경하기</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">setuid</span> <span class="p">(</span><span class="kt">uid_t</span> <span class="n">uid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">setgid</span> <span class="p">(</span><span class="kt">uid_t</span> <span class="n">gid</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>setuid()를 호출 시 현재 프로세스의 유효 사용자 ID를 설정한다
+<ul>
+<li>프로세스의 현재 유효 사용자ID가 0(root)일 때 실제 사용자와 저장된 사용자ID 역시 설정됨, root는 uid로 어떤 값이든 사용가능</li>
+<li>프로세스의 현재 유효 사용자ID가 0이 아닐 때, 실제 사용자와 저장된 사용자ID만 유효 사용자ID로 설정 가능</li>
+</ul>
+</li>
+<li>성공할 경우 0반환, 실패 시 -1 반환 errno를 변경 (EAGAIN, EPERM)</li>
+</ul>
+<h3 id="유효-사용자id나-유효-그룹-id-변경하기">유효 사용자ID나 유효 그룹 ID 변경하기</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">seteuid</span> <span class="p">(</span><span class="kt">uid_t</span> <span class="n">euid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">setegid</span> <span class="p">(</span><span class="kt">uid_t</span> <span class="n">egid</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>seteuid()를 호출 시 유효 사용자ID를 euid로 설정
+<ul>
+<li>root 사용자는 euid 값으로 어떤 값이든 사용 가능</li>
+<li>비 root 사용자는 euid 값으로 실제 사용자와 저장된 사용자ID만 유효 사용자ID로 설정 가능</li>
+</ul>
+</li>
+<li>성공할 경우 0반환, 실패 시 -1 반환 errno를 변경 (EAGAIN, EPERM)</li>
+<li>비 root사용자의 경우 seteuid()와 setuid()는 동일하게 동작
+<ul>
+<li>즉 항상 seteuid()를 사용하는 것이 표준에 맞음</li>
+<li>프로세스가 root로 실행된다면 setuid()를 사용하는 것이 합리적</li>
+</ul>
+</li>
+</ul>
+<h3 id="bsd-방식으로-사용자-그룹-id-변경하기">BSD 방식으로 사용자, 그룹 ID 변경하기</h3>
+<ul>
+<li>BSD는 사용자ID와 그룹ID를 설정할 수 있는 독자적인 인터페이스를 제공(setreuid(), setregid())</li>
+</ul>
+<h3 id="hp-ux-방식으로-사용자-그룹-id-변경하기">HP-UX 방식으로 사용자, 그룹 ID 변경하기</h3>
+<ul>
+<li>HP-UX도 사용자ID와 그룹ID를 설정할 수 있는 독자적인 인터페이스를 제공(setreuid(), setregid())</li>
+</ul>
+<h3 id="바람직한-사용자그룹-id-조작법">바람직한 사용자/그룹 ID 조작법</h3>
+<ul>
+<li>비 root 프로세스는 seteuid()를 사용해서 유효 사용자 ID를 변경</li>
+<li>root 프로세스는 세가지 사용자ID를 모두 바꾸려면 setuid()를 유효 사용자ID만 임시로 바꾸려고 한다면 seteuid()를 사용</li>
+</ul>
+<h2 id="세션과-프로세스-그룹">세션과 프로세스 그룹</h2>
+<ul>
+<li>프로세스 그룹이란 작업 제어 목적으로 하나 이상의 프로세스를 모아 놓은 집합</li>
+<li>프로세스 그룹의 주된 속성은 그룹 내 모든 프로세스에게 시그널을 보낼 수 있음</li>
+<li>프로세스 그룹은 프로세스 그룹ID(pgid)로 구분되며 이는 프로세스 그룹 리더의 pid와 동일</li>
+<li>구성원이 하나라도 남아있다면 프로세스 그룹은 사라지지 안흠(리더가 종료되더라도 프로세스 그룹은 남음)</li>
+<li>새로운 사용자가 처음으로 시스템 로그인 시 로그인 프로세스는 사용자 로그인 셸 프로세스 하나로 이루어진 새로운 세션을 생성(로그인 셀은 세션리더로 동작)</li>
+<li>세션은 하나 이상의 프로세스 그룹이 들어 있는 집합. 세션 리더의 pid는 세션 ID</li>
+<li>세션은 로그인한 사용자 활동을 처리 및 제어터미널(tty)과 사용자 사이를 연결(세션은 대부분 쉘과 관련을 맺음)</li>
+<li>세션은 제어 터미널을 둘러싼 로그인을 통합하는 기능</li>
+</ul>
+<h3 id="세션-시스템-콜">세션 시스템 콜</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">pid_t</span> <span class="nf">setsid</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>setsid()는 새로운 세션 내부에 새로운 프로세스 그룹을 생성하며 호출한 프로세스를 그 세션과 프로세스 그룹의 리더로 함</li>
+<li>setsid() 호출이 성공 시 새롭게 생성한 세션의 ID를 반환, 실패시 -1 반환하며 errno를 EPERM으로 설정(호출한 프로세스가 이미 프로세스 그룹 리더)</li>
+<li>어떤 프로세스가 프로세스 그룹 리더가 되지 않게 하는 가장 손쉬운 방법은 프로세스를 포크하고 부모 프로세스를 종료한다움 자식프로세스에서 setsid()를 호출</li>
+<li>getsid()로 현재 세션ID를 얻을 수 있음</li>
+</ul>
+<h3 id="프로세스-그룹-시스템-콜">프로세스 그룹 시스템 콜</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define _XOPEN_SOURCE 500
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">pid_t</span> <span class="nf">setpgid</span><span class="p">(</span><span class="kt">pid_t</span> <span class="n">pid</span><span class="p">,</span> <span class="kt">pid_t</span> <span class="n">pgid</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>setpgid()는 pid인자로 지정한 프로세스의 프로세스 그룹ID를 pgid로 설정</li>
+<li>pid가 0이면 현재 프로세스의 프로세스 그룹ID를 변경, pgid인자가 0인경우 pid인자로 지정한 프로세스ID를 프로세스 그룹ID로 설정</li>
+<li>setpgid() 호출이 성공 시 0을 반환, 에러 발생시 -1을 반환하고 errno를 설정(EACCES, EINVAL, EPERM, ESRCH)
+<ul>
+<li>pid로 지정한 프로세스가 해당 시스템콜을 호출하는 프로세스이거나 호출하는 프로세의 자식프로세스이며 아직 exec를 호출하지 않았고 부모프로세스와 동일한 세션일 것</li>
+<li>pid로 지정한 프로세스가 세션의 리도가 아닐 것</li>
+<li>pgid가 이미 있으면 호출하는 프로세스와 동일한 세션에 속해 있을 것</li>
+</ul>
+</li>
+<li>getpgid()로 프로세스의 프로세스 그룹ID를 얻는 것도 가능</li>
+</ul>
+<h3 id="사용되지-않는-프로세스-그룹-관련-함수들">사용되지 않는 프로세스 그룹 관련 함수들</h3>
+<ul>
+<li>setpgrp()/getpgrp() 같은 오래된 BSD 인터페이스도 있음</li>
+</ul>
+<h2 id="데몬">데몬</h2>
+<ul>
+<li>데몬은 백그라운드에서 수행되며 제어 터미널이 없는 프로세스</li>
+<li>데몬은 일반적으로 부팅 시에 시작되며 root 혹은 다른 특수한 사용자 계정 권한으로 실행 되어 시스템 수준의 작업을 처리</li>
+<li>crond, sshd처럼 편의를 위해 데몬의 이름은 d로 끝나는 경우가 많은데 필수적이거나 보편적인 것은 아님</li>
+<li>데몬의 필수조건은 반드시 init의 자식 프로세스여야 하며 터미널과 연결되어 있으면 안됨</li>
+<li>데몬이 되는 과정은 다음과 같다, 대부분의 유닉스 시스템은 daemon()함수를 제공하여 하기 과정을 자동화
+<ol>
+<li>fork()를 호출해서 데몬이 될 새로운 프로세스 생성</li>
+<li>부모 프로세스에서 exit()를 호출해 데몬 프로세스의 부모 프로세스 종료(데몬 프로세스가 프로세스 그룹의 리더가 되지 않도록)</li>
+<li>setsid()를 호출하여 데몬이 새로운 프로세스 그룹과 세션의 리더가 되도록 함(데몬프로세스가 제어터미널에 연관되지 않도록)</li>
+<li>chdir()을 사용하여 작업디렉토리를 루트 디렉토리로 변경(임의의 디렉토리가 계속 열린 상태로 실행되어 그 디렉토리를 해제하지 못하는 경우 방지)</li>
+<li>모든 파일 디스크립터를 닫음</li>
+<li>0,1,2 파일 디스트립터(표준 입력, 출력, 에러)를 열고 /dev/null로 다이렉트한다.</li>
+</ol>
+</li>
+</ul>
+
+</section>
+
+    
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/linux/">Linux</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/linux_system_programming-04-%EA%B3%A0%EA%B8%89%ED%8C%8C%EC%9D%BC-%EC%9E%85%EC%B6%9C%EB%A0%A5/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Linux_System_programming] 04 고급파일 입출력</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/linux_system_programming-03-buffer-i/o/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Linux_System_programming] 03 Buffer I/O</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/linux_system_programming-02-file-i/o/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Linux_System_programming] 02 File I/O</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2022 - 
+        
+        2023 MW Devlog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+                
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

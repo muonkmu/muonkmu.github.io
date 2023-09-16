@@ -6,10 +6,18 @@
         <description>Recent content in Categories on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Thu, 25 May 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 15 Sep 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>prj_RS_Acc</title>
+        <link>https://muonkmu.github.io/categories/prj_rs_acc/</link>
+        <pubDate>Fri, 15 Sep 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/categories/prj_rs_acc/</guid>
+        <description>&lt;img src="https://muonkmu.github.io/categories/prj_rs_acc/d435_camera_modules.jpg" alt="Featured image of post prj_RS_Acc" /&gt;</description>
+        </item>
+        <item>
         <title>Lin_Sys_prog</title>
         <link>https://muonkmu.github.io/categories/lin_sys_prog/</link>
-        <pubDate>Thu, 25 May 2023 00:00:00 +0000</pubDate>
+        <pubDate>Tue, 15 Aug 2023 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/categories/lin_sys_prog/</guid>
         <description>&lt;img src="https://muonkmu.github.io/categories/lin_sys_prog/lsp_book_cover.jpeg" alt="Featured image of post Lin_Sys_prog" /&gt;</description>

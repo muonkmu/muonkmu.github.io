@@ -164,7 +164,7 @@
 &lt;li&gt;General Network Configuration
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;systemd-networkd&lt;/code&gt;에 의해 기본적인 네트워크 구성이 된다.&lt;/li&gt;
-&lt;li&gt;네트워크 디바이스의 이름을 변경하고 싶거나 정적 IP/DHCP를 구성하고 싶을시 &lt;code&gt;/etc/systemd/netwokr&lt;/code&gt; 하위에 관련 설정 파일을 생성&lt;/li&gt;
+&lt;li&gt;네트워크 디바이스의 이름을 변경하고 싶거나 정적 IP/DHCP를 구성하고 싶을시 &lt;code&gt;/etc/systemd/network&lt;/code&gt; 하위에 관련 설정 파일을 생성&lt;/li&gt;
 &lt;li&gt;/etc/resolv.conf 파일을 이용해 인터넷 연결 시 필요한 DNS를 설정할 수 있다.&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;/etc/hosts&lt;/code&gt;에 호스트 이름을 설정(요즘은 네임서버가 거의 있어서 필요업지만 /etc/hosts를 참조하여 네임서버를 ip로 변환)&lt;/li&gt;
 &lt;/ul&gt;

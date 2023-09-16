@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Linux System Programming (Robert Love) chapter 04 Advanced File I/O summary'>
+<title>[Linux_System_programming] 04 고급파일 입출력</title>
+
+<link rel='canonical' href='https://muonkmu.github.io/p/linux_system_programming-04-%EA%B3%A0%EA%B8%89%ED%8C%8C%EC%9D%BC-%EC%9E%85%EC%B6%9C%EB%A0%A5/'>
+
+<link rel="stylesheet" href="/scss/style.min.f3b6945bee58731371ef6d5a992e6775ef6e63b9642101b9f59903b1c9e16941.css"><meta property='og:title' content='[Linux_System_programming] 04 고급파일 입출력'>
+<meta property='og:description' content='Linux System Programming (Robert Love) chapter 04 Advanced File I/O summary'>
+<meta property='og:url' content='https://muonkmu.github.io/p/linux_system_programming-04-%EA%B3%A0%EA%B8%89%ED%8C%8C%EC%9D%BC-%EC%9E%85%EC%B6%9C%EB%A0%A5/'>
+<meta property='og:site_name' content='MW Devlog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Linux' /><meta property='article:published_time' content='2023-06-14T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-06-14T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="[Linux_System_programming] 04 고급파일 입출력">
+<meta name="twitter:description" content="Linux System Programming (Robert Love) chapter 04 Advanced File I/O summary">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/minwook_large_hu93fbe6c7fccf94bb4165ea496a9d4637_41368_300x0_resize_q75_box.jpg" width="300"
+                            height="246" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MW Devlog</a></h1>
+            <h2 class="site-description">Embedded Engineer (HW,SW,SYSTEM)</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/muonkmu'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://www.linkedin.com/in/minwook-kim-35a417154/'
+                        target="_blank"
+                        title="Linkedin"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-linkedin" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+ <path stroke="none" d="M0 0h24v24H0z" fill="none"/> <rect x="4" y="4" width="16" height="16" rx="2" /> <line x1="8" y1="11" x2="8" y2="16" /> <line x1="8" y1="8" x2="8" y2="8.01" /> <line x1="12" y1="16" x2="12" y2="11" />
+ <path d="M16 16v-3a2 2 0 0 0 -4 0" />
+</svg>
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#벡터-입출력">벡터 입출력</a>
+      <ol>
+        <li><a href="#readv와-writev">readv()와 writev()</a></li>
+      </ol>
+    </li>
+    <li><a href="#epoll">epoll</a>
+      <ol>
+        <li><a href="#epoll-인스턴스-생성">epoll 인스턴스 생성</a></li>
+        <li><a href="#epoll-제어">epoll 제어</a></li>
+        <li><a href="#epoll-이벤트-대기">epoll 이벤트 대기</a></li>
+        <li><a href="#에지-트리거와-레벨트리거">에지 트리거와 레벨트리거</a></li>
+      </ol>
+    </li>
+    <li><a href="#메모리에-파일-매핑">메모리에 파일 매핑</a>
+      <ol>
+        <li><a href="#mmap">mmap()</a></li>
+        <li><a href="#munmap">munmap()</a></li>
+        <li><a href="#mmap-장점">mmap 장점</a></li>
+        <li><a href="#mmap-단점">mmap 단점</a></li>
+        <li><a href="#매핑-크기-변경">매핑 크기 변경</a></li>
+        <li><a href="#매핑의-보호모드-변경">매핑의 보호모드 변경</a></li>
+        <li><a href="#파일과-매핑의-동기화">파일과 매핑의 동기화</a></li>
+        <li><a href="#맵핑의-사용처-알려주기">맵핑의 사용처 알려주기</a></li>
+      </ol>
+    </li>
+    <li><a href="#일반-파일-입출력에-대한-힌트">일반 파일 입출력에 대한 힌트</a>
+      <ol>
+        <li><a href="#posix_fadvise-시스템콜">posix_fadvise() 시스템콜</a></li>
+        <li><a href="#readahead-시스템콜">readahead() 시스템콜</a></li>
+        <li><a href="#부담없이-힌트를-사용하자">부담없이 힌트를 사용하자</a></li>
+      </ol>
+    </li>
+    <li><a href="#동기화-동기식-비동기식-연산">동기화, 동기식, 비동기식 연산</a>
+      <ol>
+        <li><a href="#비동기식-입출력">비동기식 입출력</a></li>
+      </ol>
+    </li>
+    <li><a href="#입출력-스케줄러와-성능">입출력 스케줄러와 성능</a>
+      <ol>
+        <li><a href="#디스크-주소-지정-방식">디스크 주소 지정 방식</a></li>
+        <li><a href="#입출력-스케줄러-동작-방식">입출력 스케줄러 동작 방식</a></li>
+        <li><a href="#읽기-개선">읽기 개선</a></li>
+        <li><a href="#입출력-스케줄러-선택과-설정">입출력 스케줄러 선택과 설정</a></li>
+        <li><a href="#입출력-성능-최적화">입출력 성능 최적화</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/lin_sys_prog/" style="background-color: #458C40; color: #fff;">
+                Lin_Sys_prog
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/linux_system_programming-04-%EA%B3%A0%EA%B8%89%ED%8C%8C%EC%9D%BC-%EC%9E%85%EC%B6%9C%EB%A0%A5/">[Linux_System_programming] 04 고급파일 입출력</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Linux System Programming (Robert Love) chapter 04 Advanced File I/O summary
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jun 14, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    7 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    
+        <section class="article-content">
+    
+    
+    <h2 id="벡터-입출력">벡터 입출력</h2>
+<ul>
+<li>벡터 입출력은 한번의 시스템콜을 사용해서 여러개의 버퍼 벡터에 쓰거나 여러 개의 버퍼 벡터로 읽어 들일때 사용</li>
+<li>2장의 표준 읽기 쓰기는 선형 입출력이라 하며 이에 비해 다음의 장점이 있다.
+<ul>
+<li>여러 필드에 걸쳐 데이터가 분리되어 있다면 직관적인 방법으로 조작 가능</li>
+<li>여러번의 선형입출력 대체 가능하므로 효율적</li>
+<li>시스템콜의 횟수를 줄이고 선형입출력 구현에 비해 최적화 되어 효율적</li>
+<li>선형 입출력과 대조적으로 벡터 입출력 연산은 원자성을 보장</li>
+</ul>
+</li>
+</ul>
+<h3 id="readv와-writev">readv()와 writev()</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/uio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">iovec</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span><span class="o">*</span> <span class="n">iov_base</span><span class="p">;</span> <span class="c1">//버퍼의 시작포인터
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">size_t</span> <span class="n">iov_len</span><span class="p">;</span> <span class="c1">//버퍼의 크기(바이트)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">size_t</span> <span class="nf">readv</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="nc">iovec</span><span class="o">*</span> <span class="n">iov</span><span class="p">,</span> <span class="kt">int</span> <span class="n">count</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">size_t</span> <span class="nf">writev</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="nc">iovec</span><span class="o">*</span> <span class="n">iov</span><span class="p">,</span> <span class="kt">int</span> <span class="n">count</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>readv()는 파일 디스크립터 fd에서 데이터를 읽어서 count 개수만큼 iov버퍼에 저장</li>
+<li>writev()는 count 개수의 iov버퍼 데이터를 파일 디스크립터 fd에 씀</li>
+<li>iovec구조체는 세그멘트라고 하는 독립적으로 분리된 버퍼, 세그멘테이션 집합을 벡터라 부름</li>
+<li>readv(), writev()는 성공 시 읽거나 쓴 바이트 개수 반환, 에러 발생 시 -1을 반환 후 errno를 설정</li>
+</ul>
+<h2 id="epoll">epoll</h2>
+<ul>
+<li>커널 2.6에서 poll과 select의 한계를 극복하기 위한 epoll 도입
+<ul>
+<li>poll과 select가 실행시 마다 전체 파일 디스크립터를 요구하는 문제, epoll은 실제 검사할 파일디스크립터를 등록 부분을 분리</li>
+</ul>
+</li>
+</ul>
+<h3 id="epoll-인스턴스-생성">epoll 인스턴스 생성</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/epoll.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">epoll_create1</span><span class="p">(</span><span class="kt">int</span> <span class="n">flag</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// epoll_create는 구식 방법임
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>epoll 인스턴스 생성 및 그 인스턴스와 연관된 파일 디스크립터를 반환, 에러 발생시 -1 반환 후 errno를 설정</li>
+<li>flag는 EPOLL_CLOSEXEC만 유효, 새 프로세스가 실행될 때 이 파일을 자동적으로 닫아 줌</li>
+<li>epoll_create1에서 반환되는 파일 디스크립터는 사용 완료후 close()로 닫아 줄 것</li>
+</ul>
+<h3 id="epoll-제어">epoll 제어</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/epoll.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">epoll_event</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">__u32</span> <span class="n">event</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">union</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">__u32</span> <span class="n">u32</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">__u64</span> <span class="n">u64</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span> <span class="n">data</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">epoll_ctl</span><span class="p">(</span><span class="kt">int</span> <span class="n">epfd</span><span class="p">,</span> <span class="kt">int</span> <span class="n">op</span><span class="p">,</span> <span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">epoll_event</span> <span class="o">*</span><span class="n">event</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>epoll context에 파일 디스크립터를 추가하거나 삭제할때 사용, 호출이 성공하면 0을 반환, 실패시 -1을 반환 후 errno를 설정</li>
+<li>epfd : 호출이 성공시 epoll 인스턴스는 epfd 와 연결</li>
+<li>op : 파일드스크립터 fd가 가리키는 파일에 대한 작업을 명시
+<ul>
+<li>EPOLL_CTL_ADD 감시 추가, EPOLL_CTL_DEL 감시 삭제, EPOLL_CTL_MOD 감시 이벤트 갱신</li>
+</ul>
+</li>
+<li>epoll_event 구조체 event 필드는 감시할 이벤트 목록으로 OR연산으로 묶을 수 있음
+<ul>
+<li>EPOLLIN 지연되지 않고 읽기 가능 감시, EPOLLOUT 지연되지 않고 파일 쓰기 가능 감시, EPOLLPRI 읽어야할 OOB데이터 존재 여부 감시</li>
+<li>EPOLLERR 에러 상황 감시(default), EPOLLHUP 행업 감시(default)</li>
+<li>EPOLLET 감시 시 에지 트리거 사용, EPOLLONESHOT 한번 만 감시(다시 활성화 하려면 EPOLL_CTL_MOD로 다시 설정 필요)</li>
+</ul>
+</li>
+<li>epoll_evnet 구조체 data 필드는 사용자를 위한 필드로 이벤트가 발생해서 사용자에게 반환될때 함께 반환, 보통 data.fd를 fd로 채워씀</li>
+</ul>
+<h3 id="epoll-이벤트-대기">epoll 이벤트 대기</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/epoll.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">epoll_wait</span><span class="p">(</span><span class="kt">int</span> <span class="n">epfd</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">epoll_event</span> <span class="o">*</span><span class="n">events</span><span class="p">,</span> <span class="kt">int</span> <span class="n">maxevents</span><span class="p">,</span> <span class="kt">int</span> <span class="n">timeout</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>epoll_wait()를 호출하면 timeout 밀리 초 동안 epfd와 연관된 파일의 이벤트 대기, 호출이 성공 시 발생 이벤트 갯수를 실패시 -1을 반환 후 errno를 기록</li>
+<li>호출 성공 events에 해당 이벤트를 기록, 최대 maxevent만큼의 이벤트 기록</li>
+<li>timeout시 반환값음 0</li>
+</ul>
+<h3 id="에지-트리거와-레벨트리거">에지 트리거와 레벨트리거</h3>
+<ul>
+<li>트리거 종류, 당신이 생가하는 그거</li>
+</ul>
+<h2 id="메모리에-파일-매핑">메모리에 파일 매핑</h2>
+<h3 id="mmap">mmap()</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/mman.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span><span class="o">*</span> <span class="nf">mmap</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">addr</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">int</span> <span class="n">prot</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">,</span> <span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="n">off_t</span> <span class="n">offset</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>mmap()을 호출하면 파일디스크립터 fd가 가리키는 파일의 offset위치에서 len 바이트만큼 메모리에 매핑하도록 요청</li>
+<li>addr이 포함되면 메모리에서 해당주소를 선호한다고 커널에 알림(단지 제안일 뿐)</li>
+<li>mmap()은 성공시 맵핑의 실제 시작주소를 반환, 실패 시 MAP_FAILED 반환 후 errno를 설정</li>
+<li>prot인자는 맵핑에 원하는 메모리 보호 정책을 명시, OR 연산으로 묶어서 설정 가능
+<ul>
+<li>PROT_NONE 접근불가(거의 미사용), PROT_READ 읽기 가능, PROT_WRITE 쓰기가능, PROT_EXEC 실행가능</li>
+</ul>
+</li>
+<li>flags 인자에는 맵핑의 유형 및 동작 요소
+<ul>
+<li>MAP_FIXED : addr인자를 제안이 아닌 요구사항으로 취급, 커널이 해당주소를 확보 못할 시  호출 실패</li>
+<li>MAP_PRIVATE : 맵핑 미공유, 파일은 copy-on-write로 매핑, 매핑된 내용에 변경이 발생하더라도 실제파일이나 다른 프로세스에 미영향</li>
+<li>MAP_SHARED 같은 파일을 맵핑한 모든 프로세스와 맵핑 공유, 변경이 일어나면 실제 파일에서도 동일한 내용 기록</li>
+</ul>
+</li>
+<li>mmap()시스템콜은 페이지를 다루며 addr과 offset은 페이지 크기로 정렬되어야 함(정렬이 되지않은 값이 전달되면 정렬된 값으로 할당)</li>
+<li>페이지의 크기를 구하는 방법은 <code>sysconf(_SC_PAGESIZE)</code>, <code>getpagesize()</code> 등이 있음(이식성을 고려 시 sysconf를 사용)</li>
+<li>mmap()관련 시그널은 SIGBUS(프로세스가 유효하지 않은 맵핑영역 접근), SIGSEGV(읽기전용 매핑영역에 쓰려고 할 때)가 있음</li>
+</ul>
+<h3 id="munmap">munmap()</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/mman.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">munmap</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">addr</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">len</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>munmap()은 addr에서 len 바이트만큼 이어지는 프로세스 주소 공간 내 존재하는 페이지를 포함하는 맵핑을 해제</li>
+<li>성공시 0을 반환, 실패 시 -1을 반환하고 errno를 적절한 값으로 설정</li>
+</ul>
+<h3 id="mmap-장점">mmap 장점</h3>
+<ol>
+<li>read/write 시스템콜을 사용할 때 발생하는 불필요한 복사 방지</li>
+<li>잠재적인 페이지 폴트를 제외하면 매핑된 파일을 읽고 쓰는데 다른 시스템 콜이나 컨택스트 스위칭이 발생하지 않음</li>
+<li>여러 프로세스가 같은 객체를 메모리에 매핑한다면 데이터는 모든 프로세스 사이에서 공유</li>
+<li>lseek()같은 시스템콜을 사용하지 않고 매핑영역 탐색 가능</li>
+</ol>
+<h3 id="mmap-단점">mmap 단점</h3>
+<ol>
+<li>메모리 매핑은 페이지 크기의 정수배만 가능하므로 작은 파일이 많다면 공간이 낭비됨</li>
+<li>32비트 주소공간에서 다양한 크기의 수많은 매핑 사용시 주소공간이 파편화 됨(64비트 주소공간에서는 상관없음)</li>
+<li>메모리 매핑과 관련된 자료구조를 커널 내부에서 생성, 유지하는 오버헤드가 있음</li>
+</ol>
+<h3 id="매핑-크기-변경">매핑 크기 변경</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">#define _GNU_SOURSE
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/mman.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span><span class="o">*</span> <span class="nf">mremap</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">addr</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">old_size</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">new_size</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">flags</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>mremap()은 [addr, addr+old_size)에 매핑된 영역을 new_size만큼의 크기로 변경</li>
+<li>flags인자는 0이거나 MREMAP_MAYMOVE(크기변경 수행하는데 필요시 맵핑의 위치가 변경되도 됨)가 될 수 있다.</li>
+<li>성공 시 크기가 조정된 메모리 맵핑의 시작주소 반환, 실패시 MAP_FAILED 반환 후 errno를 설정</li>
+</ul>
+<h3 id="매핑의-보호모드-변경">매핑의 보호모드 변경</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/mman.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">mprotect</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">addr</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">int</span> <span class="n">prot</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>mremap()은 [addr, addr+len)내에 포함된 메모리의 페이지 보호모드를 prot로 변경(추가 아님)</li>
+<li>성공시 0을 반환, 실패 시 -1을 반환하고 errno를 설정</li>
+</ul>
+<h3 id="파일과-매핑의-동기화">파일과 매핑의 동기화</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/mman.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">msync</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">addr</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>msync()는 addr에서 len 바이트 만큼 매핑된 파일이나 파일의 일부를 디스크로 동기화</li>
+<li>msync()를 호출하지 않으면 매핑이 해제되기 전까지는 맵핑된 메모리에 쓰여진 내용이 디스크로 반영됨을 보장할 수 없다.</li>
+<li>flags는 동기화 방식 제어
+<ul>
+<li>MS_SYNC 동기화 호출, MS_ASYNC 비동기식 동기화, MS_INVALIDATE 맵핑의 캐시 복사본을 모두 무효화</li>
+</ul>
+</li>
+<li>성공시 0을 반환, 실패 시 -1을 반환하고 errno를 설정</li>
+</ul>
+<h3 id="맵핑의-사용처-알려주기">맵핑의 사용처 알려주기</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/mman.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">madvise</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">addr</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>madvice() 시스템콜은 주어진 힌트에 따라 맵핑의 동작 방식을 최적화(캐시 및 미리읽기 방식) 가능</li>
+<li>advice 인자는 커널에 알려줄 힌트 기술
+<ul>
+<li>MADV_NOMAL : 일반적 영역, 적당양 미리 읽기</li>
+<li>MADV_RANDOM : 랜덤하게 접근하는 영역, 미리읽기 미사용(최소한의 데이터만 가져옴)</li>
+<li>MADV_SEQUENTIAL : 순차적으로 접근하는 영역, 공격적인 미리 일기 수행</li>
+<li>MADV_WILLNEDD : 곧 접근하는 영역, 미리읽기 활성화 후 주어진 페이지를 메모리로 읽음</li>
+<li>MADV_DONTNEED : 당분간 접근하지 않는 영역, 페이지와 곤련된 자원 해제 후 동기화 되지 않은 페이지 버림</li>
+</ul>
+</li>
+<li>성공시 0을 반환, 실패 시 -1을 반환하고 errno를 설정</li>
+</ul>
+<h2 id="일반-파일-입출력에-대한-힌트">일반 파일 입출력에 대한 힌트</h2>
+<h3 id="posix_fadvise-시스템콜">posix_fadvise() 시스템콜</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;fcntl.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">posix_fadvise</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="kt">off_t</span> <span class="n">offset</span><span class="p">,</span> <span class="kt">off_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>fd의 [offset, offset+len] 범위에 대한 흰트를 제공</li>
+<li>주로 len을 0으로 넘겨서 파일 전체에 대한 힌트를 제공하는 방식으로 사용</li>
+<li>힌트에 대해 커널이 등으하는 방식은 구현에 따라 커널버전에 따라 다름
+<ul>
+<li>POSIX_FADV_NORMAL : 힌트없음, 적당한 미리읽기</li>
+<li>POSIX_FADV_RANDOM : 랜덤 접근, 미리읽기를 하지 않고 매번 일기마다 최소한의 데이터만 읽음</li>
+<li>POSIX_FADV_SEQUENTIAL : 순차접근, 미리읽기 윈도우 크기를 두배로 늘림</li>
+<li>POSIX_FADV_WILLNEED : 곧 접근함, 미리읽기 활성화하고 주어진 페이지를 메모리로 읽음</li>
+<li>POSIX_FADV_NOREUSE : 곧 한번만 접근, POSIX_FADV_WILLNEED와 동일하게 동작</li>
+<li>POSIX_FADV_DONTNEED : 당분간 안 접근함, 범위내의 캐싱 중인 데이터를 페이지 캐시에서 제거</li>
+</ul>
+</li>
+<li>성공 시 0 반환, 실패 시 -1 반환 후 errno 값을 설정</li>
+</ul>
+<h3 id="readahead-시스템콜">readahead() 시스템콜</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define _GNU_SOURCE
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;fcntl.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">ssize_t</span> <span class="nf">readahead</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="kt">off64_t</span> <span class="n">offset</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">count</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>리눅스 전용으로 POSIX_FADV_WILLNEED와 동일한 방식을 제공하기 위해 사용</li>
+<li>fd가 가리키는 파일의 [offset, offset+counter) 영역의 페이지를 캐시 생성</li>
+</ul>
+<h3 id="부담없이-힌트를-사용하자">부담없이 힌트를 사용하자</h3>
+<ul>
+<li>책에서는 힌트는 도움이 많이 된다고 기술</li>
+<li>POSIX_FADV_WILLNEED를 이용하여 읽으려는 파일을 미리 캐시에 넣어 어플리케이션에서 블로킹을 방지하거나</li>
+<li>비디오 스트림 기록 같은 경우 POSIX_FADV_DONTNEED로 캐시에서 제거 할 수 있음</li>
+</ul>
+<h2 id="동기화-동기식-비동기식-연산">동기화, 동기식, 비동기식 연산</h2>
+<ul>
+<li>동기식, 비동기식 용어는 입출력 연산이 반환하기 전 어떤 이벤트(ex. 데이터 저장)을 기다리는지 여부</li>
+<li>동기화, 비동기화 용어는 정학한 어떤 이벤트(ex. 데이터를 디스크에 기록)이 발생해야 함을 나타냄</li>
+<li>책에 표를 읽어보자</li>
+</ul>
+<h3 id="비동기식-입출력">비동기식 입출력</h3>
+<ul>
+<li>aio라이브러리는 비동기식 입출력을 요청하고 작업이 완료되면 알림을 받는 함수를 제공</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;aio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">aiocb</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">aio_fildes</span><span class="p">;</span>     <span class="c1">// 파일 디스크립터
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">aio_lio_opcode</span><span class="p">;</span> <span class="c1">// 수행할 작업
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">aio_reqrio</span><span class="p">;</span>     <span class="c1">// 요청 우선순위 오프셋
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">volatile</span> <span class="kt">void</span><span class="o">*</span> <span class="n">aio_buf</span><span class="p">;</span> <span class="c1">// 버퍼에 대한 포인터
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">size_t</span> <span class="n">aio_nbytes</span><span class="p">;</span> <span class="c1">// 연산의 크기
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">struct</span> <span class="n">sigevent</span> <span class="n">aio_sigevent</span><span class="p">;</span> <span class="c1">// 시그널의 번호와 값
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="cm">/* 내부적으로 사용하는 프라이빗 멤버 */</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">aio_read</span><span class="p">(</span><span class="k">struct</span> <span class="n">aiocb</span><span class="o">*</span> <span class="n">aiocbp</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">aio_write</span><span class="p">(</span><span class="k">struct</span> <span class="n">aiocb</span><span class="o">*</span> <span class="n">aiocbp</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">aio_error</span><span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="n">aiocb</span><span class="o">*</span> <span class="n">aiocbp</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">aio_return</span><span class="p">(</span><span class="k">struct</span> <span class="n">aiocb</span><span class="o">*</span> <span class="n">aiocbp</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">aio_cancel</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="k">struct</span> <span class="n">aiocb</span><span class="o">*</span> <span class="n">aiocbp</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">aio_fsync</span><span class="p">(</span><span class="kt">int</span> <span class="n">op</span><span class="p">,</span> <span class="k">struct</span> <span class="n">aiocb</span><span class="o">*</span> <span class="n">aiocbp</span><span class="p">)</span><span class="n">l</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">aio_suspend</span><span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="n">aiocb</span><span class="o">*</span> <span class="k">const</span> <span class="n">cblist</span><span class="p">[],</span> <span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="n">timespec</span><span class="o">*</span> <span class="n">timeout</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="입출력-스케줄러와-성능">입출력 스케줄러와 성능</h2>
+<h3 id="디스크-주소-지정-방식">디스크 주소 지정 방식</h3>
+<ul>
+<li>하드디스크는 CHS(cylinder, Head, Sector) 주소 지정방식 사용하며 요즘은 이 값대신 유일한 블록 번호를 CHS에 맵핑</li>
+</ul>
+<h3 id="입출력-스케줄러-동작-방식">입출력 스케줄러 동작 방식</h3>
+<ul>
+<li>입출력 스케줄러는 병합과 정렬이라는 두가지 기본 동작 수행(하드디스크의 입출력 성능 극대화를 위함)
+<ul>
+<li>병합은 둘 이상의 인접한 입출력 요청을 단일 요청으로 합침</li>
+<li>대기 중인 입출력 요청을 블록 순서의 오름 차순으로 정렬</li>
+</ul>
+</li>
+</ul>
+<h3 id="읽기-개선">읽기 개선</h3>
+<ul>
+<li>입출력 스케줄러에는 다음과 같은 방식이 있다.
+<ul>
+<li>데드라인 입출력 스케줄러</li>
+<li>예측 입출력 스케줄러</li>
+<li>CFQ 입출력 스케줄러</li>
+<li>Noop 입출력 스케줄러</li>
+</ul>
+</li>
+</ul>
+<h3 id="입출력-스케줄러-선택과-설정">입출력 스케줄러 선택과 설정</h3>
+<ul>
+<li>기본 입출력 스케줄러는 부팅 시 커널 명령행 인자인 iosched를 통해서 선택 가능</li>
+<li>`/sys/block/[device]/queue/scheduler 값을 변경해서 입출력 스케줄러 선택가능</li>
+</ul>
+<h3 id="입출력-성능-최적화">입출력 성능 최적화</h3>
+<ul>
+<li>자잘한 연산을 묶어 입출력 연산을 최소화 하거나 입출력을 블록 크기에 정렬되도록 수행하거나 3장의 사용자 버퍼링, 벡터 입출력, 2장의 위치를 지정한 입출력, 비동기식 입출력 등을 고려할 수 있다.</li>
+<li>사용자 영역 어플리케이션에서 커널과 유사한 방식을 사용하여 더 나은 성능을 얻을 수 있도록 노력해야함
+<ul>
+<li>사용자 영역에서 입출력 스케줄링 하기</li>
+<li>경로로 정렬하기</li>
+<li>inode로 정렬하기</li>
+<li>물리 블록으로 정렬하기</li>
+</ul>
+</li>
+</ul>
+
+</section>
+
+    
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/linux/">Linux</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/linux_system_programming-05-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4-%EA%B4%80%EB%A6%AC/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Linux_System_programming] 05 프로세스 관리</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/linux_system_programming-03-buffer-i/o/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Linux_System_programming] 03 Buffer I/O</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/linux_system_programming-02-file-i/o/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Linux_System_programming] 02 File I/O</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2022 - 
+        
+        2023 MW Devlog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+                
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
