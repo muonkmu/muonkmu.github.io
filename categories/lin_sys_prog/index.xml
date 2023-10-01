@@ -6,7 +6,472 @@
         <description>Recent content in Lin_Sys_prog on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Tue, 15 Aug 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/lin_sys_prog/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sun, 17 Sep 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/lin_sys_prog/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[Linux_System_programming] 06 프로세스 관리</title>
+        <link>https://muonkmu.github.io/p/linux_system_programming-06-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4-%EA%B4%80%EB%A6%AC/</link>
+        <pubDate>Sun, 17 Sep 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/linux_system_programming-06-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4-%EA%B4%80%EB%A6%AC/</guid>
+        <description>&lt;p&gt;유닉스는 바이너리 이미지를 메모리에 적재하는 과정에서 새로운 프로세스를 생성하는 부분을 분리함
+이는 fork(), exec()라는 두 개의 시스템 콜을 필요&lt;/p&gt;
+&lt;h2 id=&#34;프로세스-스케줄링&#34;&gt;프로세스 스케줄링&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;프로세서 스케줄러는 커널의 서브시스템으로 다음에 실행할 프로세서를 선택(시간 배분)&lt;/li&gt;
+&lt;li&gt;멀티 태스킹 운영체제는 선점형, 비선점형으로 나눔&lt;/li&gt;
+&lt;li&gt;현재(?) 리눅스 스케줄러는 CFS로 이전의 스케줄러(O(1) 등)과는 많이 다르다&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;타임-슬라이스&#34;&gt;타임 슬라이스&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;스케줄러가 선점하기 전까지 프로세스에 허락된 실행 시간 (스케줄러가 프로세스에 할당)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;입출력-위주-프로세스와-cpu-위주-프로세스&#34;&gt;입출력 위주 프로세스와 CPU 위주 프로세스&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;CPU위주 프로세스 : 무한 루프와 같이 사용가능한 타임 슬라이스를 끊임없이 계속 사용하는 프로세스(수학연산, 이미지 처리)&lt;/li&gt;
+&lt;li&gt;입출력 위주 프로세스 : 실행시간 보다 리소스를 사용하기 위해 기다리는 시간이 더 많은 프로세스(파일 네트워크 입출력)&lt;/li&gt;
+&lt;li&gt;CPU 위주 프로세스는 최대한 작업을 빨리 마칠 수 있도록 큰 타임 슬라이스가 적합하며 입출력 위즈 프로세스는 반응속도를 빠르게 하기 위해 작은 타임 슬라이스가 적합&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;선점형-스케줄링&#34;&gt;선점형 스케줄링&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;전통적인 유닉스 프로세스 스케줄링에서 모든 실행 가능한(블록되지 않은) 프로세스는 타임 슬라이스를 할당 받음&lt;/li&gt;
+&lt;li&gt;타임 슬라이스 모두 소진시 커널은 그 프로세스를 잠시 멈추고 다른 프로세스 실행&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;cfs-스케줄러&#34;&gt;CFS 스케줄러&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;CFS전의 유닉스는 스케줄링에 우선순위와 타임슬라이스라는 변수를 사용, 최신 데스크탑/모바일 장치에서는 조금 부족한 면이 있음&lt;/li&gt;
+&lt;li&gt;CFS(Completely Fair Scheduler)는 타임슬라이스를 사용하지 않는 공정한 스케줄링 알고리즘 사용
+&lt;ul&gt;
+&lt;li&gt;CFS는 N개 프로세스에 각각 1/N 만큼 CPU시간을 할당(한정된 시간, 즉 타겟 레이턴시를 N으로 나눔)하고 nice값에 따라 가중치를 둠&lt;/li&gt;
+&lt;li&gt;가중치가 높을 수록 더 많은 CPU시간을 할당(기본값은 0 = 가중치 1)&lt;/li&gt;
+&lt;li&gt;프로세스가 많아서 할당받은 CPU시간이 매우 적을 때를 대비해 핵심 변수인 최소단위를 사용&lt;/li&gt;
+&lt;li&gt;최소 단위가 효과를 발휘하면 공정성이 무너진다는 뜻이므로 평범한 상황에서는 최소단위가 적용되지 않고 타겟레이턴시 만으로 공정성을 유지&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;CFS는 CPU위주 프로세스와 입출력 위주 프로세스를 함케 스케줄링하는데서 발생하는 많은 문제를 해결&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;프로세서-양보하기&#34;&gt;프로세서 양보하기&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sched.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;sched_yield&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;sched_yield()를 호출하면 현재 실행 중인 프로세스를 잠시 멈춘 다음 스케줄러가 다음에 실행할 새로운 프로세스를 선택하도록 함&lt;/li&gt;
+&lt;li&gt;다른 실행 가능한 프로세스가 없으면 sched_yield()를 호출한 프로세스의 실행이 즉시 재개&lt;/li&gt;
+&lt;li&gt;호출 성공시 0반환, 실패 시 -1 반환 후 errno를 적절한 에러 코드로 설정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;적당한-사용법&#34;&gt;적당한 사용법&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;선점형 멀티태스킹에서 커널은 어플리케이션보다 더 효율적으로 스케줄링 할 수 있으므로 sched_yield()는 잘 사용하지 않음&lt;/li&gt;
+&lt;li&gt;외부 인터럽트를 기다려야 하는 프로그램에서 사용할 수 있지만 유닉스 프로그램은 블록가능한 파일 디스크립터에 의존하는 이벤트 드리븐 해법을 목표로 함&lt;/li&gt;
+&lt;li&gt;최근까지 사용자 영역에서 스레드 락이라는 상황에서 sched_yield()가 필요했으나 최신 커널에서는 퓨텍스(Fast user-space mutex)를 사용&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;프로세스-우선순위&#34;&gt;프로세스 우선순위&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;프로세스에 할당되는 CPU시간은 nice값(프로세스 우선순위)에 의해 우선 순위가 할당&lt;/li&gt;
+&lt;li&gt;nice값은 -20~19 까지 가능(default 0), nice값이 적을 수록 우선순위가 높다(타임슬라이스가 커짐)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;nice&#34;&gt;nice()&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;nice&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;inc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;nice() 호출이 성공하면 inc만틈 프로세스의 nice 값을 증가 시킴&lt;/li&gt;
+&lt;li&gt;CAP_SYS_NICE 기능이 있는 프로세스(사실상 root소유 프로세스)만 inc에 음수를 넘겨 nice값을 감소시킬수 있다&lt;/li&gt;
+&lt;li&gt;에러가 발생하면 -1, 성공시 nice 값 반환(-1 반환이 가능하므로 errno를 0으로 초기화 후 검사가 필요)(에러코드 EPRM, EINVAL)&lt;/li&gt;
+&lt;li&gt;inc에 0을 넘겨 현재 nice 값도 알 수 있다&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;getpriority와-setpriority&#34;&gt;getpriority()와 setpriority()&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/time.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/resource.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getpriority&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;which&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;who&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setpriority&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;which&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;who&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;prio&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;우선순위 설정에 선호되는 방법은 좀 더 많은 제어가 가능한 getpriority(), setpriority() 시스템콜 사용&lt;/li&gt;
+&lt;li&gt;which는 PRIO_PROCESS, PRIO_PGRP, PRIO_USER 중 하나 일것&lt;/li&gt;
+&lt;li&gt;who는 프로세스 ID, 프로세스 그룹ID, 사용자ID(0이라면 현재 프로세스/프로세스그룹/사용자 ID로 해석)&lt;/li&gt;
+&lt;li&gt;getpriority() 호출 시 지정한 프로세스 중 가장 높은 우선순위 반환
+&lt;ul&gt;
+&lt;li&gt;에러가 발생하면 -1, 성공시 nice 값 반환(-1 반환이 가능하므로 errno를 0으로 초기화 후 검사가 필요)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;setpriority() 호출 시 모든 프로세스의 우선순위를 prio로 변경
+&lt;ul&gt;
+&lt;li&gt;CAP_SYS_NICE 기능이 있는 프로세스만 nice값을 감소시킬수 있다&lt;/li&gt;
+&lt;li&gt;호출 성공 시 0, 실패 시 -1 반환&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;입출력-우선순위&#34;&gt;입출력 우선순위&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;기본적으로 입출력 스케줄러는 입출력 우선순위를 결정하기 위해 프로세스의 nice값을 사용&lt;/li&gt;
+&lt;li&gt;nice값 설정 시 자동적으로 입출력 우선순위도 변경&lt;/li&gt;
+&lt;li&gt;리눅스 커널은 nice값에 독립적으로 입출력 우선 순위를 명시적으로 설정하고 가져올 수 있는 추가적 시스템 콜을 제공
+&lt;ul&gt;
+&lt;li&gt;ioprio_get, ioprio_set&lt;/li&gt;
+&lt;li&gt;그러나 사용자 영역 인터페이스는 제공하지 않음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;프로세스-친화&#34;&gt;프로세스 친화&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;리눅스는 멀티 프로세서를 지원하며 스케줄러는 프로세스가 어떤 CPU에서 수행할지 결정해야함&lt;/li&gt;
+&lt;li&gt;프로세스가 다른 CPU로 이전하는 것은 부대 비용이 발생해 스케줄러는 최대한 프로세스를 특정 CPUd에 유지하려 함
+&lt;ul&gt;
+&lt;li&gt;부대비용 : CPU 이동시 이동한 CPU캐시에 접근불가, 이전 CPU 캐시의 내용을 무효로 해야 함&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;CPU 사용률 불균형 해소를 위해 언제 프로세스를 옮길지 결정하는 작업을 로드 밸렁싱이라 함&lt;/li&gt;
+&lt;li&gt;프로세서 친화도는 프로세스를 꾸준히 같은 CPU에 스케줄링할 가능성을 말하며 느슨한 친화도, 엄격한 친화도가 있다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;sched_getaffinity와-sched_setaffinity&#34;&gt;sched_getaffinity()와 sched_setaffinity()&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#define _GNU_SOURCE
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sched.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;cpu_set_t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;CPU_SETSIZE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;CPU_SET&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cpu&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;cpu_set_t&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;set&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;CPU_CLR&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cpu&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;cpu_set_t&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;set&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;CPU_ISSET&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cpu&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;cpu_set_t&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;set&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;CPU_ZERO&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;cpu_set_t&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;set&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;sched_setaffinity&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;setsize&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;cpu_set_t&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;set&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;sched_getaffinity&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;setsize&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;cpu_set_t&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;set&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;sched_getaffinity() 호출 시 프로세스의 pid의 CPU 친화도를 조회하여 cpu_set_t 타입 변수에 저장
+&lt;ul&gt;
+&lt;li&gt;pid가 0이면 현재 프로세스의 친화도를 조회&lt;/li&gt;
+&lt;li&gt;setsize 인자는 cpu_set_t타입의 크기(sizeof(cpu_set_t))를 나타내며 타입의 크기가 바뀔 시 호환성 유지 목적&lt;/li&gt;
+&lt;li&gt;호출이 성공하면 0을 반환, 실패시 -1을 반환하고 errno를 설정(EFAULT, EINVAL, EPERM, ESRCH)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;CPU_SETSIZE는 set인자의 크기가 아니라 set으로 표현할 수 있는 프로세스의 개수이며 현재 구현은 각 프로세스를 단일 비트로 표현&lt;/li&gt;
+&lt;li&gt;책에 예제 있으므로 읽어보자&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;실시간-시스템&#34;&gt;실시간 시스템&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;실시간 시스템은 운영 시 지켜야 할 최소한의 응답속도가 보장되어야 함&lt;/li&gt;
+&lt;li&gt;리눅스 및 최신의 운영체제는 실시간성을 몇단계로 나눠 지원&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;실시간-시스템의-종류&#34;&gt;실시간 시스템의 종류&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;실시간 시스템은 하드 실시간, 소프트 실시간으로 나뉨&lt;/li&gt;
+&lt;li&gt;실시간 시스템이 반드시 빠를 필요는 없다, 사실 같은 하드웨어에서 비교 시 실시간 시스템은 실시간 프로세스를 지원하는데 따른 부하로 비 실시간 시스템 보다 느릴 수 있다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;레이턴시-지터-최소-응답시간&#34;&gt;레이턴시, 지터, 최소 응답시간&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;레이턴시 : 명령이 내려졌을 때 실행을 시작하기까지의 시간(명령이 언제 내려졌는지 정확하게 알아야 해서 측정이 힘듬)&lt;/li&gt;
+&lt;li&gt;지터 : 연속적인 이벤트 간의 시간 편차&lt;/li&gt;
+&lt;li&gt;하드 실시간 시스템에서 지터가 0이고 레이턴시가 최소 응답시간과 같도록 설계&lt;/li&gt;
+&lt;li&gt;소프트 실시간 시스템은 지터에 더 민감&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;리눅스의-실시간-지원&#34;&gt;리눅스의 실시간 지원&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;리눅스는 IEEE표준에 정의된 시스템 콜 함수군을 통해 소프트 실시간을 지원&lt;/li&gt;
+&lt;li&gt;리눅스 커널의 실시간 지원은 더 짧은 레이턴시와 일관적인 지터를 제공할 수 있도록 계속 개선됨&lt;/li&gt;
+&lt;li&gt;리눅스 커널에 적용된 임베디드 시스템과 실시간 시스템을 위한 변경은 공식 메인스트림이 아님, 그러나 실시간을 위한 변경은 POSIX 인터페이스를 활용
+(다음 설명할 내용은 변경된 시스템에서도 유효)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;리눅스-스케줄링-정책과-우선순위&#34;&gt;리눅스 스케줄링 정책과 우선순위&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;프로세스와 관련된 리눅스 스케줄러의 동작 방식은 스케줄링 클래스라고 불리는 프로세스의 스케줄링 정책에 의존&lt;/li&gt;
+&lt;li&gt;리눅스는 기본정책(SCHED_OTHER) 외 두가지 실시간 스케줄링 정책(SCHED_FIFO, SCHED_RR)을 제공&lt;/li&gt;
+&lt;li&gt;모든 프로세스는 nice 값과 무관한 고유의 우선순위를 가지며 리눅스는 항상 가장 높은 우선순위의 프로세스를 실행&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;fifo-정책&#34;&gt;FIFO 정책&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;FIFO 스케줄링 정책은 타임 슬라이스를 필요로 하지 않는 매우 단순한 실시간 스케줄 정책&lt;/li&gt;
+&lt;li&gt;FIFO 스케줄링을 따르는 프로세스는 더 높은 우선순위의 프로세스가 실행가능한 상태가 되지 않는 한 계속 실행&lt;/li&gt;
+&lt;li&gt;FIFO 스케줄링 정책은 SCHED_FIFO로 지정&lt;/li&gt;
+&lt;li&gt;기본적으로 시스템 내에서 가장 높은 우선순위를 가진다면 원하는 만큼 계속 실행이 가능&lt;/li&gt;
+&lt;li&gt;스케줄링 상세 내역은 책을 참조&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;라운드-로빈-스케줄링-정책&#34;&gt;라운드 로빈 스케줄링 정책&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;라운드 로빈 스케줄링 정책은 SCHED_RR 매크로로 지정&lt;/li&gt;
+&lt;li&gt;스케줄러는 각 라운드 로빈 프로세스에 타임슬라이스를 배분&lt;/li&gt;
+&lt;li&gt;라운드로빈 프로세스가 타임슬라이스를 다 소진하면 스케줄러는 같은 우선순위 프로세스 목록에서 다음 프로세스를 실행&lt;/li&gt;
+&lt;li&gt;상기 내용을 제외하고는 FIFO 정책과 동일&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;표준-스케줄링-정책&#34;&gt;표준 스케줄링 정책&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;SCHED_OTHER 매크로는 비실시간 프로세스의 기본 스케줄링 정책인 표준 스케줄링 정책&lt;/li&gt;
+&lt;li&gt;모든 일반 프로세스는 고유의 우선순위로 0을 가지므로 FIFO나 RR프로세스는 실행중인 일반 프로세스를 선점 가능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;배치-스케줄링-정책&#34;&gt;배치 스케줄링 정책&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;SCHED_BATCH는 일괄 또는 유휴 스케줄링 정책(실시간 정책과 약간 반되되는 동작)&lt;/li&gt;
+&lt;li&gt;이 정책을 따르는 프로세스는 다른 프로세스가 타임 슬라이스를 모두 소진했더라도 시스템에 실행 가능한 프로세스가 없을 때만 실행&lt;/li&gt;
+&lt;li&gt;우선 순위가 더 높은 프로세스가 타임슬라이스를 다 소진하면 결국에 우선 순위가 가장 낮은 프로세스도 실행 가능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;리눅스-스케줄링-정책-설정하기&#34;&gt;리눅스 스케줄링 정책 설정하기&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sched.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_param&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;cm&#34;&gt;/* ... */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_priority&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;cm&#34;&gt;/* ... */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;sched_getscheduler&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;sched_setscheduler&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;policy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_param&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;sched_getscheduler()함수는 호출이 성공하면 pid로 지정한 프로세스의 스케줄링 정책 반환(SCHED_FIFO 등)
+&lt;ul&gt;
+&lt;li&gt;pid가 0일시 호출한 프로세스 스케줄링 정책 반환&lt;/li&gt;
+&lt;li&gt;호출이 실패 시 -1를 반환하고 errno를 적절한 값으로 설정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;sched_setscheduler()를 호출하면 pid로 지정한 프로세스의 스케줄링 정책을 설정
+&lt;ul&gt;
+&lt;li&gt;스케줄링 정책은 sp인자를 통해 설정, pid가 0이면 호출한 프로세스 스케줄링 정책을 설정&lt;/li&gt;
+&lt;li&gt;호출 성공 시 0반혼, 실패시 -1 반환 및 errno를 적절한 값으로 설정(EFAULT, EINVAL, EPERM, ESRCH)&lt;/li&gt;
+&lt;li&gt;sched_param에서 유효한 필드는 스케줄링 정책에 따라 다르며 RR/FIFO는 sched_priority만 유효&lt;/li&gt;
+&lt;li&gt;SCHED_OTHER외 다른 스케줄 정책을 적용하려면 CAP-SYS_NICE가 필요(대부분 root사용자가 실행)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;스케줄링-인자-설정하기&#34;&gt;스케줄링 인자 설정하기&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sched.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_param&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;cm&#34;&gt;/* ... */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_priority&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;cm&#34;&gt;/* ... */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;sched_getparam&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_param&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;sched_setparam&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sched_param&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;sched_getparam() 호출 시 sp인자를 통해 pid로 지정한 프로세스의 스케줄링 설정값 반환
+&lt;ul&gt;
+&lt;li&gt;pid가 0일시 호출한 프로세스 스케줄링 정책 반환&lt;/li&gt;
+&lt;li&gt;호출이 실패 시 -1를 반환하고 errno를 적절한 값으로 설정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;sched_setparam() 호출 성공시 pid로 지정한 프로세스의 스케줄링 인자는 sp에 지정한 내용으로 설정
+&lt;ul&gt;
+&lt;li&gt;호출 성공 시 0 반환, 실패시 -1 반환 및 errno설정(EFAULT, EINVAL, EPERM, ESRCH)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;유효한-우선순위-범위-확인&#34;&gt;유효한 우선순위 범위 확인&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;POSIX는 시스템에 어떤 우선순위 값이 존재하는지 보장하지 않음(min/max 값 사이에 적어도 32개의 우선순위가 존재해야 한다는 것만 명시)&lt;/li&gt;
+&lt;li&gt;프로그램은 보통 자체 우선순위 값을 두고 이를 운영체제에 제공하는 우선순위에 맵핑하는 방법을 사용&lt;/li&gt;
+&lt;li&gt;따라서 우선순위 min/max값을 확인할 수 있는 2가지 시스템 콜을 제공&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sched.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;sched_get_priority_min&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;policy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;sched_get_priority_max&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;policy&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;sched_get_priority_min/max() 시스템콜은 policy 인자에서 명시한 스케줄링 정책과 관련된 최소/최대 우선순위 반환
+&lt;ul&gt;
+&lt;li&gt;호출 실패시 -1 반환, errno는 EINVAL&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;sched_rr_get_interval&#34;&gt;sched_rr_get_interval()&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sched.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;timespec&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;kt&#34;&gt;time_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tv_sec&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;cm&#34;&gt;/* 나노 초 */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tv_nsec&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;cm&#34;&gt;/* 나노 초 */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;sched_rr_get_interval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pid_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pid&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;timespec&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;sched_rr_get_interval()은 호출이 성공하면 pid 프로세스에 할당된 타임 슬라이스의 길이를 tp 포인터가 가리키고 있는 timespec 구조체에 저장&lt;/li&gt;
+&lt;li&gt;호출 성공 시 0, 실패 시 -1 반환 및 errno 설정(EFAULT, EINVAL, ESRCH)&lt;/li&gt;
+&lt;li&gt;POSIX 표준에 따르면 이 함수는 SCHED_RR 프로세스에 대해서만 사용해야 하지만 리눅스에서는 어떤 프로세스의 타임 슬라이스 길이도 반환&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;실시간-프로세스의-주의점&#34;&gt;실시간 프로세스의 주의점&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;CPU를 계속 사용하는 루프가 인터럽트나 더 높은 우선순위 실시간 프로세스가 없어도 무한히 실행되지 않도록(시스템 hang 방지)&lt;/li&gt;
+&lt;li&gt;실시간 프로세스는 시스템에서 가장 비싼 비용으로 실행, 시스템의 다른 부분이 CPU시간을 얻지 못하는 일이 없도록&lt;/li&gt;
+&lt;li&gt;busy waiting 사용 시 주의(ex. 우선순위 낮은 프로세스의 리소스를 실시간 프로세스가 대기 시)&lt;/li&gt;
+&lt;li&gt;실시간 프로세스를 개발할 때 그 실시간 프로세스보다 우선순위가 높은 터미널을 하나 열어놓을 것(비상 탈출)&lt;/li&gt;
+&lt;li&gt;util-linux 패키지의 chrt 유틸리티는 쉽게 다른 프로세스의 실시간 속성을 가져오거나 설정할 수 있다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;결정론&#34;&gt;결정론&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;실시간 컴퓨팅 환경에서 결정론적 : 주어진 입력이 같다면 항상 같은 결과를 같은 시간안에 도출&lt;/li&gt;
+&lt;li&gt;최신의 컴퓨터는 여러 계층에 걸친 캐시, 멀티 프로세서, 페이징 스와핑, 멀티태스킹으로 인해 결정론적이지 않음&lt;/li&gt;
+&lt;li&gt;실시간 어플리케이션은 예측할 수 없는 부분과 최악의 지연을 제한하기 위해 선행폴트 데이터와 메모리락, CPU친화도를 이용&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;선행폴트-데이터와-메모리-락&#34;&gt;선행폴트 데이터와 메모리 락&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;페이징과 스와핑은 실시간 프로세스를 망가트릴 수 있는 비결정적인 동작 야기&lt;/li&gt;
+&lt;li&gt;선행폴트를 일으켜 스와핑된 데이터를 메모리에 올린 다음, 주소공간 내 모든 페이지를 실제 물리 메모리에 락을 걸거나 고정 배선 해버림&lt;/li&gt;
+&lt;li&gt;페이지가 담겨 있는 모든 메모리를 락 걸고 나면 커널은 절대 이 페이지를 디스크로 스왑하지 않음&lt;/li&gt;
+&lt;li&gt;4장에서는 데이터를 메모리에 선행 폴트하는 인터페이스(readahead)를, 9장에서는 물리 메모리에 있는 데이터를 락거는 방법 설명&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;cpu-친화도와-실시간-프로세스&#34;&gt;CPU 친화도와 실시간 프로세스&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;멀티태스킹에서 (비록 선점형이라도) 스케줄러는 항상 특정 프로세스를 위해 다른 프로세스를 즉시 스케줄링 할 수 없다. (다른 프로세스가 크리티컬 섹션에서 동작할 경우 등)&lt;/li&gt;
+&lt;li&gt;멀티태스킹은 페이징에 관련된 예측 불가능성에 따른 비결정성을 유발&lt;/li&gt;
+&lt;li&gt;만약 멀트 프로세스 시스템이라면 그 중 하나를 실시간 프로세스에만 할당하면 됨
+&lt;ul&gt;
+&lt;li&gt;이를 간단하게 구현하는 것은 init프로그램 수정(책에 코드 설명 있음)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;리소스-제한&#34;&gt;리소스 제한&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;리눅스 커널은 프로세스에 대해 파일개수, 메모리 페이지, 대기중 시그널 같은 커널 리소스 제한을 도입&lt;/li&gt;
+&lt;li&gt;커널은 이 제한을 초과하는 리소스 소비를 허용하지 않음(허용 수치를 초과하면 해당 호출 실패)&lt;/li&gt;
+&lt;li&gt;리소스 제한을 설정할 수 있는 두가지 시스템콜을 제공(getrlimit, setrlimit)&lt;/li&gt;
+&lt;li&gt;소프트제한은 프로세스 생성 시 기본으로 적용되는 한도, 하드제한은 소프트제한이 최대한 늘릴 수 있는 제한&lt;/li&gt;
+&lt;li&gt;프로세스는 소프트제한값을 0~하드제한값까지 자유롭게 변경가능, CAP_SYS_RESOURCE 기능이 제한된 프로세스(non-root)는 하드제한보다 낮은 값만을 설정 가능&lt;/li&gt;
+&lt;li&gt;리소스 제한의 특수 값 0: 리소스 사용 금지, -1 : 무한값&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;제한&#34;&gt;제한&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;리눅스에는 16가지 리소스 제한이 존재 (책에 설명 있음)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;기본제한&#34;&gt;기본제한&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;프로세스에 적용 가능한 기본 제한은 최초의 소프트제한, 최초의 하드제한, 시스템 관리자라는 세가지 변수에 의존(책에 기본값 표 있음)&lt;/li&gt;
+&lt;li&gt;실제제한은 일반적으로 시스템 관리자가 여러가지 제한을 설정해둔 사용자의 쉘에 의해 결정&lt;/li&gt;
+&lt;li&gt;관리자는 이값을 낮출 필요가 없음.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;제한-설정과-조회&#34;&gt;제한 설정과 조회&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/time.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/resource.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rlimit&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;kt&#34;&gt;rlim_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rlim_curr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;cm&#34;&gt;/* 소프트 제한 */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;kt&#34;&gt;rlim_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rlim_max&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;cm&#34;&gt;/* 하드 제한 */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;getrlimit&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;resource&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rlimit&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rlim&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;setrlimit&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;resource&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rlimit&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rlim&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;getrlimit()는 resource인자가 나타내는 리소스의 하드제한과 소프트제한을 rlim포인터가 기리키고 있는 구조체에 저장&lt;/li&gt;
+&lt;li&gt;setrlimit()는 resource인자로 지정한 리소스의 제한을 rlim 포인터가 가리키는 값으로 설정&lt;/li&gt;
+&lt;li&gt;호출이 성공시 0반환, 실패시 -1반환 및 errno를 설정 (EFAULT, EINVAL, EPERM)&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>[Linux_System_programming] 05 프로세스 관리</title>
         <link>https://muonkmu.github.io/p/linux_system_programming-05-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4-%EA%B4%80%EB%A6%AC/</link>
         <pubDate>Tue, 15 Aug 2023 00:00:00 +0000</pubDate>
