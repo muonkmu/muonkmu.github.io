@@ -6,7 +6,397 @@
         <description>Recent content in Linux on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sun, 17 Sep 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/linux/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sun, 01 Oct 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/tags/linux/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[Linux_System_programming] 07 스레딩</title>
+        <link>https://muonkmu.github.io/p/linux_system_programming-07-%EC%8A%A4%EB%A0%88%EB%94%A9/</link>
+        <pubDate>Sun, 01 Oct 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/linux_system_programming-07-%EC%8A%A4%EB%A0%88%EB%94%A9/</guid>
+        <description>&lt;p&gt;스레딩은 단일 프로세스 내에서 실행 유닛을 여러개 생성하고 관리하는 작업
+스레딩은 데이터 경쟁 상태와 데드락을 통해 프로그래밍 에러를 발생시키는 원인(잘 해결해보자)&lt;/p&gt;
+&lt;h2 id=&#34;바이너리-프로세스-스레드&#34;&gt;바이너리, 프로세스, 스레드&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;바이너리 : 저장장치에 기록된 프로그램, 실행되지 않은 프로그램&lt;/li&gt;
+&lt;li&gt;프로세스 : 실행된 바이너리를 표현하기 위한 운영체제 추상개념(가상화된 메모리, 열린 파일디스크립터, 커널 리소스 등을 포함)&lt;/li&gt;
+&lt;li&gt;스레드 : 프로세스 내의 실행단위(운영체제의 프로세스 스케줄러에 의해 스케줄링 될 수 있는 최소한의 실행 단위)&lt;/li&gt;
+&lt;li&gt;최신의 운영체제는 가상메모리와 가상프로세서라는 두가지 추상개념을 제공
+&lt;ul&gt;
+&lt;li&gt;가상메모리 : 프로세스와 관련 있으며 개별 프로세서가 메모리 전체를 소유했다고 착각&lt;/li&gt;
+&lt;li&gt;가상프로세서 : 스레드와 관련 있으며 스레드가 시스템의 모든 프로세서를 소유했다고 착각 하게함&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;멀티스레딩&#34;&gt;멀티스레딩&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;멀티스레딩의 장점은 다음과 같음
+&lt;ol&gt;
+&lt;li&gt;프로그래밍 추상화 : 작업을 나누가 각각 실행단위(스레드)로 할당하는 것은 자연스러운 패턴(연결별 스레드 패턴, 스레드풀 패턴)&lt;/li&gt;
+&lt;li&gt;병렬성 : 스레드 사용 시 프로세서가 여러개인 머신에서 효과적으로 병렬성을 구현 가능&lt;/li&gt;
+&lt;li&gt;응답속도 향상 : 오래 실행되는 작업을 워커 스레드에 맡기고 최소한 하나의 스레드는 사용자 입력에 대응하게 하여 응답속도 향상 가능&lt;/li&gt;
+&lt;li&gt;입출력 블록 : 위와 관련, 스레드 미사용 시 입출력을 블록하면 전체 스레드를 멈추게 함&lt;/li&gt;
+&lt;li&gt;컨텍스트 스위칭 : 프로세스 컨텍스트 스위칭 비용보다 스레드 전환 비용이 싸다&lt;/li&gt;
+&lt;li&gt;메모리 절약 : 메모리를 공유하는 효과적인 방법을 제공&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;멀티스레딩-비용&#34;&gt;멀티스레딩 비용&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;멀티스레딩 프로그램을 설계/작성/디버깅은 싱글 스레드에 비해 어렵다.&lt;/li&gt;
+&lt;li&gt;가상화된 프로세서는 복수인데 반해 가상 메모리는 하나(멀티스레드 프로세스는 동시에 여러가지 일을 할 수 있지만 이는 같은메모리 공유)&lt;/li&gt;
+&lt;li&gt;시스템 설계 시작부터 반드시 스레딩 모델과 동기화 전략 고려 필요&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;멀티스레딩-대안&#34;&gt;멀티스레딩 대안&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;지연 시간 및 입출력 장점 측면에서 다중입출력, 논블럭 입출력과 비동기식 입출력을 조합해 스레드 대신 사용 가능&lt;/li&gt;
+&lt;li&gt;메모리 절약 측면에서 리눅스는 스레드 보다 더 제한된 방식으로 메모리 공유 도구 제공&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;스레딩-모델&#34;&gt;스레딩 모델&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;스레드를 구현할 수 있는 몇가지 방법 중 가장 단순한 모델은 커널에서 스레드에 대한 네이티브 지원 제공&lt;/li&gt;
+&lt;li&gt;상기 모델은 커널이 제공하는 것과 사용자가 사용하는 것이 1:1 관계를 가지므로 1:1 스레딩(커널 레벨 스레딩)이라 함&lt;/li&gt;
+&lt;li&gt;리눅스에서의 스레딩은 1:1, 리눅스 커널은 단순히 리소스를 공유하는 프로세스의 형태로 스레드를 구현&lt;/li&gt;
+&lt;li&gt;스레딩 라이브러리는 clone() 시스템콜을 사용하여 새로운 스레드 생성하고 반환된 프로세스는 사용자 영역의 개념적인 스레드로써 직접 관리&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;사용자-레벨-스레딩&#34;&gt;사용자 레벨 스레딩&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;N:1 스레딩(사용자 레벨 스레딩)은 스레드가 N개인 프로세스 하나는 단일 커널 프로세스로 매핑&lt;/li&gt;
+&lt;li&gt;커널 레벨 스레딩과 대조적으로 사용자 영역에서 스레드 개념 구현&lt;/li&gt;
+&lt;li&gt;커널의 지원을 거의 필요로 하지 않거나 커널의 지원 없이 스레드를 관리하는 사용자 역역 스케줄러와 논블록킹 방식으로 입출력 처리&lt;/li&gt;
+&lt;li&gt;사용자 레벨 스레딩은 커널의 관여 없이 스스로 어떤 스레드를 언제 실행할 지 결정할 수 있으므로 컨텍스트 스위칭 비용이 거의 안듬&lt;/li&gt;
+&lt;li&gt;그러나 최신 하드웨어에서는 컨텍스트 스위칭 비용이 많이 높지 않기에 효과는 미미&lt;/li&gt;
+&lt;li&gt;하나의 커널 요소가 N개의 스레드를 떠받치고 있기 때문에 여려 개의 프로세서를 활용 할 수 없고 제대로된 병렬성을 제공할 수 없음&lt;/li&gt;
+&lt;li&gt;리눅스용 사용자 레벨 스레딩 라이브러리는 대부분 1:1 스레딩도 제공&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;하이브리드-스레딩&#34;&gt;하이브리드 스레딩&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;하이브리드 스레딩(N:M 스레딩)은 커널은 네이티브 스레드 개념을 제공하고 사용자 영역에서도 역시 스레드를 구현(병렬성과 저렴한 컨텍스트 스위칭 비용을 위해)&lt;/li&gt;
+&lt;li&gt;구현이 복잡하고 컨텍스트 스위칭 비용이 비싸지 않으므로 인기가 없다&lt;/li&gt;
+&lt;li&gt;1:1 모델이 리눅스에서는 가장 인기가 높음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;코루틴과-파이버&#34;&gt;코루틴과 파이버&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;코루틴과 파이버는 스레드보다 더 작은 실행단위(코루틴은 프로그래밍 언어에서, 파이버는 시스템에서 사용되는 용어)&lt;/li&gt;
+&lt;li&gt;Go언어에서 비슷한 고루틴을 제공하므로 알고 싶으면 이걸 써봐라(책에서는 이런게 있다 정도만 언급)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;스레딩-패턴&#34;&gt;스레딩 패턴&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;스레드 사용 어플리케이션 구현 시 가장 먼저 할 일은 어플리케이션의 처리과정과 입출력 모델을 결정 짓는 스레딩 패턴 결정&lt;/li&gt;
+&lt;li&gt;많은 모델이 있지만 연결별 스레드와 이벤트 드리븐 패턴을 설명&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;연결별-스레드&#34;&gt;연결별 스레드&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;연결별 스레드 : 하나의 작업 단위(요청이나 연결)가 스레드 하나에 할당되는 프로그래밍 패턴(작업이 완료될 때까지 실행하는 패턴)&lt;/li&gt;
+&lt;li&gt;연결(요청)이 스레드를 소요하므로 블록킹이 허용됨(스레드가 블록되면 해당 블록킹을 유발한 연결만 멈춤)&lt;/li&gt;
+&lt;li&gt;구현의 상세 내용은 스레드의 개수(대부분 구현에서는 생성할 스레드 개수 제한, 스레드 상한 시 요청은 요청 큐에 저장 혹은 거부)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;이벤트-드리븐-스레딩&#34;&gt;이벤트 드리븐 스레딩&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;웹서버에서 요청마다 스레드를 생성하면 하드웨어 리소스를 많이 사용함&lt;/li&gt;
+&lt;li&gt;연결별 스레드 패턴에서 대부분의 부하는 단순히 대기하는 것 뿐이므로 스레드에서 대기하는 부분을 분리&lt;/li&gt;
+&lt;li&gt;입출력은 비동기식으로 처리하고 다중 입출력으로 서버내 제어 흐름을 관리
+&lt;ul&gt;
+&lt;li&gt;요청을 처리하는 과정이 일련의 비동기식 입출력 요청으로 변환되어 관련 콜백과 연결&lt;/li&gt;
+&lt;li&gt;콜백은 다중 입출력 과정에서 대기하기도 함, 이를 이벤트 루프라고 부름&lt;/li&gt;
+&lt;li&gt;입출력 요청이 반환 시 이벤트 루프는 해당 콜백을 대기중인 스레드로 넘김&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;이벤트 드리븐 패턴은 멀티스레드 서버를 설계하는데 선호되는 방식&lt;/li&gt;
+&lt;li&gt;스레드 사용 시스템 소프트웨어 설계 시 먼저 이벤트 드리븐 패턴으로 비동기식 입출력, 콜백, 이벤트 루프, 프로세스 개수만큼 스레드를 사용하는 작은 스레드 풀을 고려해보자&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;동시성-병렬성-경쟁-상태&#34;&gt;동시성, 병렬성, 경쟁 상태&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;스레드는 동시성과 병렬성이는 특징을 지님
+&lt;ul&gt;
+&lt;li&gt;동시성 : 둘 이상의 스레드가 특정 시간 안에 함께 실행되는 것&lt;/li&gt;
+&lt;li&gt;병렬성 : 둘 이상의 스레드가 동시에 실행되는 것(다중 프로세서 필요)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;경쟁-상태&#34;&gt;경쟁 상태&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;스레드는 순차적으로 실행되지 않고 실행이 겹치고도 하므로 각 스레드의 실행 순서를 예측할 수 없다.&lt;/li&gt;
+&lt;li&gt;경쟁 상태란 공유 리소스(커널 리소스, 메모리, 하드웨어 등)가 동기화되지 않은 둘 이상의 스레드가 접근하여 프로그램의 오동작을 유발하는 상황&lt;/li&gt;
+&lt;li&gt;경쟁 상태를 피할 수 있는 방법에 대해 알아보자&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;동기화&#34;&gt;동기화&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;경쟁 상태를 예방하려면 크리티컬 섹션 접근을 상호 배제(mutual exclusion)하는 방식으로 접근을 동기화 해야함&lt;/li&gt;
+&lt;li&gt;원자적(atomic) : 다른 연산에 끼어들 여지가 없을 시&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;뮤텍스&#34;&gt;뮤텍스&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;크리티컬 섹션을 원자적으로 만들기 위한 평범한 기번은 크리티컬 섹션 안에서 상호배제를 구현해서 원자적으로 만들어 주는 락, 이를 뮤텍스라 부름&lt;/li&gt;
+&lt;li&gt;락을 정의 후 크리티컬 섹션으로 들어가기 전 락을 걸고 나올 때 락 반환&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;데드락&#34;&gt;데드락&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;데드락이란 두 스레드가 서로 상대방이 끝나기를 기다리고 있어서 결국엔 둘 다 끝나지 못하는 상태&lt;/li&gt;
+&lt;li&gt;두 스레드가 서로 상대 스레드가 가지고 있는 뮤텍스를 해제하기를 기다리고 있을 때 발생&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;데드락-피하기&#34;&gt;데드락 피하기&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;뮤텍스는 코드가 아닌 데이터와 연관지어 생각&lt;/li&gt;
+&lt;li&gt;데이터의 계층 구조를 명확히 해서 뮤텍스 또한 확실한 계층구조를 갖도록 하는 것이 중요&lt;/li&gt;
+&lt;li&gt;ABBA 또는 연인 데드락의 경우 A뮤텍스는 B뮤텍스 보다 먿저 얻도록 할 것&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;pthread&#34;&gt;Pthread&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;리눅스 커널의 스레딩 지원은 clone() 시스템 콜 같은 원시적 수준 뿐이나 사용자 영역에서 스레딩 라이브러리를 제공&lt;/li&gt;
+&lt;li&gt;POSIX는 스레딩 라이브러리에 대한 표준을 정의 = pthread&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;리눅스-스레딩-구현&#34;&gt;리눅스 스레딩 구현&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;리눅스에서 표준 스레드의 구현은 glib에서 제공하며 pthread의 두가지 구현을 제공(LinuxThread와 NPTL)&lt;/li&gt;
+&lt;li&gt;LinuxThread는 1:1스레딩을 제공, 시그널을 통한 스레드 간 통신, 오래되서 잘 안씀&lt;/li&gt;
+&lt;li&gt;NPTL(Native POSIX Thread Library) : 1:1스레딩 제공, 스레드의 확장성을 극적으로 향상(이걸 쓰자)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;pthread-api&#34;&gt;Pthread API&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Pthread API는 &amp;ldquo;&amp;lt;pthread.h&amp;gt;&amp;rdquo; 파일에 정의 되며 모든 함수는 pthread_로 시작&lt;/li&gt;
+&lt;li&gt;Pthread함수는 크게 두개의 그룹 : 스레드 관리(스레드 생성,종료,조인,디태치), 동기화(뮤텍스와 조건변수, 배리어 등)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;pthread-링크하기&#34;&gt;Pthread 링크하기&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;glib에서 pthread를 제공하지면 libpthread 라이브러리는 분리 되어 있으므로 컴파일 시 &amp;ldquo;-pthread&amp;rdquo; 플래그로 링크해 줄 것&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;스레드-생성하기&#34;&gt;스레드 생성하기&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;pthread.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;pthread_create&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pthread_t&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;kr&#34;&gt;thread&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;pthread_attr_t&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;attr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                   &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;start_routine&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;arg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;pthread_create() 함수는 새로운 스레드를 생성(main함수는 실행 시점에서는 싱글스레드 임)&lt;/li&gt;
+&lt;li&gt;호출이 성공 시 새로운 스레드가 생성되고 start_routine 인자로 명시된 함수에 arg로 명시된 인자를 넘겨서 실행을 시작&lt;/li&gt;
+&lt;li&gt;pthread_t 포인터인 thread가 NULL이 아니라면 여기에 새로 만든 스레드를 나타내기 위해 사용되는 스레드ID를 저장&lt;/li&gt;
+&lt;li&gt;pthread_attr_t 포인터 attr에는 새로 생성된 스레드의 기본 속성을 변경하기 위한 값, 보통 NULL을 넘기며 기본속성으로 설정&lt;/li&gt;
+&lt;li&gt;스레드는 부모 스레드의 리소스를 공유(특히 주소공간, 시그널 핸들러, 열린 파일 등)&lt;/li&gt;
+&lt;li&gt;에러 발생시 0이 아닌 에러코드를 직접 반환(EAGAIN, EINVAL, EPERM)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;스레드-id&#34;&gt;스레드 ID&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;pthread.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;ptread_t&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;pthread_self&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;TID는 pthread 라이브러리에서 할당(PID는 커널에서 할당)&lt;/li&gt;
+&lt;li&gt;pthread_self()함수를 이용하여 자신의 TID를 얻을 수 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;스레드id-비교하기&#34;&gt;스레드ID 비교하기&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;pthread.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;pthread_equal&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pthread_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;t1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;pthread_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;t2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;Pthread 표준은 pthread_t가 산술타입임을 강제하지 않으므로 ==연산자 동작을 보증할 수 없다&lt;/li&gt;
+&lt;li&gt;phread_equal() 함수는 두 TID가 동일하면 0이 아닌값을 반환(다르면 0)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;스레드-종료하기&#34;&gt;스레드 종료하기&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;스레드의 종료상황(1,2,3은 스레드 하나만 종료 되는 경우, 4,5,6은 모든 스레드 종료)
+&lt;ol&gt;
+&lt;li&gt;start_routine 함수가 반환한 경우&lt;/li&gt;
+&lt;li&gt;pthread_exit()함수를 호출&lt;/li&gt;
+&lt;li&gt;pthread_cancel()을 통해 다른 스레드에서 중지&lt;/li&gt;
+&lt;li&gt;프로세스의 main() 함수 반환&lt;/li&gt;
+&lt;li&gt;프로세스가 exit() 호출로 종료&lt;/li&gt;
+&lt;li&gt;프로세스가 execve() 호출로 새로운 바이너리 실행&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;시그널을 통해 프로세스나 개별 스레드를 종료할 수 있지만 Pthread는 시그널 처리를 복잡하게 만드는 터라 멀티 스레드 프로그래밍 시 시그널 사용을 최소화 할 것&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;스스로-종료하기&#34;&gt;스스로 종료하기&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;pthread.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;pthread_exit&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;retval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;start_routine을 끝까지 실행하면 스레드를 스스스로 종료하게 할 수 있음&lt;/li&gt;
+&lt;li&gt;콜 스택 깊은 곳에서 스레드를 종료해야 한다면 pthread_exit 사용
+&lt;ul&gt;
+&lt;li&gt;호출 시 thread 종료, retval은 그 프로세서가 종료되길 기다리는 다른 스레드에 전달할 값&lt;/li&gt;
+&lt;li&gt;호출은 실패하지 않음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;다른-스레드-종료하기&#34;&gt;다른 스레드 종료하기&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;pthread.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;pthread_cancel&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pthread_t&lt;/span&gt; &lt;span class=&#34;kr&#34;&gt;thread&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;pthread_setcancelstate&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;state&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;oldstate&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;pthread_setcanceltype&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;oldtype&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;pthread_cancel() 호출이 성공 시 thread로 명시한 스레드ID를 가진 스레드에 취소 요청을 보냄
+&lt;ul&gt;
+&lt;li&gt;호출 성공 시 0을 반환(성공은 취소 요청을 보내는데 성공이란 의미, 종료는 비동기적으로 일어남)&lt;/li&gt;
+&lt;li&gt;호출 실패시 스레드가 유효하지 않음을 나타내는 ESRCH를 반환&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;기본적으로 스레드는 취소 가능이나 취소가 불가능할 경우 취소 요청은 취소 가능 때까지 큐에 대기, 취소 상태는 pthread_setcancelstatae()를 통해 변경 가능
+&lt;ul&gt;
+&lt;li&gt;호출 성공 시 호출한 스레드의 취소 상태가 state(PTHREAD_CANCEL_ENABLE/DISABLE) 값으로 설정, 이전 상태는 oldstate에 저장&lt;/li&gt;
+&lt;li&gt;에러가 발생 시 state 값이 유효하지 않음을 나타내는 EINVAL을 반환&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;스레드의 취소 타입은 비동기 또는 유예, 취소 유예가 기본값
+&lt;ul&gt;
+&lt;li&gt;취소 비동기 : 취소 요청이 들어온 이후에 언제든지 스레드 종료 가능 (스레드가 크리티컬 섹션안에 있을 수 있기 때문에 스레드가 공유리소스 미사용, 재진입 가능 함수 사용시 만 사용)&lt;/li&gt;
+&lt;li&gt;취소 유예 : pthread 나 C라이브러리 함수 내에서 안전한 특정 시점에만 종료 가능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;취소 타입은 pthread_setcanceltype() 함수로 변경 가능
+&lt;ul&gt;
+&lt;li&gt;호출 성공 시 취소타입은 type(PTHREAD_CANCEL_ASYNCHRONOUS/DEFERRED)값으로 변경, 이전 값은 oldtype에 기록&lt;/li&gt;
+&lt;li&gt;에러 발생 시 EINVAL을 반환(type값이 유효하지 않음)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;스레드-조인과-디태치&#34;&gt;스레드 조인과 디태치&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;스레드 조인 : 스레드의 종료를 동기화 하는 것(프로세스의 wait())&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;스레드-조인&#34;&gt;스레드 조인&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;pthread.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;pthread_join&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pthread_t&lt;/span&gt; &lt;span class=&#34;kr&#34;&gt;thread&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;voit&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;**&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;retval&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;pthread_join()은 호출 성공 시 thread로 명시한 스레드가 종료될 때까지 블록되도록 함 (이미 종료되었다면 즉시 반환)&lt;/li&gt;
+&lt;li&gt;스레드 종료 시 스레드가 깨어남, retval은 종료된 스레드의 반환 값&lt;/li&gt;
+&lt;li&gt;하나의 스레드는 여러 스레드를 조인 할 수 있지만(1:N), 하나의 스레드만 다른 스레드에 조인을 시도해야함(N:1)&lt;/li&gt;
+&lt;li&gt;에러가 발생시 0이 아닌 EDEADLK, EINVAL, ESRCH 중 반환(설명은 책에)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;스레드-디태치&#34;&gt;스레드 디태치&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;pthread.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;pthread_detach&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pthread_t&lt;/span&gt; &lt;span class=&#34;kr&#34;&gt;thread&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;스레드는 조인 되기 전까지 시스템 리소스를 소모하므로 조인할 생각이 없는 스레드는 디태치 해두어야 함&lt;/li&gt;
+&lt;li&gt;pthread_detach()는 thread로 명시한 스레드를 디태치 하고 호출 성공시 0반환, 에러 발생 시 ESRCH(인자가 유효하지 않음) 반환&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;스레딩-예제&#34;&gt;스레딩 예제&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;책에 예제 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;pthread-뮤텍스&#34;&gt;Pthread 뮤텍스&lt;/h3&gt;
+&lt;h4 id=&#34;뮤텍스-초기화하기&#34;&gt;뮤텍스 초기화하기&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;뮤텍스는 pthread_mutex_t 객체로 표현, 동적으로 생성할 수 있으나 대부분 정적으로 생성&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cm&#34;&gt;/* mutex라는 이름의 뮤텍스를 선언하고 초기화 */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;pthread_mutex_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mutex&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;PTHREAD_MUTEX_INITIALIZER&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h4 id=&#34;뮤텍스-락-걸기&#34;&gt;뮤텍스 락 걸기&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;phtread.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;pthread_mutex_lock&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pthread_mutex_t&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mutex&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;pthread에서 pthread_mutex_lock() 함수를 사용하면 락을 걸 수 있음&lt;/li&gt;
+&lt;li&gt;호출이 성공하면 mutex로 지정한 뮤텍스의 사용이 가능해질때 까지 호출한 스레드 블록&lt;/li&gt;
+&lt;li&gt;뮤텍스가 사용가느안 상태가 되면 호출한 스레드가 깨어나고 이 함수는 0을 반환(호출 시점에 뮤텍스가 사용가능하다면 즉시 반환)&lt;/li&gt;
+&lt;li&gt;에러가 발생하면 0이 아닌 에러 코드 반환(EDEADLK, EINVAL)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;뮤텍스-해제하기&#34;&gt;뮤텍스 해제하기&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;phtread.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;pthread_mutex_unlock&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;pthread_mutex_t&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mutex&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;pthread_mutex_unlock() 호출이 성공하면 mutex로 지정한 뮤텍스를 해제하고 0을 반환, 블록 되지 않고 즉시 mutex 해제&lt;/li&gt;
+&lt;li&gt;에러가 발생하면 0이 아닌 에러 코드 반환(EINVAL, EPERM)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;뮤텍스-예제&#34;&gt;뮤텍스 예제&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;책에 스코프드락 설명과 뮤텍스 예제 있음&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>[Linux_System_programming] 06 프로세스 관리</title>
         <link>https://muonkmu.github.io/p/linux_system_programming-06-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4-%EA%B4%80%EB%A6%AC/</link>
         <pubDate>Sun, 17 Sep 2023 00:00:00 +0000</pubDate>
