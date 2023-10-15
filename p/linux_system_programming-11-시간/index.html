@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Linux System Programming (Robert Love) chapter 11 시간'>
+<title>[Linux_System_programming] 11 시간</title>
+
+<link rel='canonical' href='https://muonkmu.github.io/p/linux_system_programming-11-%EC%8B%9C%EA%B0%84/'>
+
+<link rel="stylesheet" href="/scss/style.min.f3b6945bee58731371ef6d5a992e6775ef6e63b9642101b9f59903b1c9e16941.css"><meta property='og:title' content='[Linux_System_programming] 11 시간'>
+<meta property='og:description' content='Linux System Programming (Robert Love) chapter 11 시간'>
+<meta property='og:url' content='https://muonkmu.github.io/p/linux_system_programming-11-%EC%8B%9C%EA%B0%84/'>
+<meta property='og:site_name' content='MW Devlog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Linux' /><meta property='article:published_time' content='2023-10-07T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-10-07T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="[Linux_System_programming] 11 시간">
+<meta name="twitter:description" content="Linux System Programming (Robert Love) chapter 11 시간">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/minwook_large_hu93fbe6c7fccf94bb4165ea496a9d4637_41368_300x0_resize_q75_box.jpg" width="300"
+                            height="246" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MW Devlog</a></h1>
+            <h2 class="site-description">Embedded Engineer (HW,SW,SYSTEM)</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/muonkmu'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://www.linkedin.com/in/minwook-kim-35a417154/'
+                        target="_blank"
+                        title="Linkedin"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-linkedin" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+ <path stroke="none" d="M0 0h24v24H0z" fill="none"/> <rect x="4" y="4" width="16" height="16" rx="2" /> <line x1="8" y1="11" x2="8" y2="16" /> <line x1="8" y1="8" x2="8" y2="8.01" /> <line x1="12" y1="16" x2="12" y2="11" />
+ <path d="M16 16v-3a2 2 0 0 0 -4 0" />
+</svg>
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#시간에-대한-자료-구조">시간에 대한 자료 구조</a>
+      <ol>
+        <li><a href="#전통적인-표현볍">전통적인 표현볍</a></li>
+        <li><a href="#마이크로-초-정밀도">마이크로 초 정밀도</a></li>
+        <li><a href="#나노-초-정밀도">나노 초 정밀도</a></li>
+        <li><a href="#시간-세분하기">시간 세분하기</a></li>
+        <li><a href="#프로세스-시간을-위한-타입">프로세스 시간을 위한 타입</a></li>
+      </ol>
+    </li>
+    <li><a href="#posix-시계">POSIX 시계</a>
+      <ol>
+        <li><a href="#시계해상도">시계해상도</a></li>
+      </ol>
+    </li>
+    <li><a href="#현재시간-얻기">현재시간 얻기</a>
+      <ol>
+        <li><a href="#더-나은-인터페이스">더 나은 인터페이스</a></li>
+        <li><a href="#고급-인터페이스">고급 인터페이스</a></li>
+        <li><a href="#프로세스-시간-얻기">프로세스 시간 얻기</a></li>
+      </ol>
+    </li>
+    <li><a href="#현재-날짜와-시각-설정하기">현재 날짜와 시각 설정하기</a>
+      <ol>
+        <li><a href="#정확하게-시각-설정하기">정확하게 시각 설정하기</a></li>
+        <li><a href="#시각-설정을-위한-고급-인터페이스">시각 설정을 위한 고급 인터페이스</a></li>
+      </ol>
+    </li>
+    <li><a href="#시간-다루기">시간 다루기</a></li>
+    <li><a href="#시스템-시계-조율">시스템 시계 조율</a></li>
+    <li><a href="#잠들기와-대기">잠들기와 대기</a>
+      <ol>
+        <li><a href="#마이크로-초-해상도로-잠들기">마이크로 초 해상도로 잠들기</a></li>
+        <li><a href="#나노-초-해상도로-잠들기">나노 초 해상도로 잠들기</a></li>
+        <li><a href="#고급-잠들기-기법">고급 잠들기 기법</a></li>
+        <li><a href="#이식성을-고려한-잠들기">이식성을 고려한 잠들기</a></li>
+        <li><a href="#시간-초과">시간 초과</a></li>
+        <li><a href="#잠들기-대안">잠들기 대안</a></li>
+      </ol>
+    </li>
+    <li><a href="#타이머">타이머</a>
+      <ol>
+        <li><a href="#간단한-알람">간단한 알람</a></li>
+        <li><a href="#인터벌-타이머">인터벌 타이머</a></li>
+        <li><a href="#고급-타이머">고급 타이머</a>
+          <ol>
+            <li><a href="#타이머-생성하기">타이머 생성하기</a></li>
+            <li><a href="#타이머-설정하기">타이머 설정하기</a></li>
+            <li><a href="#타이머-만료-정보-얻기">타이머 만료 정보 얻기</a></li>
+            <li><a href="#타이머-초과-횟수-얻기">타이머 초과 횟수 얻기</a></li>
+            <li><a href="#타이머-삭제하기">타이머 삭제하기</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/lin_sys_prog/" style="background-color: #458C40; color: #fff;">
+                Lin_Sys_prog
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/linux_system_programming-11-%EC%8B%9C%EA%B0%84/">[Linux_System_programming] 11 시간</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Linux System Programming (Robert Love) chapter 11 시간
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 07, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    11 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    
+        <section class="article-content">
+    
+    
+    <ul>
+<li>
+<p>커널은 다음 세가지 방법으로 경과 시간을 측정</p>
+<ul>
+<li>실제 시간 : 현실에서 사용하는 진짜 시간과 날짜(wall_time), 사용자 상호작용/이벤티 타임스탬프에 사용</li>
+<li>프로세스 시간 : 프로세스를 실행하는데 소비한 시간, 프로세스는 프로파일링과 통계 산출 목적으로 특정 알고리즘을 처리하는데 걸린 시간을 측정</li>
+<li>모노토닉 시간 : 반드시 일정하게 증가, 운영체제는 시스템 가동시간(uptime 사용), 두 샘플링 사이의 시간 차이를 계산할 때 유용</li>
+</ul>
+</li>
+<li>
+<p>시간 측정 방법은 다음 두 형식중 하나로 표현</p>
+<ul>
+<li>상대시간 : 현재 시각과 같이 특정 기준점에 대한 상대값으로 표현, 모노토닉 시간은 상대 시간을 계산하는데 유용</li>
+<li>절대시간 : 특정 기준점 없이 절대값으로 표현(2000년 3월 25일 정오같은 표현, 절대 시간을 계산하는데 적합)</li>
+</ul>
+</li>
+<li>
+<p>유닉스 시스템은 UTC로 정의된 기원 부터 경과된 절대 시간을 초로 표현(epoch time)(UTC = GMT, ZULU)</p>
+</li>
+<li>
+<p>운영체제는 커널이 관리하는 소프트웨어 시계를 사용해서 시간 경과를 추적</p>
+<ul>
+<li>Jiffie counter : 커널은 타이머를 이용해서 타이머 동작주기마다 틱이나 지피라는 한단위 만큼 늘림</li>
+<li>HZ : 시스템 타이머의 빈도(아키텍쳐마다 다름)(100을 사용하다 최근 250을 사용, 4ms마타 시스템 타이머 동작)</li>
+<li>CLOCK_PER_SEC : POSIX 인터페이스에서 고정 주파수에 맞춰 시간 측정값을 제공하는데 이 때의 고정 주파수</li>
+</ul>
+</li>
+<li>
+<p>sysconf(_SC_CLK_TCK)로 HZ값을 알 수 있음</p>
+</li>
+<li>
+<p>커널은 시작하면서 하드웨어 시계에서 현재 시간을 받아 운영체제 시각을 초기화, 시스템 종료시 현재 시각을 하드웨어 시계에 다시 기록</p>
+</li>
+<li>
+<p>hwclock 명령으로 하드웨어 시각과 운영체제 시각을 동기화 가능</p>
+</li>
+</ul>
+<h2 id="시간에-대한-자료-구조">시간에 대한 자료 구조</h2>
+<ul>
+<li>유닉스 시스템이 발전함에 따라 시간 관리를 위한 독자적인 인터페이스를 구현했으며 단순한 시간 개념을 여러 자료 구조로 표현</li>
+</ul>
+<h3 id="전통적인-표현볍">전통적인 표현볍</h3>
+<ul>
+<li>가장 단순한 자료구조는 time_t이며 &lt;time.h&gt;에 정의 (time_t 내부 구조를 숨기기 위함)</li>
+<li>대부분의 유닉스 시스템에서 long임 (typedef long time_t)</li>
+</ul>
+<h3 id="마이크로-초-정밀도">마이크로 초 정밀도</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">timeval</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">time_t</span> <span class="n">tv_sec</span><span class="p">;</span> <span class="c1">// 초
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">suseconds_t</span> <span class="n">tv_usec</span> <span class="c1">// 마이크로초
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>timeval 구조체는 time_t를 확장하여 마이크로초 정밀도를 추가</li>
+</ul>
+<h3 id="나노-초-정밀도">나노 초 정밀도</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">timespec</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">time_t</span> <span class="n">tv_sec</span><span class="p">;</span> <span class="c1">// 초
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">long</span> <span class="n">tv_nsec</span><span class="p">;</span> <span class="c1">// 나노 초
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>timespec 구조체가 나노초까지 해상도를 제공</li>
+<li>timespec 구조체 등장 이후 대다수 시간 관련 인터페이스는 timespec을 사용하도록 변경(그라나 중요함수는 여전히 timeval 사용)</li>
+</ul>
+<h3 id="시간-세분하기">시간 세분하기</h3>
+<ul>
+<li>C표준은 좀 더 사람에게 가까운 형태로 세분화된 시간을 표현하는 tm 구조체를 제공</li>
+<li>구조체에 대한 설명은 책에 있음</li>
+</ul>
+<h3 id="프로세스-시간을-위한-타입">프로세스 시간을 위한 타입</h3>
+<ul>
+<li>clock_t는 tick을 표현, int로 표현, 인터페이스에 따라 clock_t 틱은 시스템의 실제 타이머 주파수(HZ) 나 CLOCK_PER_SEC를 나타냄</li>
+</ul>
+<h2 id="posix-시계">POSIX 시계</h2>
+<ul>
+<li>POSIX 시계는 5가지 타입이 있음(clockid_t 타입)
+<ul>
+<li>CLOCK_REALTIME : 시스템 전역에서 사용하는 실제시간 시계, 설정하려면 특수 권한 필요</li>
+<li>CLOCK_MONOTONIC : 시스템 시동과 같이 불특정 시작 시점 부터 단조롭게 증가하는 시계, 어떤 프로세스도 설정하지 못함</li>
+<li>CLOCK_MONOTONIC_RAW : CLOCK_MONOTONIC과 유사하나 시간이 뒤틀렸을 때 조정되지 않음(리눅스 전용)</li>
+<li>CLOCK_PROCESS_CPUTIME_ID : 프로세서 수준에서 지원되는 각 프로세스에서 사용 가능한 고해상되 시계(x86의 경우 TSC 레지스터 사용)</li>
+<li>CLOCK_THREAD_CPUTIME_ID : CLOCK_PROCESS_CPUTIME_ID와 유사하나 스레드 마다 유일한 시계</li>
+</ul>
+</li>
+</ul>
+<h3 id="시계해상도">시계해상도</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">clock_getres</span><span class="p">(</span><span class="kt">clock_t</span> <span class="n">clock_id</span><span class="p">,</span> <span class="k">struct</span> <span class="n">timespec</span> <span class="o">*</span><span class="n">res</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>clock_getres() 함수 호출이 성공하면 res가 NULL이 아닐 경우 clock_id로 지정한 시계의 해상도를 res에 저장</li>
+<li>성공시 0반환, 실패하면 -1을 반환하고 errno를 EFAULT, EINVAL 중 하나로 설정</li>
+</ul>
+<h2 id="현재시간-얻기">현재시간 얻기</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">time_t</span> <span class="nf">time</span><span class="p">(</span><span class="kt">time_t</span> <span class="o">*</span><span class="n">t</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>time() 함수를 호출하면 epoch time 이후 경과한 현재 시각을 초 단위로 표현하여 반환</li>
+<li>에러 발생시 -1을 반환, errno를 설정(유일한 값은 EFAULT로 t가 유효한 포인터가 아님)</li>
+</ul>
+<h3 id="더-나은-인터페이스">더 나은 인터페이스</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">gettimeofday</span><span class="p">(</span><span class="k">struct</span> <span class="n">timeval</span><span class="o">*</span> <span class="n">tv</span><span class="p">,</span> <span class="k">struct</span> <span class="n">timezone</span><span class="o">*</span> <span class="n">tz</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>gettimeofday()호출이 성공시 tv에 현재시각을 기록하고 0을 반환,</li>
+<li>tz는 사용하지 않으므로 NULL로 설정(커널이 시간대를 관리하지 않음, glibc도 timezone 구조체의 tz_dsttime 필드를 미사용)</li>
+<li>호출 실패 시 -1 반환, errno 설정(EFAULT : tv,tz 가 유효하지 않은 포인터)</li>
+</ul>
+<h3 id="고급-인터페이스">고급 인터페이스</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">clock_gettime</span> <span class="p">(</span><span class="kt">clockid_t</span> <span class="n">clock_id</span><span class="p">,</span> <span class="k">struct</span> <span class="n">timespec</span> <span class="o">*</span><span class="n">ts</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>clock_gettime()은 지정한 시계의 시간을 얻기 위한 함수, 나노 정밀도를 허용</li>
+<li>호출이 성공하면 0을 반환, clock_id로 지정한 시계의 현재 시간을 ts에 저장</li>
+<li>실패 시 -1을 반환, errno를 설정(EFAULT, EINVAL)</li>
+</ul>
+<h3 id="프로세스-시간-얻기">프로세스 시간 얻기</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">tms</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">clock_t</span> <span class="n">tms_utime</span><span class="p">;</span> <span class="cm">/* 소비한 사용자 시간 */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">clock_t</span> <span class="n">tms_stime</span><span class="p">;</span> <span class="cm">/* 소비한 시스템 시간 */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">clock_t</span> <span class="n">tms_cutime</span><span class="p">;</span> <span class="cm">/* 자식 프로세스가 소비한 사용자 시간 */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">clock_t</span> <span class="n">tms_cstime</span><span class="p">;</span> <span class="cm">/* 자식 프로세스가 소비한 시스템 시간 */</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">clock_t</span> <span class="nf">times</span><span class="p">(</span><span class="k">struct</span> <span class="n">tms</span> <span class="o">*</span><span class="n">buf</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>times() 시스템 콜은 실행 중인 프로세스와 자식 프로세스의 프로세스 시간을 틱 단위로 가져옴(호출 성공 시 buf 채움)
+<ul>
+<li>사용자 시간 : 사용자 영역에서 코드를 수행한 시간</li>
+<li>시스템 시간 : 커널 영역에서 코드를 수행한 시간</li>
+</ul>
+</li>
+<li>자식 프로세스가 끝나고 부모가 wait() 또는 관련 함수를 호출하고 나서야 각 자식 프로세스에 대한 보고 시간이 구조체의 해당 필드에 포함</li>
+<li>호출 실패 시 -1 반환, errno를 설정(EFAULT : buf가 유효하지 않은 포인터)</li>
+</ul>
+<h2 id="현재-날짜와-시각-설정하기">현재 날짜와 시각 설정하기</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define _SVID_SOURCE
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">stime</span><span class="p">(</span><span class="kt">time_t</span> <span class="o">*</span><span class="n">t</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>stime() 호출 성공 시 시스템 시간을 t 값으로 설정하고 0을 반환 (time()함수 대응)</li>
+<li>CAP_SYS_TIME 기능이 필요(일반적으로 root사용자)</li>
+<li>호출이 실패 시 -1을 반환, errno를 설정(EFAULT, EPERM)</li>
+</ul>
+<h3 id="정확하게-시각-설정하기">정확하게 시각 설정하기</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">settimeofday</span><span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="n">timeval</span> <span class="o">*</span><span class="n">tv</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="n">timezone</span> <span class="o">*</span><span class="n">tz</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>settimeofday() 호출이 성공시 시스템 시간을 tz값으로 설정 후 0반환, tz에는 NULL이 권장 됨(gettimeofday() 대응)</li>
+<li>호출이 실패 시 -1을 반환, errno를 설정(EFAULT. EINVAL, EPERM)</li>
+</ul>
+<h3 id="시각-설정을-위한-고급-인터페이스">시각 설정을 위한 고급 인터페이스</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">clock_settime</span><span class="p">(</span><span class="kt">clockid_t</span> <span class="n">clock_id</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="n">timespec</span> <span class="o">*</span><span class="n">ts</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>clokc_settime() 호출 성공 시 clock_id로 지정한 시계를 ts 시간으로 설정, 성공시 0반환</li>
+<li>호출이 실패 시 -1 반환, errno를 설정(EFAULT, EINVAL, EPERM)</li>
+<li>대부분의 시스템에서 유일하게 설정가능한 시계는 CLOCK_REALTIME, 나노 초 해상도를 제공한다는 장점이 있음</li>
+</ul>
+<h2 id="시간-다루기">시간 다루기</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">char</span><span class="o">*</span> <span class="nf">asctime</span><span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="n">tm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">char</span><span class="o">*</span> <span class="nf">asctime_r</span><span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="n">tm</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>asctime()함수는 tm 구조체를 ASCII 문자열로 변환, 정적으로 할당된 문자열을 가리키는 포인터 반환</li>
+<li>asctime()은 스레드 세이프 하지 않으므로 asctime_r을 사용(문자열을 buf에 저장, 최소 26글자)</li>
+<li>에러 발생의 경우 NULL을 반환</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">time_t</span> <span class="nf">mktime</span><span class="p">(</span><span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="n">tm</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>mktime()은 tm 구조체를 time_t로 변환, tm에 따라 tzset()을 호출해 시간대를 설정</li>
+<li>에러가 발생하면 -1을 반환</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">char</span><span class="o">*</span> <span class="nf">ctime</span><span class="p">(</span><span class="k">const</span> <span class="n">time</span> <span class="o">*</span><span class="n">timep</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">char</span><span class="o">*</span> <span class="nf">ctime_r</span><span class="p">(</span><span class="k">const</span> <span class="kt">time_t</span> <span class="o">*</span><span class="n">timep</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>ctime()은 time_t를 ASCII 표현으로 변환, 실패하면 NULL을 반환</li>
+<li>줄바꿈 문자를 반환 문자에 붙임</li>
+<li>ctime()은 스레드 세이프 하지 않으므로 ctime_r을 사용(문자열을 buf에 저장, 최소 26글자)</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">tm</span><span class="o">*</span> <span class="nf">gmtime</span><span class="p">(</span><span class="k">const</span> <span class="kt">time_t</span> <span class="o">*</span><span class="n">timep</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">tm</span><span class="o">*</span> <span class="nf">gmtime_r</span><span class="p">(</span><span class="k">const</span> <span class="kt">time_t</span> <span class="o">*</span><span class="n">timep</span><span class="p">,</span> <span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="n">result</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>gmtime()은 time_t를 tm구조체로 변환하여 UTC 시간대로 표현, 실패하면 NULL을 반환</li>
+<li>gmtime()은 스레드 세이프 하지 않으므로 gmtime_r을 사용</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">tm</span><span class="o">*</span> <span class="nf">localtime</span><span class="p">(</span><span class="k">const</span> <span class="kt">time_t</span><span class="o">*</span> <span class="n">timep</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">tm</span><span class="o">*</span> <span class="nf">localtime_r</span><span class="p">(</span><span class="k">const</span> <span class="kt">time_t</span><span class="o">*</span> <span class="n">timep</span><span class="p">,</span> <span class="k">struct</span> <span class="n">tm</span><span class="o">*</span> <span class="n">result</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>localtime(), localtime_r은 gmtime(), gmtime_r()과 비슷하게 동작, 그러나 time_t를 사용자 시간대에 맞춰 표현</li>
+<li>localtime()도 tzset()을 호출하여 시간대를 초기화 함(localtime_r()의 동작은 표준에 명세되어 있지 않음)</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">double</span> <span class="nf">difftime</span><span class="p">(</span><span class="kt">time_t</span> <span class="n">time1</span><span class="p">,</span> <span class="kt">time_t</span> <span class="n">time0</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>difftime()은 두 값사이에 경과한 초를 double타입으로 변환하여 반환</li>
+<li>오버플로우가 감지를 고려하지 않은 점만 제외하고 (double)(time1 - time0)와 같다</li>
+<li>리눅스에서 time_t는 정수타입이므로 double 타입으로 변환할 필요는 없지만 이식성을 고려하여 difftime() 사용을 권장</li>
+</ul>
+<h2 id="시스템-시계-조율">시스템 시계 조율</h2>
+<ul>
+<li>실제 시간을 갑작스럽게 조정하면 동작 과정에서 절대 시각에 의존하는 어플리케이션은 혼란에 빠짐(ex. Makefile 증분 빌드)</li>
+<li>이를 위해 유닉스는 adjtime() 함수를 통해 제공된 시간 차이에 따라 현재 시각을 점진적으로 조정(adjtime()을 사용하여 주기적으로 시간 보정)</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define _BSD_SOURCE
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">adjtime</span><span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="n">timeval</span> <span class="o">*</span><span class="n">delta</span><span class="p">,</span> <span class="k">struct</span> <span class="n">timeval</span> <span class="o">*</span><span class="n">olddelta</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>adjtime() 함수 호출이 성공하면 커널이 delta로 지정한 시간에 맞추어 천천히 조정 작업을 시작하도록 하고 0을 반환</li>
+<li>delta가 양수면 시간을 빠르게 가게, 음수면 느리게 가도록(갑작스런 시간변화는 안생김)</li>
+<li>delta가 NULL이 아니라면 이전에 등록된 조정값을 처리하는 작업은 멈춤, olddelta가 NULL이 아닐 시 이전에 등록되었으나 아직 적용되지 않은 갑이 가져옴</li>
+<li>delta가 NULL이고 olddelta가 NULL이 아니면 현재 조정중인 값을 가져올 수 있음</li>
+<li>adjtime()에 적용할 조정값은 크기가 작아야 함(NTP가 이상적 활용 사례)</li>
+<li>에러 발생 시 -1을 반환, errno를 설정(EFAULT, EINVAL, EPERM)</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/timex.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">timex</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">mode</span><span class="p">;</span>        <span class="cm">/* 모드 셀렉터 */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">long</span> <span class="n">offset</span><span class="p">;</span>     <span class="cm">/* 시간 오프셋(usec) */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">long</span> <span class="n">freq</span><span class="p">;</span>       <span class="cm">/* 주파수 오프셋 (스케일된 ppm) */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">long</span> <span class="n">maxerror</span><span class="p">;</span>   <span class="cm">/* 최대 에러 (usec) */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">long</span> <span class="n">esterror</span><span class="p">;</span>   <span class="cm">/* 예상 에러(usec) */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">status</span><span class="p">;</span>      <span class="cm">/* 시계 상태 */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">long</span> <span class="n">constant</span><span class="p">;</span>   <span class="cm">/* PPL 시간 상수 */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">long</span> <span class="n">precision</span><span class="p">;</span>  <span class="cm">/* 시계 정밀도 (usec) */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">long</span> <span class="n">tolerance</span><span class="p">;</span>  <span class="cm">/* 시계 주파수 허용 오차 (ppm) */</span>
+</span></span><span class="line"><span class="cl">  <span class="k">struct</span> <span class="n">timeval</span> <span class="n">time</span><span class="p">;</span> <span class="cm">/* 현재 시각 */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">long</span> <span class="n">tick</span><span class="p">;</span>       <span class="cm">/* 틱 경과 시각(usec) */</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">adjtimex</span><span class="p">(</span><span class="k">struct</span> <span class="n">timex</span> <span class="o">*</span><span class="n">adj</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>adjtimex()를 호출하면 커널 시간관련 파라미터를 읽어 adj가 가리키는 timex 구조체에 기록(adjtime()보다 훨씬 강력하고 복잡, 리눅스 전용)</li>
+<li>timex 구조체의 mode 필드에 따라 선택적으로 특정 파라메터를 추가적으로 설정, mode 필드는 플래그 비트단위 OR(책에 설명 있음)</li>
+<li>mode가 0이면 아무런 값도 설정하지 않음(설정값을 가져옴), CAP_SYS_TIME 기능이 있는 사용자(root)만 0이 아닌 값을 설정 가능</li>
+<li>호출이 성공 시 현재 시계 상태 반환(TIME_OK/INS/DEL 등), 실패시 -1 반한 및 errno설정(EFAULT, EINVAL, EPERM) (책에 설명)</li>
+<li>자세한 설명은 RFC130을 참조</li>
+</ul>
+<h2 id="잠들기와-대기">잠들기와 대기</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kt">int</span> <span class="nf">sleep</span><span class="p">(</span><span class="n">usigned</span> <span class="kt">int</span> <span class="n">seconds</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>sleep()은 seconds로 지정한 초 동안 프로세스를 잠재움</li>
+<li>sleep()은 호출이 성공하면 0을 반환, 그렇지 않다면 잠들지 않은 초를 반환(시그널이 잠들기를 방해한 상황)</li>
+</ul>
+<h3 id="마이크로-초-해상도로-잠들기">마이크로 초 해상도로 잠들기</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/* BSD 버전 */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">usleep</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">usec</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/* SUSv2 버전 */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define _XOPEN_SOURCE 500
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">usleep</span><span class="p">(</span><span class="kt">usecond_t</span> <span class="n">usec</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>usleep() 호출이 성공하면 프로세스는 usec 동안 잠든다</li>
+<li>BSD는 반환 값이 없으며, SUS버전은 성공시 0을 실패 시 -1 반환 및 errno설정</li>
+</ul>
+<h3 id="나노-초-해상도로-잠들기">나노 초 해상도로 잠들기</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define _POSIX_C_SOURCE 199309
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">nanosleep</span><span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="n">timespec</span> <span class="o">*</span><span class="n">req</span><span class="p">,</span> <span class="k">struct</span> <span class="n">timespec</span> <span class="o">*</span><span class="n">rem</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>nanosleep() 함수는 호출이 성공하면 req로 명시한 시간 동안 프로세스가 잠들며 0을 반환</li>
+<li>에러가 발생하면 -1을 반환 및 errno를 적절한 값으로 설정 (EFAULT, EINVAL, EINTR)</li>
+<li>시그널이 잠들기를 방해하면 -1을 반환하고 errno를 EINTR로 설정, rem이 NULL이 아니라면 남은 시간을 rem에 저장(두번째 인자를 이용하면 인터럽트가 걸리더라도 계속 잠들게 프로그래밍 가능, 책에 예제)</li>
+<li>nanosleep()은 sleep()/usleep()보다 장점, 왠만하면 이 함수를 사용하자
+<ul>
+<li>높은 해상도 제공, POSIX.1b에서 표준화, 시그널로 구현되어 있지 않음</li>
+</ul>
+</li>
+</ul>
+<h3 id="고급-잠들기-기법">고급 잠들기 기법</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">clock_nanosleep</span> <span class="p">(</span><span class="kt">clockid_t</span> <span class="n">clock_id</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flag</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="n">timespec</span> <span class="o">*</span><span class="n">req</span><span class="p">,</span> <span class="k">struct</span> <span class="n">timespec</span> <span class="o">*</span><span class="n">rem</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>clock_nanosleep()은 nanosleep()과 유사하게 동작하는 고급인터페이스</li>
+<li>clock_id는 측정 시계를 명시, CLOCK_PROCESS_CPUTIME_ID를 제외하고 유효(잠들면 프로세스 시간도 잠듬)</li>
+<li>어떤 시간까지 잠들어야 한다면 CLOCK_REALTIME, 상대 시간 동안 잠들어야 한다면 CLOCK_MONOTONIC이 제격</li>
+<li>flag는 TIMER_ABSTIME이면 req로 지정된 값은 절대값으로 취급(잠재적 경쟁상태 해결, 책에 자세한 설명), 0이면 상대값</li>
+</ul>
+<h3 id="이식성을-고려한-잠들기">이식성을 고려한 잠들기</h3>
+<ul>
+<li>2장에서 설명했던 select는 이식성이 높은 마이크로 초 단위로 잠들기 방법을 제공(책에 잘 설명되어 있다.)</li>
+</ul>
+<h3 id="시간-초과">시간 초과</h3>
+<ul>
+<li>스케줄러 동작(커널이 정시에 깨웠지만 스케줄러가 다른 작업 선택 수행)이나 타이머 초과(타이머 정밀도가 요청 받은 시간 간격보다 떨어지는 경우) 때문에 요청보다 초과해서 잠들 수 있음</li>
+<li>POSIX에서 제공하는 고해상도 시계와 더 높은 HZ 값을 사용하여 시간 초과 가능성을 최소로 줄임</li>
+</ul>
+<h3 id="잠들기-대안">잠들기 대안</h3>
+<ul>
+<li>되도록이면 잠들기를 피하자, 1초 미만으로 잠든다면 크게 문제되지 않음</li>
+<li>이벤트를 기다리며 busy wait를 위해 잠들기로 도배한 코드는 나쁘다. 파일 디스크립터를 븍록해서 커널이 잠들기를 처리하고 프로세스를 깨우도록 하자</li>
+</ul>
+<h2 id="타이머">타이머</h2>
+<h3 id="간단한-알람">간단한 알람</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;uinstd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kt">int</span> <span class="nf">alarm</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">seconds</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>alarm() 함수를 호출하면 실제 시간에서 seconds 초가 경과한 후에 호출한 프로세스에 SIGALRM 시그널을 전송하도록 예약</li>
+<li>앞서 걸어둔 시그널이 대기 중인 상황이라면 호출은 그 알람을 취소하고 새로 요청한 알람으로 대체 후 이전 알람에서 남아 있는 초 숫자 반환</li>
+<li>second가 0이라면 이전 알람은 취소되나 새로운 알람은 안걸어 둠</li>
+<li>SIGALRM 시그널 처리를 위한 시그널 핸들러 등록 필요</li>
+</ul>
+<h3 id="인터벌-타이머">인터벌 타이머</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">itiemerval</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">struct</span> <span class="n">timeval</span> <span class="n">it_interval</span><span class="p">;</span> <span class="cm">/* 다음 값 */</span>
+</span></span><span class="line"><span class="cl">  <span class="k">struct</span> <span class="n">timeval</span> <span class="n">it_value</span><span class="p">;</span> <span class="cm">/* 현재 값 */</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">gettimer</span><span class="p">(</span><span class="kt">int</span> <span class="n">which</span><span class="p">,</span> <span class="k">struct</span> <span class="n">itimerval</span> <span class="o">*</span><span class="n">value</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">settimer</span><span class="p">(</span><span class="kt">int</span> <span class="n">which</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="n">itimerval</span> <span class="o">*</span><span class="n">value</span><span class="p">,</span> <span class="k">struct</span> <span class="n">itimervla</span> <span class="o">*</span><span class="n">ovalue</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>인터벌타이머는 alarm()처럼 동작하나 옵션으로 자동 재장전 기능 제공하며 명확하게 구분된 세가지 모드 중 하나로 동작
+<ul>
+<li>ITIMER_REAL : 실제 시간을 측정, 지정된 실제 시간이 경과하면 프로세스에 시그널(SIGALRM) 전송</li>
+<li>ITIMER_VIRTUAL : 프로세스 사용자 영역 코드가 수행되는 동안에만 타이머가 흐름, SIGVTALRM 시그널 전송</li>
+<li>ITIMER_PROF : 프로세스가 실행 중이거나 커널이(시스템 콜 완료 등) 프로세스를 대신해서 실행 중인 경우 타이머 흘러감(SIGPROF 시그널 전송)</li>
+</ul>
+</li>
+<li>itimerval 구조체는 타이머 만료 시간과 만료 이후에 타이머를 다시 설정하기 위한 경과 시간을 사용자가 명시하도록 함</li>
+<li>settimer()는 which가 가리키는 타이머에 it_value로 지정한 만료시간을 설정 지정 시간이 경과하면 it_interval로 지정한 시간으로 타이머 재설정</li>
+<li>ovalue가 NULL이 아니면 which가 가리키는 인터벌 타이머에 설정된 이전 값 반환</li>
+<li>성공 하면 0을 반환, 실패 시 -1반환 및 errno를 설정(EFAULT, EINVAL)</li>
+</ul>
+<h3 id="고급-타이머">고급 타이머</h3>
+<p>가장 강력한 타이머 인터페이스는 POSIX 시계에서 시작</p>
+<h4 id="타이머-생성하기">타이머 생성하기</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;signal.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">sigevent</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">union</span> <span class="n">sigval</span> <span class="n">sigev_value</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">sigev_signo</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">sigev_notify</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">sigev_notify_function</span><span class="p">)(</span><span class="k">union</span> <span class="n">sigval</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">pthread_attr_t</span> <span class="o">*</span><span class="n">sigev_notify_attributes</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">union</span> <span class="n">sigval</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">sival_int</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="o">*</span><span class="n">sival_ptr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">timer_create</span> <span class="p">(</span><span class="kt">clockid_t</span> <span class="n">clockid</span><span class="p">,</span> <span class="k">struct</span> <span class="n">sigevent</span> <span class="o">*</span><span class="n">evp</span><span class="p">,</span> <span class="kt">timer_t</span> <span class="o">*</span><span class="n">tiemrid</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>timer_create() 호출이 성공하면 clockid로 지정한 POSIX 시계와 관련된 새로운 타이머를 생헝하며 timerid에 새롭고 유일한 타이머 식별자를 저장한 다음 0을 반환</li>
+<li>호출이 실패하면 -1을 반환 및 errno 설정(EAGAIN, EINVAL, ENOTSUP)</li>
+<li>evp 인자가 NULL이 아니라면 타이머가 만료될 때 발생하는 비동기식 통지를 지정, 프로세스는 sigev_notify로 타이머 만료시 동작을 명세
+<ul>
+<li>SIGEV_NONE : NULL 통지, 타이머 만료 시 아무일도 일어나지 않음</li>
+<li>SIGEV_SIGNAL : 타이머가 만료될 때 커널은 프로세스에 sigev_signo로 지정한 시그널을 보냄</li>
+<li>SIGEV_THREAD : 타이머가 만료될 때 커널은 새로운 스레드를 띄워서 sigev_notify_function 함수에 sigev_value를 인자로 넘겨서 실행, sigev_notify_attributes가 스레드 속성</li>
+</ul>
+</li>
+<li>evp 가 NULL이면 SIGEV_SIGNAL, SIGALRM, 타이머 id로 설정되서 타이머 만료를 알림</li>
+</ul>
+<h4 id="타이머-설정하기">타이머 설정하기</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">timer_settime</span><span class="p">(</span><span class="kt">tiemr_t</span> <span class="n">timerid</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flag</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="n">itimerspec</span> <span class="o">*</span><span class="n">value</span><span class="p">,</span> <span class="k">struct</span> <span class="n">itiemrspec</span> <span class="o">*</span><span class="n">ovalue</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>timer_settime() 호출 시 만료시간이 value이고 timerid로 지정한 타이머가 설정</li>
+<li>flag는 TIMER_ABSTIME이면 req로 지정된 값은 절대값으로 취급(고급 잠들기 기법 참조)</li>
+</ul>
+<h4 id="타이머-만료-정보-얻기">타이머 만료 정보 얻기</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">timer_gettime</span><span class="p">(</span><span class="kt">timer_t</span> <span class="n">timerid</span><span class="p">,</span> <span class="k">struct</span> <span class="n">itimerspec</span> <span class="o">*</span><span class="n">value</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>timer_gettime() 호출이 성공하면 timerid로 지정한 타이머의 만료 시간을 value에 저장</li>
+<li>호출 성공 시 0반환, 실패 시 -1 반환 및 errno설정(EFAULT, EINVAL)</li>
+</ul>
+<h4 id="타이머-초과-횟수-얻기">타이머 초과 횟수 얻기</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">timer_getoverrun</span> <span class="p">(</span><span class="kt">timer_t</span> <span class="n">timerid</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>호출이 성공하면 타이머의 초기 만료 시점과 타이머 만료 상태를 프로세스에 통지한 시점 사이에 일어난 추가적인 타이머 만료 횟수를 반환</li>
+<li>POSIX는 초과횟수가 DELAYTIMER_MAX 이상일 시 DELAYTIMER_MAX 반환(리눅스는 0부터 다시 시작)</li>
+<li>실패하면 -1 반환 및 errno를 설정(EINVAL : timerid가 유효하지 않음)</li>
+</ul>
+<h4 id="타이머-삭제하기">타이머 삭제하기</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">timer_delete</span> <span class="p">(</span><span class="kt">timer_t</span> <span class="n">timerid</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>timer_delete() 호출이 성공하면 timerid 관련 타이머를 삭제하고 0을 반환</li>
+<li>실패하면 -1 반환 및 errno를 설정(EINVAL : timerid가 유효하지 않음)</li>
+</ul>
+
+</section>
+
+    
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/linux/">Linux</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/linux_system_programming-07-%EC%8A%A4%EB%A0%88%EB%94%A9/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Linux_System_programming] 07 스레딩</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/linux_system_programming-06-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4-%EA%B4%80%EB%A6%AC/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Linux_System_programming] 06 프로세스 관리</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/linux_system_programming-05-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4-%EA%B4%80%EB%A6%AC/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Linux_System_programming] 05 프로세스 관리</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/linux_system_programming-04-%EA%B3%A0%EA%B8%89%ED%8C%8C%EC%9D%BC-%EC%9E%85%EC%B6%9C%EB%A0%A5/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Linux_System_programming] 04 고급파일 입출력</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/linux_system_programming-03-buffer-i/o/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[Linux_System_programming] 03 Buffer I/O</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2022 - 
+        
+        2023 MW Devlog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+                
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
