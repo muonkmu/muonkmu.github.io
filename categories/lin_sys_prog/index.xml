@@ -6,7 +6,124 @@
         <description>Recent content in Lin_Sys_prog on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sat, 07 Oct 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/lin_sys_prog/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sun, 15 Oct 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/lin_sys_prog/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[Linux_System_programming] 09 메모리 관리</title>
+        <link>https://muonkmu.github.io/p/linux_system_programming-09-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EA%B4%80%EB%A6%AC/</link>
+        <pubDate>Sun, 15 Oct 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/linux_system_programming-09-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EA%B4%80%EB%A6%AC/</guid>
+        <description>&lt;h2 id=&#34;프로세스-주소-공간&#34;&gt;프로세스 주소 공간&lt;/h2&gt;
+&lt;p&gt;리눅스는 메모리를 가상화(물리주소에 직접 접근 x)&lt;/p&gt;
+&lt;h3 id=&#34;페이지와-페이징&#34;&gt;페이지와 페이징&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;페이지 : MMU에서 관리할 수 있는 최소 단위(가상 주소 공간은 페이지로 구성, 32bit 시스템 4K, 64bit 시스템 8K)&lt;/li&gt;
+&lt;li&gt;프로세스는 모든 물리 페이이제 접근하지 못하며 어떤 페이지는 유효하지 않을 수 있다.
+&lt;ul&gt;
+&lt;li&gt;유효한 페이지 : RAM / swap파티션 / 디스크의 실제 페이지와 연관됨&lt;/li&gt;
+&lt;li&gt;유효하지 않은 페이지 : 접근 시 세그멘테이션 폴트&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;유효한 페이지가 2차 저장소(swap, 디스크)에 연결 시 접근하려고 하면 페이지 폴트 발생&lt;/li&gt;
+&lt;li&gt;페이징 아웃 : 새로운 데이터 페이징을 위한 데이터 공간을 만들기 위해 RAM페이지 내용을 2차 저장소로 이동&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;공유와-copy-on-wirte&#34;&gt;공유와 copy-on-wirte&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;가상 메모리의 페이지는 다른 프로세스의 가상 주소 공간에 존재할 지라도 하나의 물리페이지로 맵핑 될 수 있음&lt;/li&gt;
+&lt;li&gt;상기 방식으로 물리 메모리에 있는 데이터를 다른 가상 주소 공간에서 공유(ex. 공유 C 라이브러리, 데이터 베이스)&lt;/li&gt;
+&lt;li&gt;프로세스가 쓰기가 가능한 공유페이지에 데이터를 쓰면 2가중 한가지 사건 발생
+&lt;ul&gt;
+&lt;li&gt;커널이 쓰기를 허용해 그 페이지를 공유하고 이쓴ㄴ 모든 프로세스가 쓰기 결과가 반영된 페이지 공유(여러 프로세스가 쓰려고 하면 조정/동기화 필요)&lt;/li&gt;
+&lt;li&gt;MMU가 쓰기 요청을 가로채서 예외를 던짐, 커널은 쓰기 요청한 프로세스를 위해 그 페이지의 복사본을 만들고 쓰기 요청 진행(COW)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;메모리-영역&#34;&gt;메모리 영역&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;커널은 접근 권한과 같은 특정 속성을 공유하는 블록 내부에 페이지를 배열, 이를 맵핑, 메모리영역이라고 함
+&lt;ul&gt;
+&lt;li&gt;메모리 영역 종류 : 텍스트 세그먼트(코드), 스택영역(스택), 힙(동적할당), bss(초기화 되지 않은 전역변수)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;리눅스는 두 단계로 변수를 최적화
+&lt;ul&gt;
+&lt;li&gt;초기화 하지 않은 데이터는 전용 공간인 bss 세그먼트에 할당(링커는 오브젝트 파일에 특수 값을 저장하지 않음)&lt;/li&gt;
+&lt;li&gt;BSS세그먼트가 메모리에 적재되면 커널은 단순히 이 세그먼트를 COW 기법을 통에 0으로 채워진 페이지에 맵핑 하여 기본 값을 설정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;동적-메모리-할당하기&#34;&gt;동적 메모리 할당하기&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;메모리 관리 시스템의 기본은 동적 메모리의 할당과 사용, 해제를 어떻게 하느냐&lt;/li&gt;
+&lt;li&gt;책에 malloc()에 대한 설명 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;malloc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;책에서 void포인터를 반환하는 함수에 대한 타입 캐스팅에 대한 위험성을 언급(책을 읽어보자)&lt;/li&gt;
+&lt;li&gt;malloc()이 NULL을 반환할 경우 에러메세지를 출력하고 프로그램을 종료하도록 하는 사용자 래퍼함수 xmalloc()에 대해 소개 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;배열-할당하기&#34;&gt;배열 할당하기&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;calloc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;동적메모리 할당에서 할당하려는 크기가 유동적일 경우 calloc()사용 가능(ex. 고정 item에 대한 가변 길이 배열 할당)&lt;/li&gt;
+&lt;li&gt;calloc()이 성공 시 크기가 size바이트인 원소 nr개 크기의 메모리 블록에 대한 포인터 반환&lt;/li&gt;
+&lt;li&gt;calloc()은 메모리 영역을 모두 0으로 채움(memset 사용보다 빠른데 커널이 이미 0으로 채워진 메모리를 제공하기 때문)&lt;/li&gt;
+&lt;li&gt;호출 실패 시 NULL 반환 및 errno를 ENOMEM으로 변경&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;할당-크기-변경&#34;&gt;할당 크기 변경&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;realloc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;realloc() 호출이 성공시 ptr이 가리키는 메모리 영역을 size 바이트 크기로 새로 조정 후 반환(반환 값은 ptr이 아닐 수 있음)&lt;/li&gt;
+&lt;li&gt;메모리 영역을 키울 때 원래 위치에서 기존 메모리 영역을 확장 할 수 없다면 새로운 메모리를 할당하고 이전 내용을 복사 후 이전 영역을 해제(상대적으로 비용이 많이듬)&lt;/li&gt;
+&lt;li&gt;size가 0이면 free()와 같고 ptr이 NULL이면 malloc()과 같다&lt;/li&gt;
+&lt;li&gt;호출 실패 시 NULL 반환 및 errno를 ENOMEM으로 변경&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;동적-메모리-해제&#34;&gt;동적 메모리 해제&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;스택을 거슬러 올라오면서 자동으로 거둬들이는 자동할당과 달리 동적 할당은 수동으로 해제될 때 까지 프로세스 주소공간에 존재&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;정렬&#34;&gt;정렬&lt;/h3&gt;
+</description>
+        </item>
+        <item>
         <title>[Linux_System_programming] 11 시간</title>
         <link>https://muonkmu.github.io/p/linux_system_programming-11-%EC%8B%9C%EA%B0%84/</link>
         <pubDate>Sat, 07 Oct 2023 00:00:00 +0000</pubDate>

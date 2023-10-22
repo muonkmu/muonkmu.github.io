@@ -588,6 +588,7 @@
 &lt;ul&gt;
 &lt;li&gt;이전에 생성한 플랫폼과 sysroot 활용&lt;/li&gt;
 &lt;li&gt;프로젝트는 Empty Application(XRT Native API&amp;rsquo;s)&lt;/li&gt;
+&lt;li&gt;하위 kernels 프로젝트에tj Hardware Functions에 Top Function을 포팅한 커널로 설정하자&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;Host program은 raw이미지를 한장 받아서 가속 처리 된 이미지 파일을 생성한다.&lt;/li&gt;

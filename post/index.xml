@@ -6,7 +6,331 @@
         <description>Recent content in Posts on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sat, 07 Oct 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Thu, 19 Oct 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[VitisAI] 02 Practice</title>
+        <link>https://muonkmu.github.io/p/vitisai-02-practice/</link>
+        <pubDate>Thu, 19 Oct 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/vitisai-02-practice/</guid>
+        <description>&lt;h2 id=&#34;vitis-ai-양자화-컴파일러-실습&#34;&gt;Vitis-AI 양자화, 컴파일러 실습&lt;/h2&gt;
+&lt;h2 id=&#34;사용자-dpu-하드웨어-플랫폼-실습&#34;&gt;사용자 DPU 하드웨어 플랫폼 실습&lt;/h2&gt;
+&lt;h2 id=&#34;사용자-소프트웨어-플랫폼-실습&#34;&gt;사용자 소프트웨어 플랫폼 실습&lt;/h2&gt;
+</description>
+        </item>
+        <item>
+        <title>[VitisAI] 01 Theory</title>
+        <link>https://muonkmu.github.io/p/vitisai-01-theory/</link>
+        <pubDate>Wed, 18 Oct 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/vitisai-01-theory/</guid>
+        <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Vitis-AI는 xilinx에서 FPGA기반 적응형 컴퓨팅 유닛을 개발하기 위한 개발 플랫폼
+&lt;ul&gt;
+&lt;li&gt;Vitis-AI git 사이트에서 모든 개발환경 다운 가능(모델, 컴파일러 등)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;전용 DPU(deep-leanring processing unit)을 사용하여 구성 모델을 구성(DPU는 FPGA내 LUT, DSP 등을 이용)&lt;/li&gt;
+&lt;li&gt;지원하는 플랫폼 (플랫폼에서 bere-metal은 지원하지 않는다.)
+&lt;ul&gt;
+&lt;li&gt;Edge : zynq, zynq ultrascale+, versal, versal Edge&lt;/li&gt;
+&lt;li&gt;cloud : Alveo, VCK5000&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Docker 기반 Vitis-AI 개발환경은 학습기능, 검증기능, 최적화/양자화, 인공지능 배포 기능을 제공
+&lt;ul&gt;
+&lt;li&gt;개발 전에 개발 환경 버전을 맞추는 것은 필수(vivado 2020.2 - vitis AI 2.0 - nVidia 2xxx 그래픽 카드)&lt;/li&gt;
+&lt;li&gt;개발 환경 버전 정보는 각 모델의 Readme에서 확인하자&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;vitis-ai-개발-순서&#34;&gt;Vitis-AI 개발 순서&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;모델 개발
+&lt;ul&gt;
+&lt;li&gt;Vitis-AI Git에서 제공 모델 확인(ML layer 구성 중 지원하는 명령어 셋 확인)&lt;/li&gt;
+&lt;li&gt;소수점으로 구성된 모델을 DPU에서 사용가능한 정수형으로 스케일링(양자화)&lt;/li&gt;
+&lt;li&gt;양자화된 모델을 DPU에서 구동하기 위한 포맷으로 컴파일(opcode/스케줄링 데이터 생성)&lt;/li&gt;
+&lt;li&gt;모델 최적화도 지원(프루닝 등) : 유료임&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;하드웨어 빌드
+&lt;ul&gt;
+&lt;li&gt;Vitis-AI에서 입력 가능한 하드웨어 가속 플랫폼 설계(클럭, AXI 버스 설정)&lt;/li&gt;
+&lt;li&gt;사용자의 SOC에 맞게 DPU 설정 및 Vitis V++을 통한 컴파일&lt;/li&gt;
+&lt;li&gt;비트 스트림 및 DPU arch 파일 생성&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;구동 SW 개발
+&lt;ul&gt;
+&lt;li&gt;리눅스 OS에서 DPU 드라이버를 통한 구동 SW 개발&lt;/li&gt;
+&lt;li&gt;Vitis-AI에서 어플리케이션을 작성을 위한 C++, python API 및 예제 제공
+&lt;img src=&#34;https://muonkmu.github.io/p/vitisai-01-theory/01_Vitis_ai_design_flow.png&#34;
+	width=&#34;610&#34;
+	height=&#34;314&#34;
+	srcset=&#34;https://muonkmu.github.io/p/vitisai-01-theory/01_Vitis_ai_design_flow_hud9224dac60e96b09a3b7ea0d5798315d_61203_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/vitisai-01-theory/01_Vitis_ai_design_flow_hud9224dac60e96b09a3b7ea0d5798315d_61203_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;194&#34;
+		data-flex-basis=&#34;466px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;vitis-ai-framework--model&#34;&gt;Vitis AI Framework / Model&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Vitis AI는 Caffe, Pytorch, TensorFlow 인공지능 프레임워크를 지원 (교재에 지원 버전 있음)&lt;/li&gt;
+&lt;li&gt;Vitis-AI Model Zoo에서 다양한 모델을 지원(교재에 지원 모델 리스트 있음, github에서 확인 가능)&lt;/li&gt;
+&lt;li&gt;Vitis-AI 모델 이름 형식 : F_M_(D)&lt;em&gt;H_W&lt;/em&gt;(P)_C_V
+&lt;ul&gt;
+&lt;li&gt;F: 프레임워크 종류, M: 인공지능 모델 종료, D: 학습에 사용된 데이터 세트&lt;/li&gt;
+&lt;li&gt;H,W: 입력 데이터 높이, 넓이, P: 프루닝 비율, C: 모델 초당연산량, V: Vitis-AI지원 버전&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;각 프레임 워크별 모델 디렉터리 구조 교재에 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;vitis-ai-quantizer&#34;&gt;Vitis-AI Quantizer&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Vitis-AI Quantizer는 Post Training Quantization(PTQ), Quantization Aware Training(QAT) 지원
+&lt;ul&gt;
+&lt;li&gt;PTQ : FP32 모델로 학습을 완료한 후 최종 Weight, Activation 값을 양자화&lt;/li&gt;
+&lt;li&gt;QAT : FP32 모델로 기준 학습 그래프 생성 후 추론 계산에 Fake Quantizaion을 추가, 목표에 도달할 때 까지 Fake 양자화 계수를 조절&lt;/li&gt;
+&lt;li&gt;모델 프레임 워크에 따라 지원 범위가 다름(교재 확인, caffe 2.5 이상 미지원)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;https://muonkmu.github.io/p/vitisai-01-theory/02_Quantization_flow.png&#34;
+	width=&#34;1403&#34;
+	height=&#34;999&#34;
+	srcset=&#34;https://muonkmu.github.io/p/vitisai-01-theory/02_Quantization_flow_hu3c0f030086b5e176f92bfbed5ce1bbf1_72751_480x0_resize_box_3.png 480w, https://muonkmu.github.io/p/vitisai-01-theory/02_Quantization_flow_hu3c0f030086b5e176f92bfbed5ce1bbf1_72751_1024x0_resize_box_3.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;140&#34;
+		data-flex-basis=&#34;337px&#34;
+	
+&gt;&lt;/li&gt;
+&lt;li&gt;교재에 각 모델 프레임 워크별 양자화 방법 나와 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;pytorch-quantization&#34;&gt;Pytorch Quantization&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;필요한 파일
+&lt;ul&gt;
+&lt;li&gt;model.pth : 사전 학습된 pytorch 모델&lt;/li&gt;
+&lt;li&gt;model.py : float 모델 정의를 포함하고 있는 파이썬 스크립트&lt;/li&gt;
+&lt;li&gt;calibration dataset : 학습에 사용한 데이터 또는 별도 검증 셋&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;양자화 과정 (교재에 자세한 설명)
+&lt;ol&gt;
+&lt;li&gt;사전 훈련된 float 모델 준비(forward 방식만 지원, 다른 함수는 CPU이용 처리)&lt;/li&gt;
+&lt;li&gt;vai_q_pytorch API를 잉용하여 float 모델을 양자화&lt;/li&gt;
+&lt;li&gt;양자화된 모델과 float 모델에 데이터를 입력, 출력을 비교하여 양자화 모델의 보정 실행&lt;/li&gt;
+&lt;li&gt;보정이 완료된 후 평가 데이터를 양자화된 모델에 다시 입력하여 정밀도/성능 평가&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;양자화 전 Inspector를 이용하여 어떤 operator가 어떤 장치(DPU/CPU)에서 실행될지 나타내는 파티션 정보를 출력할 수 있다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;vitis-ai-compiler&#34;&gt;Vitis-AI Compiler&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;vitis-AI 컴파일러는 DPU에서 신경망을 동작시키기 위해 데이터 순서를 스케줄링하고 dataflow를 적용한 바이너리를 생성&lt;/li&gt;
+&lt;li&gt;vitis-AI 컴파일러는 Xilinx Intermediate Representation(XIR) 기반, DPU 아키텍쳐에 맞게 모델 생성
+&lt;ul&gt;
+&lt;li&gt;입력된 프레임 워크별 모델에서 공통으로 사용 가능한 통합된 XIR 형식 변환&lt;/li&gt;
+&lt;li&gt;XIR형식은 sub graph로 분할, 실행할 명령어 스트림 생성 및 스트림 연결&lt;/li&gt;
+&lt;li&gt;sub graph 통합하고 컴파일 하여 VART(Vitis AI Runtime)에서 사용할 수 있는 직렬화된 xmodel 생성&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;컴파일 시 arch.json(DPU 아키텍쳐 정보) 필요 (vivado에서 생성 가능)&lt;/li&gt;
+&lt;li&gt;모델 프레임 워크별 별도 명령 사용(pyton: vai_c_xir, 사용법은 교재 참조)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;dpudeep-learning-processor-unit&#34;&gt;DPU(Deep Learning Processor Unit)&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;DPU는 xilinx 칩별 지원되는 종류가 다름(zynqMpSoc: DPUCZDX8G, 교재에 DPU버전 정보 및 플랫폼 별 지원 DPU리스트 참조)&lt;/li&gt;
+&lt;li&gt;DPU를 이용한 Development Flow
+&lt;ol&gt;
+&lt;li&gt;vitis 또는 vivado에서 DPU 하드웨어 플랫폼 생성&lt;/li&gt;
+&lt;li&gt;생성된 HW 정보파일(XSA)를 이용 Petalinux Project 생성&lt;/li&gt;
+&lt;li&gt;DPU 디바이스 트리 작성,&lt;/li&gt;
+&lt;li&gt;개발하고자 하는 신경망 모델 작성 및 검증&lt;/li&gt;
+&lt;li&gt;신경망 양자회 및 컴파일&lt;/li&gt;
+&lt;li&gt;신경망 모델용 어플리케이션 개발&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;dpu-hardware-architecture&#34;&gt;DPU Hardware Architecture&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;DPU는 다차원 병렬 처리 지원, 사용자에 의한 설정 및 확장 가능&lt;/li&gt;
+&lt;li&gt;DPU는 다음의 항목으로 구성 (교재에 그림 있음, 교재에 DPU별 상세 아키텍쳐 있음)
+&lt;ul&gt;
+&lt;li&gt;On chip buffer control(AXI Master, AXI Lite) : PS DDR 메모리에서 연산하고자 하는 입력 데이터를 BRAM에 이동, 결과를 DDR로 이동&lt;/li&gt;
+&lt;li&gt;Instruction Scheduler : 병렬 처리를 위한 분할 및 결과 병합 처리 스케줄러, DPU에서 불가능한 연산은 CPU에서 처리하도록&lt;/li&gt;
+&lt;li&gt;Computing Engine : PE(컨볼루션)와 misc engine(pooling, batch normalize)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;dpu-설정-파라메터dpuczdx8g&#34;&gt;DPU 설정 파라메터(DPUCZDX8G)&lt;/h3&gt;
+&lt;p&gt;(Vivado/vitis에서 DPU에 대한 설정 파라메터를 기술)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;DPU 코어 갯수 : 1~4 선택가능 (각 DPU는 기본적으로 M_AXI 두개 포트가 필요, 포트와 리소스 수에 맞추어 구성)&lt;/li&gt;
+&lt;li&gt;DPU 아키텍쳐 : B512~B4096선택 (뒷 숫자가 성능, 채널수 * 입력 채널 * 출력 채널이 숫자를 나타냄, 교재에 설명 참조)&lt;/li&gt;
+&lt;li&gt;RAM Usage : PL의 BRAM/URAM에 weight,bias,intermediate feature map이 저장되며 이 양을 선택(low, high 선택가능)&lt;/li&gt;
+&lt;li&gt;channel Augmentation : 처리 가능한 채널 수보다 입력 채널의 수가 적을 때 입력채널을 복사하여 인식률을 높임&lt;/li&gt;
+&lt;li&gt;Save Argmax : 수행된 연산 결과의 최대값 위치 저장 여부를 결정&lt;/li&gt;
+&lt;li&gt;ALU Parallel : 컨볼루션 아키텍쳐의 PP의 절반값으로 ALU parallel 값으로 선택(권장 사항)&lt;/li&gt;
+&lt;li&gt;ReLU Type : 활성함수 종류 선택(LeakyReLU 선택 여부)&lt;/li&gt;
+&lt;li&gt;softmax : Softmax의 하드웨어 구현 여부 옵션(1023클래스 까지 지원하며 enable시 SFM_M_AXI와 인터럽트 가 추가됨)&lt;/li&gt;
+&lt;li&gt;그 외 DPU advance config옵션(S-AXI clock mode, DSP48 usage,URAM use등이 있으며 교재 참조)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;dpu-axi-port&#34;&gt;DPU AXI PORT&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;S_AXI : DPU register RW&lt;/li&gt;
+&lt;li&gt;M_AXI : DATA(2ch) DDR에 있는 Xmodel 파라메터 및 데이터 fetch, INSTR은 명령어 Fetch, SFM(옵션)은 softmax 출력
+&lt;ul&gt;
+&lt;li&gt;DATA 채널은 별도의 포트로 구성하고 INSTR은 다른 채널과 interconnect를 통해 연결 가능(사용량에 따라 결정 됨)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;교재에 각 포트에 대한 자세한 설명 있음, 레지스터 설명도 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;hardware-platform&#34;&gt;Hardware Platform&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;DPU 사용 클럭은 하기 3가지 이며 이 중 Data control clock과 computing clock은 동기 클럭이여야 함
+&lt;ul&gt;
+&lt;li&gt;register clock : DPU IP 레지스터 설정을 위한 클럭, 높은 클럭이 필요없음(권장 100Mhz)&lt;/li&gt;
+&lt;li&gt;Data controller clock : DPU M_AXI가 DDR데이터 RW시 사용 300Mhz이상 권장&lt;/li&gt;
+&lt;li&gt;Computation clock : DPU내 DSP에서 사용되는 클럭(곱셈, 누산연산), M_AXI의 2배를 입력&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;PL을 많이 사용할 수록 클럭을 낮추어 Timing closure를 맞출 것&lt;/li&gt;
+&lt;li&gt;교재에 Clock Wizard로 클럭을 생성하는 법, 각 포트의 연결법이 있으니 참조&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;software-platform&#34;&gt;Software Platform&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;교재에 Petalinux로 Vitis-AI를 포함한 SW 플랫폼 만드는 방법을 기술&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>[Linux_System_programming] 09 메모리 관리</title>
+        <link>https://muonkmu.github.io/p/linux_system_programming-09-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EA%B4%80%EB%A6%AC/</link>
+        <pubDate>Sun, 15 Oct 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/linux_system_programming-09-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EA%B4%80%EB%A6%AC/</guid>
+        <description>&lt;h2 id=&#34;프로세스-주소-공간&#34;&gt;프로세스 주소 공간&lt;/h2&gt;
+&lt;p&gt;리눅스는 메모리를 가상화(물리주소에 직접 접근 x)&lt;/p&gt;
+&lt;h3 id=&#34;페이지와-페이징&#34;&gt;페이지와 페이징&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;페이지 : MMU에서 관리할 수 있는 최소 단위(가상 주소 공간은 페이지로 구성, 32bit 시스템 4K, 64bit 시스템 8K)&lt;/li&gt;
+&lt;li&gt;프로세스는 모든 물리 페이이제 접근하지 못하며 어떤 페이지는 유효하지 않을 수 있다.
+&lt;ul&gt;
+&lt;li&gt;유효한 페이지 : RAM / swap파티션 / 디스크의 실제 페이지와 연관됨&lt;/li&gt;
+&lt;li&gt;유효하지 않은 페이지 : 접근 시 세그멘테이션 폴트&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;유효한 페이지가 2차 저장소(swap, 디스크)에 연결 시 접근하려고 하면 페이지 폴트 발생&lt;/li&gt;
+&lt;li&gt;페이징 아웃 : 새로운 데이터 페이징을 위한 데이터 공간을 만들기 위해 RAM페이지 내용을 2차 저장소로 이동&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;공유와-copy-on-wirte&#34;&gt;공유와 copy-on-wirte&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;가상 메모리의 페이지는 다른 프로세스의 가상 주소 공간에 존재할 지라도 하나의 물리페이지로 맵핑 될 수 있음&lt;/li&gt;
+&lt;li&gt;상기 방식으로 물리 메모리에 있는 데이터를 다른 가상 주소 공간에서 공유(ex. 공유 C 라이브러리, 데이터 베이스)&lt;/li&gt;
+&lt;li&gt;프로세스가 쓰기가 가능한 공유페이지에 데이터를 쓰면 2가중 한가지 사건 발생
+&lt;ul&gt;
+&lt;li&gt;커널이 쓰기를 허용해 그 페이지를 공유하고 이쓴ㄴ 모든 프로세스가 쓰기 결과가 반영된 페이지 공유(여러 프로세스가 쓰려고 하면 조정/동기화 필요)&lt;/li&gt;
+&lt;li&gt;MMU가 쓰기 요청을 가로채서 예외를 던짐, 커널은 쓰기 요청한 프로세스를 위해 그 페이지의 복사본을 만들고 쓰기 요청 진행(COW)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;메모리-영역&#34;&gt;메모리 영역&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;커널은 접근 권한과 같은 특정 속성을 공유하는 블록 내부에 페이지를 배열, 이를 맵핑, 메모리영역이라고 함
+&lt;ul&gt;
+&lt;li&gt;메모리 영역 종류 : 텍스트 세그먼트(코드), 스택영역(스택), 힙(동적할당), bss(초기화 되지 않은 전역변수)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;리눅스는 두 단계로 변수를 최적화
+&lt;ul&gt;
+&lt;li&gt;초기화 하지 않은 데이터는 전용 공간인 bss 세그먼트에 할당(링커는 오브젝트 파일에 특수 값을 저장하지 않음)&lt;/li&gt;
+&lt;li&gt;BSS세그먼트가 메모리에 적재되면 커널은 단순히 이 세그먼트를 COW 기법을 통에 0으로 채워진 페이지에 맵핑 하여 기본 값을 설정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;동적-메모리-할당하기&#34;&gt;동적 메모리 할당하기&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;메모리 관리 시스템의 기본은 동적 메모리의 할당과 사용, 해제를 어떻게 하느냐&lt;/li&gt;
+&lt;li&gt;책에 malloc()에 대한 설명 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;malloc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;책에서 void포인터를 반환하는 함수에 대한 타입 캐스팅에 대한 위험성을 언급(책을 읽어보자)&lt;/li&gt;
+&lt;li&gt;malloc()이 NULL을 반환할 경우 에러메세지를 출력하고 프로그램을 종료하도록 하는 사용자 래퍼함수 xmalloc()에 대해 소개 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;배열-할당하기&#34;&gt;배열 할당하기&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;calloc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;동적메모리 할당에서 할당하려는 크기가 유동적일 경우 calloc()사용 가능(ex. 고정 item에 대한 가변 길이 배열 할당)&lt;/li&gt;
+&lt;li&gt;calloc()이 성공 시 크기가 size바이트인 원소 nr개 크기의 메모리 블록에 대한 포인터 반환&lt;/li&gt;
+&lt;li&gt;calloc()은 메모리 영역을 모두 0으로 채움(memset 사용보다 빠른데 커널이 이미 0으로 채워진 메모리를 제공하기 때문)&lt;/li&gt;
+&lt;li&gt;호출 실패 시 NULL 반환 및 errno를 ENOMEM으로 변경&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;할당-크기-변경&#34;&gt;할당 크기 변경&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;realloc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;size_t&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;realloc() 호출이 성공시 ptr이 가리키는 메모리 영역을 size 바이트 크기로 새로 조정 후 반환(반환 값은 ptr이 아닐 수 있음)&lt;/li&gt;
+&lt;li&gt;메모리 영역을 키울 때 원래 위치에서 기존 메모리 영역을 확장 할 수 없다면 새로운 메모리를 할당하고 이전 내용을 복사 후 이전 영역을 해제(상대적으로 비용이 많이듬)&lt;/li&gt;
+&lt;li&gt;size가 0이면 free()와 같고 ptr이 NULL이면 malloc()과 같다&lt;/li&gt;
+&lt;li&gt;호출 실패 시 NULL 반환 및 errno를 ENOMEM으로 변경&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;동적-메모리-해제&#34;&gt;동적 메모리 해제&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;스택을 거슬러 올라오면서 자동으로 거둬들이는 자동할당과 달리 동적 할당은 수동으로 해제될 때 까지 프로세스 주소공간에 존재&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id=&#34;정렬&#34;&gt;정렬&lt;/h3&gt;
+</description>
+        </item>
+        <item>
         <title>[Linux_System_programming] 11 시간</title>
         <link>https://muonkmu.github.io/p/linux_system_programming-11-%EC%8B%9C%EA%B0%84/</link>
         <pubDate>Sat, 07 Oct 2023 00:00:00 +0000</pubDate>
@@ -2694,6 +3018,7 @@
 &lt;ul&gt;
 &lt;li&gt;이전에 생성한 플랫폼과 sysroot 활용&lt;/li&gt;
 &lt;li&gt;프로젝트는 Empty Application(XRT Native API&amp;rsquo;s)&lt;/li&gt;
+&lt;li&gt;하위 kernels 프로젝트에tj Hardware Functions에 Top Function을 포팅한 커널로 설정하자&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;Host program은 raw이미지를 한장 받아서 가속 처리 된 이미지 파일을 생성한다.&lt;/li&gt;
