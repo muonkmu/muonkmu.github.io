@@ -6,21 +6,21 @@
         <description>Recent content in Categories on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Thu, 19 Oct 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sun, 12 Nov 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Lin_Sys_prog</title>
+        <link>https://muonkmu.github.io/categories/lin_sys_prog/</link>
+        <pubDate>Sun, 12 Nov 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/categories/lin_sys_prog/</guid>
+        <description>&lt;img src="https://muonkmu.github.io/categories/lin_sys_prog/lsp_book_cover.jpeg" alt="Featured image of post Lin_Sys_prog" /&gt;</description>
+        </item>
+        <item>
         <title>Vitis_AI</title>
         <link>https://muonkmu.github.io/categories/vitis_ai/</link>
         <pubDate>Thu, 19 Oct 2023 00:00:00 +0000</pubDate>
         
         <guid>https://muonkmu.github.io/categories/vitis_ai/</guid>
         <description>&lt;img src="https://muonkmu.github.io/categories/vitis_ai/vitis-ai-title.png" alt="Featured image of post Vitis_AI" /&gt;</description>
-        </item>
-        <item>
-        <title>Lin_Sys_prog</title>
-        <link>https://muonkmu.github.io/categories/lin_sys_prog/</link>
-        <pubDate>Sun, 15 Oct 2023 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/categories/lin_sys_prog/</guid>
-        <description>&lt;img src="https://muonkmu.github.io/categories/lin_sys_prog/lsp_book_cover.jpeg" alt="Featured image of post Lin_Sys_prog" /&gt;</description>
         </item>
         <item>
         <title>prj_RS_Acc</title>
