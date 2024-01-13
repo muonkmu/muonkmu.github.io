@@ -6,7 +6,249 @@
         <description>Recent content in Posts on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sun, 12 Nov 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sat, 16 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/post/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[NVDLA] NVDLA Primer</title>
+        <link>https://muonkmu.github.io/p/nvdla-nvdla-primer/</link>
+        <pubDate>Sat, 16 Dec 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/nvdla-nvdla-primer/</guid>
+        <description>&lt;h2 id=&#34;abtract&#34;&gt;Abtract&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;딥러닝 추론을 위한 대부분의 컴퓨팅 작업은 convolutions, activations, pooling, normalization로 그룹화 될 수 있음, 이는 예측가능한 메모리 접근 패턴과 병렬화 하기 적합한 특성을 지님&lt;/li&gt;
+&lt;li&gt;NVDLA 간단하고 유연하며 견고한 추론 가속화 솔루션을 제공(다양한 성능 수준을 제공,)&lt;/li&gt;
+&lt;li&gt;NVDLA는 HW/SW 스택을 제공
+&lt;ul&gt;
+&lt;li&gt;HW : Verilog model(합성/시뮬레이션용 RTL), TLM SystemC(소프트웨어 개발 /시스템통합 / 검증용)&lt;/li&gt;
+&lt;li&gt;SW : On-device SW stack(동작 바이너리?), training intrastructure(신규모델 개발용), parser(컴파일러 역활)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;accelerating-deep-learning-inference-using-nvdla&#34;&gt;Accelerating Deep Learning Inference using NVDLA&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;NVDLA는 모듈러 구조이며 각 모듈은 독립적으로 구성 및 확장 가능하다(scalalbe, CONV core를 더 넣거나 average engine을 뺄 수 있다.)
+&lt;ul&gt;
+&lt;li&gt;Convolution Core : convolution engine&lt;/li&gt;
+&lt;li&gt;Single Data Processor : Activation function을 위한 single point lookup engine&lt;/li&gt;
+&lt;li&gt;Planar Data Processor : pooling을 위한 planar averaging engine&lt;/li&gt;
+&lt;li&gt;Channel Data Processor : Normalization을 위한 Multi-channel averaging engine&lt;/li&gt;
+&lt;li&gt;Dedicated Memory and Data Reshape Engine : tensor reshape 와 copy를 위한 mem-to-mem 가속기(DMA?)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;각 유닛의 스케줄링은 co-processor나 CPU에 의해 동작(fine-grained scheduling)
+&lt;ul&gt;
+&lt;li&gt;NVDLA 모듈 내 co-processor가 있는 걸 headed,  CPU가 스케쥴링 하는 걸 Headless라고 하는 듯 (현재는 릴리즈 된건 headless 만)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;NVDLA 컨트롤 채널은 AXI bus를 사용(레지스터, 인터럽트 포함), primary memory IF는 시스템 DRAM 연결용, HBM 연결을 위한 2nd-mem-IF를 optional로 제공&lt;/li&gt;
+&lt;li&gt;일반적 인터페이싱 플로우는 Command-excute-interrupt 구조
+&lt;ul&gt;
+&lt;li&gt;CPU나 co-processor가 layer의 hardware configuration 정보를 active command와 전송(이는 데이터 디펜던시가 없다면 multiple layer를 병렬로 처리 가능)&lt;/li&gt;
+&lt;li&gt;모든 엔진은 config register를 위한 더블 버퍼를 가지고 있어서 active layer가 끝나는 직시 second layer가 실행 가능(다음 레이어 정보를 미리 로드할 수 있다는 듯)&lt;/li&gt;
+&lt;li&gt;엔진 동작이 끝나면 인터럽트로 알림&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;NVDLA는 두가지 모델을 제공(제안?)&lt;/li&gt;
+&lt;li&gt;small system 모델은 headless로 저사양, large system model은 co-processor/sram-IF가 추가된 고성능 IoT용(sram은 NVDLA의 캐시로 사용)
+&lt;ul&gt;
+&lt;li&gt;사이트에 더 상세한 설명(그러나 일반적인 내용)이 기술되어 있음&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;http://nvdla.org/_images/nvdla-primer-system-comparison.svg&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;hardware-architecture&#34;&gt;Hardware Architecture&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;NVDLA는 두 가지 operation 모드로 프로그램 될 수 있음
+&lt;ul&gt;
+&lt;li&gt;Independent : 각 블럭은 독립적으로 동작, 각 블럭은 지정된 메모리 영역 읽으면서 동작 시작, 끝나면 지정된 메모리 영역에 데이터를 씀&lt;/li&gt;
+&lt;li&gt;Fused : Independent와 비슷하나 몇몇 블럭이 파이프라인(FIFO)을 통해 통합될 수 있음&lt;/li&gt;
+&lt;li&gt;&lt;img src=&#34;http://nvdla.org/_images/nvdla-primer-core-diagram1.svg&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;connection&#34;&gt;Connection&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;NVDLA는 다른 시스템과 연결을 위한 3가지 인터페이스를 제공
+&lt;ul&gt;
+&lt;li&gt;Configureation Space Bus(CSB) : NVDLA config register 접근을 위한 32비트 버스(low BW/Power), AMBA나 OCP 등으로 쉽게 변환 가능&lt;/li&gt;
+&lt;li&gt;Interrupt : 1bit level driven, task의 완료나 에러를 통지&lt;/li&gt;
+&lt;li&gt;Data Backbone (DBB) : 메인 시스템 메모리 연결을 위한 유사 AXI 버스, address-size / bus-width / burst-size 등을 조절 가능&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;DBB는 On-Chip SRAM 등을 연결하기 위한 optional 인터페이스를 구현할 수 있음&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;components&#34;&gt;Components&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Convolution : &lt;code&gt;tf.nn.conv2d&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;input &amp;ldquo;feature&amp;quot;와 &amp;ldquo;weight&amp;quot;의 convolution engine, 다양한 사이즈에 매핑 시키기 위해서 파라메터를 expose함(무슨 의미?)&lt;/li&gt;
+&lt;li&gt;일반적 콘볼루션을 위한 optimiztion 포함, sparse weight compression / Winograd Convolution / Batch convolution 지원&lt;/li&gt;
+&lt;li&gt;weight 와 input feature 저장을 위한 convolution buffer(RAM)을 내장&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Single Data Point Processor : &lt;code&gt;tf.nn.batch_normaliztion&lt;/code&gt;, &lt;code&gt;tf.nn.bias_add&lt;/code&gt;, &lt;code&gt;tf.nn.elu&lt;/code&gt;, &lt;code&gt;tf.nn.relu&lt;/code&gt;, &lt;code&gt;tf.sigmoid&lt;/code&gt;, &lt;code&gt;tf.tanh&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;Convloution 이후에 쓰임,&lt;/li&gt;
+&lt;li&gt;non-linear function 구현을 위한 lookup table을 가짐, linear-funtion은 bias와 scaling 지원&lt;/li&gt;
+&lt;li&gt;위의 두 함수의 조합으로 대부분의 activation function 및 element-wise 연산을 지원&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Planar Data Processor : &lt;code&gt;tf.nn.avg_pool&lt;/code&gt;, &lt;code&gt;tf.nn.max_pool&lt;/code&gt;, &lt;code&gt;tf.nn.pool&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;runtime 중 다른 사이즈의  pool group config 지원, max/avg/min pool 지원&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Cross-channel Data Processor : &lt;code&gt;tf.nn.local_response_nomaliztion&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;local response nomalization(LRN)을 위한 유닛&lt;/li&gt;
+&lt;li&gt;LRN : Alexnet에 사용된 것으로 activation map의 같은 위치에 있는 픽셀끼리 정규화, 요즘은 Batch normalization을 써서 잘안쓴다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Data Reshape Engine : &lt;code&gt;tf.nn.conv2d_transpos&lt;/code&gt;, &lt;code&gt;tf.concat&lt;/code&gt;, &lt;code&gt;tf.slice&lt;/code&gt;, &lt;code&gt;tf.transpose&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;data format transformation(slicing, merging, reshape-transpose 같은)을 수행&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Bridge DMA
+&lt;ul&gt;
+&lt;li&gt;System DRAM과 high-performance memory interface 간 data copy / move engine&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;configurability&#34;&gt;Configurability&lt;/h3&gt;
+&lt;p&gt;(NVDLA는 광범위한 하드웨어 파라메터를 제공)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Data type : int4/8/16/32, fp16/32/64 지원 (선택가능한 데이터 타입은 바이너리를 포함?)&lt;/li&gt;
+&lt;li&gt;Input image memory formats: planar/semi-planar image와 packaged memory format을 지원
+&lt;ul&gt;
+&lt;li&gt;RGB 이미지가 RGB RGB RGB 형태이면 packaged, RRR BBB GGG 형태이면 planar&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Weight compression : sparsely storing convolution weight를 on/off 가능&lt;/li&gt;
+&lt;li&gt;Winograd convolution : winograd convolution 기능을 on/off 가능&lt;/li&gt;
+&lt;li&gt;Batched Convolution : Batched convolution(메모리 밴드위스를 줄이기 위한) 기능 on/off 가능&lt;/li&gt;
+&lt;li&gt;Convolution buffer size : buffer bank 2~32, 각 bank의 size 4/8KiB 선택 가능&lt;/li&gt;
+&lt;li&gt;MAC array size : MAC은 C(width dimension, 8~64) * K(depth dimension, 4~64) 형태, 조절 가능&lt;/li&gt;
+&lt;li&gt;Second memory interface : high-speed access를 위한 추가 메모리 인터페이스 포함 여부 선택 가능&lt;/li&gt;
+&lt;li&gt;Non-linear activation function : 비선형 함수(sigmoid, tanh등)을 위한 lookup table 삭제 가능&lt;/li&gt;
+&lt;li&gt;Active engine size : 한 사이클당 생산되는 activation output이 1~16까지 조절 가능&lt;/li&gt;
+&lt;li&gt;Bridge DMA : 삭제 가능&lt;/li&gt;
+&lt;li&gt;Data reshape engine : 삭제 가능&lt;/li&gt;
+&lt;li&gt;Pooling engine presence : pooling engine 삭제 가능&lt;/li&gt;
+&lt;li&gt;Pooling engine size : 한 사이클당 1~4개의 출력을 생성하도록 조절 가능&lt;/li&gt;
+&lt;li&gt;Local response nomalization engine presence : 삭제가능&lt;/li&gt;
+&lt;li&gt;Local response nomalization engine size : 한 사이클당 1~4개의 출력을 생성하도록 조절 가능&lt;/li&gt;
+&lt;li&gt;Memory interface bit width : 외부 메모리 인터페이스 width에 따라 조절 가능&lt;/li&gt;
+&lt;li&gt;Memory read latency tolerance : memory latency time(read request 부터 return까지 cycle) 조절 가능 (read DMA의 latency buffer size에 영향)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;software-design&#34;&gt;Software Design&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;NVDLA는 on-device sw stack, full training infrastructure를 포함하는 sw 생태계를 지원&lt;/li&gt;
+&lt;li&gt;compilation tool(model conversion)과 runtime environement(runtime sw load/excute) 그룹으로 나뉨&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;compilation-tools--model-creation-and-compilation&#34;&gt;Compilation Tools : Model Creation and Compilation&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;copilation tool은 compiler와 parse를 포함
+&lt;ul&gt;
+&lt;li&gt;compiler : NVDLA config에 따른 최적화된 HW layer sequence를 생성&lt;/li&gt;
+&lt;li&gt;parser : caffe model을 읽어서 &amp;ldquo;intermediate representation&amp;quot;을 생성&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;compiler는 intermediate representation과 NVDLA HW config를 입력받아 HW layer network를 생성&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;runtime-environment--model-inference-on-device&#34;&gt;Runtime Environment : Model Inference on Device&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;NVDLA RTE는 running model을 포함하며 2개의 layer로 구분됨
+&lt;ul&gt;
+&lt;li&gt;User Mdoe Driver(UMD) : compiler는 NVDLA loaderble(binary?)를 생성하는데 이를 로드하고 Kernel mode 드라이버에 interfernce job을 제공&lt;/li&gt;
+&lt;li&gt;Kernel Mode Driver(KMD) : 펌웨어와 드라이버로 구성되며 layer를 스케줄링하고 register를 설정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;HW의 NVDLA function block처럼 SW 관점에서는 모듈을 &amp;ldquo;layer&amp;quot;로 불림(UMD, KMD), layer에는 layer간 dependency, tensor, config에 대한 정보를 포함&lt;/li&gt;
+&lt;li&gt;각 layer는 dependancy graph를 통해 연결(KMD가 각 operation을 위해 이를 이용)&lt;/li&gt;
+&lt;li&gt;UMD : image load, input/output memory binding, inference run을 위한 API, 리눅스에서는 ioctl()일 수 있음&lt;/li&gt;
+&lt;li&gt;KMD : interferece job을 수신 및 선택(multi-processing일때)하여 core engine scheduler에 전송&lt;/li&gt;
+&lt;li&gt;core engine scheduler는 인터럽트를 핸들링/ function block 스케줄링 / dependency 업데이트를 함, 스케쥴러는 dependency graph를 이용하여 subsequent layer가 스케쥴링 준비가 되었는지 결정&lt;/li&gt;
+&lt;li&gt;KMD/UMD 둘다 API 형태로 제공되므로 이를 wrapping하여 portability layer를 integrator가 작성해야 함&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;nvdla-system-integration&#34;&gt;NVDLA System Integration&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;NVDLA는 요구사항을 맞출 수 있는 광범위한 파라메터를 제공, 원하는 성능을 위해 MAC unit의 수 / convolution buffer size / on-chip SRAM size를 선택하는 것은 중요한 스텝임&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;tuning-question&#34;&gt;Tuning Question&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;What math precision is required for the workload expected for any given instantiation?
+&lt;ul&gt;
+&lt;li&gt;NVDLA의 사용 면적은 대부분이 MAC 유닛과 conv buffer에 의해 결정&lt;/li&gt;
+&lt;li&gt;트레이닝 시에는 32bit fp를 사용하지만 8bit로 줄일 수도 있다..(그냥 양자화 하라는 이야기인듯)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;What are the number of MAC unit, and the required memory bandwidth?
+&lt;ul&gt;
+&lt;li&gt;MAC throughput이나 memory bandwidth가 bottleneck이 될 수 있다.&lt;/li&gt;
+&lt;li&gt;MAC unit의 수는 결정하기 쉬운데 layer의 input/output size, kernel size가 결정되 있기 때문이다. 요구되는 operation 수를 MAC unit의 수로 나누면 레이어를 처리하는데 필요한 클럭 사이클이 나옴&lt;/li&gt;
+&lt;li&gt;Memory BW 경우 input image, output image, weigth를 한번씩 읽어야 하므로 최소 cycle은 상기 합을 읽고 써야하는 샘플의 수로 나눈 값이다. 그러나 convolution buffer가 작아서 iput이나 weight를 한번에 저장할 수 없다면 작업은 나누어 져야 한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Is there a need for on-chip SRAM?
+&lt;ul&gt;
+&lt;li&gt;external memory bandwidth가 성능/비용 코스트가 많이 든다면 on-chip SRAM이 second level cache로써 도움이 될 수 있다.(SRAM이 시스템 메모리보다 빨라야 함)&lt;/li&gt;
+&lt;li&gt;convolution buffer를 키우는 것보다 SRAM이 싸지만 convolution buffer limited 상황에서는 SRAM이 큰 효과를 주는 factor는 아니다.&lt;/li&gt;
+&lt;li&gt;즉, 레이어의 대역폭이 제한된 경우, 시스템 메모리의 2배수로 동작하는 입력이미지를 저장하기에 충분한 SRAM이 있다면 성능은 두배가 됨, 그러나 컨볼루션 버퍼의 크기에 의하여 성능이 제한된다면 대역폭 문제가 아니므로 SRAM 추가해도 별 소용 없다.&lt;/li&gt;
+&lt;li&gt;결국, Convolution buffer 크기는 Bandwidth 요구량을 줄여주고, SRAM은 가용한 대역폭을 늘려준다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;example-area-and-performance-with-nvdla&#34;&gt;Example Area and Performance with NVDLA&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;사이트에 MAC unit 수, Conv buffer 사이즈 등에 따른 NVDLA에서 ResNet-50의 성능 및 power estimation/silicon area이 나와 있다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;sample-platform&#34;&gt;Sample platform&lt;/h3&gt;
+&lt;h4 id=&#34;simulation&#34;&gt;Simulation&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;GreenSocs QBOX 기반의 시뮬레이션 플랫폼&lt;/li&gt;
+&lt;li&gt;QEMU CPU 모델(x86, ARMv8)은 NVDLA SystemC와 결합하여 SW 개발/디버깅을 위한 register-accurate system 제공&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;fpga&#34;&gt;FPGA&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;FPGA를 위한 NVDLA verilog model(합성 가능)&lt;/li&gt;
+&lt;li&gt;PPA 최적화를 위한 노력이 들어가있지 않으므로 SoC 성능과 비교하지 말라고 되어 있음&lt;/li&gt;
+&lt;li&gt;Amazon EC2 &amp;ldquo;F1&amp;rdquo; 환경을 사용(xilinx base)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;model&#34;&gt;model&lt;/h3&gt;
+&lt;h4 id=&#34;verilog-model&#34;&gt;verilog model&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;RTL form의 synthesis, simulation model&lt;/li&gt;
+&lt;li&gt;4개의 functional interface를 가짐 : slave host interface, interrupt line, two master interface(내/외부 메모리 접근용)&lt;/li&gt;
+&lt;li&gt;host와 메모리 인터페이스는 soc 통합을 위한 어댑터가 필요(AXI4 어댑터 제공)&lt;/li&gt;
+&lt;li&gt;NVDLA core는 single clock domain이나 bus adaptor는 clock domain crossing을 허용(버스 어댑터에에서 클럭 도메인 크로싱이 된다는 뜻인듯)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;simulation-model-and-verification-suite&#34;&gt;Simulation model and verification suite&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;소프트웨어 개발, 시스템 통합 및 테스트를 위한 TLM2 SystemC 모델(Synopsys VDK나 GreenSocs QBox플랫폼 같은 시뮬레이션 환경에서 사용되도록 작성)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;software&#34;&gt;software&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;초기 NVDLA 오픈소스는 &amp;ldquo;headless&amp;quot;를 위한 소프트웨어만 포함(리눅스 환경),&lt;/li&gt;
+&lt;li&gt;Kernel mode driver, user mdoe test utility가 소스형태로 제공됨&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
         <title>[Linux_System_programming] 10 시그널</title>
         <link>https://muonkmu.github.io/p/linux_system_programming-10-%EC%8B%9C%EA%B7%B8%EB%84%90/</link>
         <pubDate>Sun, 12 Nov 2023 00:00:00 +0000</pubDate>

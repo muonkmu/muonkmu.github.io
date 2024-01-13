@@ -6,7 +6,23 @@
         <description>Recent content in Categories on MW Devlog</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sun, 12 Nov 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sat, 16 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>NVDLA</title>
+        <link>https://muonkmu.github.io/categories/nvdla/</link>
+        <pubDate>Sat, 16 Dec 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/categories/nvdla/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>MW_prj_YOLO_acc</title>
+        <link>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</link>
+        <pubDate>Thu, 14 Dec 2023 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</guid>
+        <description>&lt;img src="https://muonkmu.github.io/categories/mw_prj_yolo_acc/yolo_design.jpg" alt="Featured image of post MW_prj_YOLO_acc" /&gt;</description>
+        </item>
+        <item>
         <title>Lin_Sys_prog</title>
         <link>https://muonkmu.github.io/categories/lin_sys_prog/</link>
         <pubDate>Sun, 12 Nov 2023 00:00:00 +0000</pubDate>
@@ -37,14 +53,6 @@
         
         <guid>https://muonkmu.github.io/categories/xilinx_hls/</guid>
         <description>&lt;img src="https://muonkmu.github.io/categories/xilinx_hls/HLS_logo.jpeg" alt="Featured image of post Xilinx_HLS" /&gt;</description>
-        </item>
-        <item>
-        <title>MW_prj_YOLO_acc</title>
-        <link>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</link>
-        <pubDate>Wed, 19 Apr 2023 00:00:00 +0000</pubDate>
-        
-        <guid>https://muonkmu.github.io/categories/mw_prj_yolo_acc/</guid>
-        <description>&lt;img src="https://muonkmu.github.io/categories/mw_prj_yolo_acc/yolo_design.jpg" alt="Featured image of post MW_prj_YOLO_acc" /&gt;</description>
         </item>
         <item>
         <title>prj_LFS</title>
