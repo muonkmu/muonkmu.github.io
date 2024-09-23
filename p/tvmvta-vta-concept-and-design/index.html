@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='VTA overview and design'>
+<title>[TVM&amp;VTA] VTA Concept and Design</title>
+
+<link rel='canonical' href='https://muonkmu.github.io/p/tvmvta-vta-concept-and-design/'>
+
+<link rel="stylesheet" href="/scss/style.min.f3b6945bee58731371ef6d5a992e6775ef6e63b9642101b9f59903b1c9e16941.css"><meta property='og:title' content='[TVM&amp;VTA] VTA Concept and Design'>
+<meta property='og:description' content='VTA overview and design'>
+<meta property='og:url' content='https://muonkmu.github.io/p/tvmvta-vta-concept-and-design/'>
+<meta property='og:site_name' content='MW Devlog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='VTA_HW' /><meta property='article:published_time' content='2024-07-07T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2024-07-07T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="[TVM&amp;VTA] VTA Concept and Design">
+<meta name="twitter:description" content="VTA overview and design">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/minwook_large_hu93fbe6c7fccf94bb4165ea496a9d4637_41368_300x0_resize_q75_box.jpg" width="300"
+                            height="246" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MW Devlog</a></h1>
+            <h2 class="site-description">Embedded Engineer (HW,SW,SYSTEM)</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href=''
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href=''
+                        target="_blank"
+                        title="Linkedin"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-linkedin" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+ <path stroke="none" d="M0 0h24v24H0z" fill="none"/> <rect x="4" y="4" width="16" height="16" rx="2" /> <line x1="8" y1="11" x2="8" y2="16" /> <line x1="8" y1="8" x2="8" y2="8.01" /> <line x1="12" y1="16" x2="12" y2="11" />
+ <path d="M16 16v-3a2 2 0 0 0 -4 0" />
+</svg>
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#vta-concept">VTA Concept</a></li>
+    <li><a href="#vta-parameter">VTA Parameter</a></li>
+    <li><a href="#vta-overview">VTA Overview</a></li>
+    <li><a href="#vta-archictectural-overview">VTA Archictectural Overview</a>
+      <ol>
+        <li><a href="#instruction-set-architectureisa">Instruction Set Architecture(ISA)</a></li>
+        <li><a href="#dataflow-excution">Dataflow Excution</a></li>
+        <li><a href="#pipeline-expandability">Pipeline Expandability</a></li>
+      </ol>
+    </li>
+    <li><a href="#microarchitectural-overview">Microarchitectural Overview</a>
+      <ol>
+        <li><a href="#fetch-module">Fetch Module</a>
+          <ol>
+            <li><a href="#코드분석">코드분석</a></li>
+          </ol>
+        </li>
+        <li><a href="#compute-module">Compute Module</a>
+          <ol>
+            <li><a href="#코드분석-1">코드분석</a></li>
+            <li><a href="#gemm-core">GEMM core</a></li>
+            <li><a href="#alu-core">ALU core</a></li>
+          </ol>
+        </li>
+        <li><a href="#load-and-store-modules">Load and Store Modules</a></li>
+      </ol>
+    </li>
+    <li><a href="#vivado-구조-분석">Vivado 구조 분석</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/tvm_vta/" style="background-color: #B2C415; color: #fff;">
+                TVM_VTA
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/tvmvta-vta-concept-and-design/">[TVM&amp;VTA] VTA Concept and Design</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            VTA overview and design
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 07, 2024</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    15 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    
+        <section class="article-content">
+    
+    
+    <h2 id="vta-concept">VTA Concept</h2>
+<ol>
+<li>Versatile Tensor Accelerator(VTA)는 Washington 대학에서 시작된 RISC 형태의 오픈소스 deep learning accelerator 이다.</li>
+<li>TVM 프로젝트의 하위 프로젝트로 TVM에 기반한 hardware design, drivers, a JIT runtime, and an optimizing compiler stack을 제공한다.</li>
+<li><a class="link" href="https://tvm.apache.org/docs/topic/vta/index.html"  target="_blank" rel="noopener"
+    >https://tvm.apache.org/docs/topic/vta/index.html</a>
+<img src="/p/tvmvta-vta-concept-and-design/01_vta_stack.png"
+	width="2364"
+	height="2184"
+	srcset="/p/tvmvta-vta-concept-and-design/01_vta_stack_hu8682c16d6b658ba1ab21bc7fa97ae61a_745842_480x0_resize_box_3.png 480w, /p/tvmvta-vta-concept-and-design/01_vta_stack_hu8682c16d6b658ba1ab21bc7fa97ae61a_745842_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="VTA stack"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="108"
+		data-flex-basis="259px"
+	
+></li>
+</ol>
+<h2 id="vta-parameter">VTA Parameter</h2>
+<ol>
+<li>VTA는 HLS기반으로 합성 시 사용할 tensor intrinsic, clock frequency, pipelining, data type width, on-chip buffer sizes 등의 파라메터를 제공한다.</li>
+<li><code>3rdparty/vta-hw/config/vta_config.json</code> 파일에 사용할 파라메터가 있으며 <a class="link" href="https://tvm.apache.org/docs/topic/vta/dev/config.html"  target="_blank" rel="noopener"
+    >https://tvm.apache.org/docs/topic/vta/dev/config.html</a> 에 파라메터에 대한 설명이 기술되어 있다</li>
+<li>다음의 그림은 파라메터가 VTA core에 어떻게 적용되는지 나태낸 그림이며 필자가 ZCU104에서 사용 중인 파일 예시이다.
+<ul>
+<li>합성 시 <code>vta_config.json</code>을 바탕으로 <code>vta_config.py</code>이 <code>vta_config.tcl</code> 파일을 생성한다.
+<img src="/p/tvmvta-vta-concept-and-design/02_ex_of_vta_param_gemm_core.png"
+	width="1408"
+	height="550"
+	srcset="/p/tvmvta-vta-concept-and-design/02_ex_of_vta_param_gemm_core_huf01f062d7cb8d0d13b26666c0e78e499_94475_480x0_resize_box_3.png 480w, /p/tvmvta-vta-concept-and-design/02_ex_of_vta_param_gemm_core_huf01f062d7cb8d0d13b26666c0e78e499_94475_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="VTA Core param"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="256"
+		data-flex-basis="614px"
+	
+></li>
+</ul>
+</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;TARGET&#34;</span> <span class="p">:</span> <span class="s2">&#34;zcu104&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;HW_FREQ&#34;</span> <span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;HW_CLK_TARGET&#34;</span> <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;HW_VER&#34;</span> <span class="p">:</span> <span class="s2">&#34;0.0.1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;LOG_INP_WIDTH&#34;</span> <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;LOG_WGT_WIDTH&#34;</span> <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;LOG_ACC_WIDTH&#34;</span> <span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;LOG_BATCH&#34;</span> <span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;LOG_BLOCK&#34;</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;LOG_UOP_BUFF_SIZE&#34;</span> <span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;LOG_INP_BUFF_SIZE&#34;</span> <span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;LOG_WGT_BUFF_SIZE&#34;</span> <span class="p">:</span> <span class="mi">18</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;LOG_ACC_BUFF_SIZE&#34;</span> <span class="p">:</span> <span class="mi">17</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="vta-overview">VTA Overview</h2>
+<ol>
+<li>VTA는 dense liniar algebra 연산을 위한 RISC-like 프로세서로 memory access latency를 줄이기 위해 access-execute가 decouple된 디자인을 가진다.
+<img src="/p/tvmvta-vta-concept-and-design/03_vta_hw_arch.png"
+	width="2888"
+	height="1776"
+	srcset="/p/tvmvta-vta-concept-and-design/03_vta_hw_arch_huba56328bd942c53ffd307e32996388a3_258573_480x0_resize_box_3.png 480w, /p/tvmvta-vta-concept-and-design/03_vta_hw_arch_huba56328bd942c53ffd307e32996388a3_258573_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="VTA HW Architecture"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="162"
+		data-flex-basis="390px"
+	
+></li>
+<li>VTA는 4개의 모듈로 구성되며 각각의 모듈은 local memory block과 FIFO로 통신한다.
+<ul>
+<li>fetch module : DRAM으로 부터 Instruction stream을 loading하고 Decoding 한다</li>
+<li>load module: input과 weight를 DRAM으로 부터 on-chip 메모리에 로딩한다.</li>
+<li>compute module : GEMM core로 선형대수 연산, ALU로 일반 연산 수행. DRAM으로 부터 데이터(?)를 로딩하며 micro-op kernel을 micro-op cache에 로딩한다.</li>
+<li>store module : compute 모듈의 결과를 DRAM에 저장한다.</li>
+</ul>
+</li>
+</ol>
+<h2 id="vta-archictectural-overview">VTA Archictectural Overview</h2>
+<h3 id="instruction-set-architectureisa">Instruction Set Architecture(ISA)</h3>
+<ol>
+<li>VTA의 ISA는 4개의 CISC Instruction으로 구성됨 (각각 다른 실행시간을 가지며, GEMM/ALU는 micro-code instruction임)
+(micro-code : 하나의 기계어의 동작을 더 작은 동작들의 조합으로 구현한 것)
+<ul>
+<li>LOAD : DRAM의 2D tensor를 input/weight buffer 및 register file에 로드. micro-kernel을 micro-op cache에 로딩하기도 함, input/weight 로딩 시 dynamic padding을 지원</li>
+<li>GEMM : input과 weight의 매트릭스 곱연산 micro-op 수행, register-file에 결과를 더함</li>
+<li>ALU : register-file 텐서 데이터에 대해 매트릭스 ALU(덧셈) micro-op 수행</li>
+<li>STORE : output buffer로 부터 DRAM에 2D tensor를 저장</li>
+</ul>
+</li>
+<li>LOAD는 load와 compute 모듈에 의해 실행, GEMM/ALU은 compute모듈에 의해 실행, STORE는 load 모듈에 의해 실행 (상세 내용은 다음 섹션에)
+<img src="/p/tvmvta-vta-concept-and-design/04_vta_instructions.png"
+	width="2664"
+	height="698"
+	srcset="/p/tvmvta-vta-concept-and-design/04_vta_instructions_hufcf3c41f67899d906c35942214ec8590_197858_480x0_resize_box_3.png 480w, /p/tvmvta-vta-concept-and-design/04_vta_instructions_hufcf3c41f67899d906c35942214ec8590_197858_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="VTA Instruction"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="381"
+		data-flex-basis="915px"
+	
+></li>
+</ol>
+<h3 id="dataflow-excution">Dataflow Excution</h3>
+<ol>
+<li>VTA는 concurrent task 실행 동기화를 위해 각 producer/consumer 모듈이 read-after-write (RAW) and write-after-read (WAR) dependence queues로 연결되어 있음</li>
+<li>하기의 그림과 pseudo-code는 모듈이 주어진 instruction을 실행하는 방법을 기술하고 있다(chatGPT 해석)
+<ol>
+<li>명령어(insn)가 명령어 큐에서 꺼내집니다.</li>
+<li>MODULE이 생산자 또는 소비자의 처리를 기다려야 할지를 결정하는 플래그가 설정됩니다.</li>
+<li>MODULE이 현재 작업을 마친 후 생산자 또는 소비자에게 알릴지를 결정하는 플래그가 설정됩니다.</li>
+<li>MODULE이 생산자를 기다려야 한다면, 생산자의 원시 큐에 항목이 있을 때까지 기다립니다. 큐가 비어 있으면 건너뛰고, 아니면 큐에서 항목을 꺼냅니다.</li>
+<li>마찬가지로, MODULE이 소비자를 기다려야 한다면 소비자의 대기 후 읽기(war) 큐를 확인합니다.</li>
+<li>대기 조건이 충족되면 MODULE이 생산자에게 알려야 한다면 생산자의 war 큐에 항목을 넣습니다.</li>
+<li>소비자에게 알려야 한다면 소비자의 원시 큐에 항목을 넣습니다.
+<img src="/p/tvmvta-vta-concept-and-design/05_vta_dataflow.png"
+	width="1778"
+	height="566"
+	srcset="/p/tvmvta-vta-concept-and-design/05_vta_dataflow_hud566f8e026bc38f8a0befb736d79e245_154637_480x0_resize_box_3.png 480w, /p/tvmvta-vta-concept-and-design/05_vta_dataflow_hud566f8e026bc38f8a0befb736d79e245_154637_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="vta dataflow"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="314"
+		data-flex-basis="753px"
+	
+></li>
+</ol>
+</li>
+</ol>
+<h3 id="pipeline-expandability">Pipeline Expandability</h3>
+<ol>
+<li>default VTA design은 3-stage load-compute-store task pipeline을 가진 4개의 모듈로 구성되어 있다.</li>
+<li>VTA pipeline을 확장가능하지만 이는 cost(logic overhead)를 가져오므로 설계자는 3-stage pipeline을 채용했다
+<ul>
+<li>예를들어 TPU처럼 텐서 GEMM/ALU를 분리하여 load-gemm-activate-store로 구성할 수 도 있다.</li>
+</ul>
+</li>
+</ol>
+<h2 id="microarchitectural-overview">Microarchitectural Overview</h2>
+<p>각각의 모듈에 대하여 설명한다.(<code>3rdparty/vta-hw/hardware/xilinx/sources/vta.cc</code> 참조)</p>
+<h3 id="fetch-module">Fetch Module</h3>
+<ol>
+<li>Fetch 모듈은 DRAM의 Instruction Stream을 읽어서 Instruction을 decode하고 다른 모듈의 command queue에 명령을 전송한다.</li>
+<li>Fetch모듈의 제어를 위해 <code>insn_count</code>, <code>insns</code>, <code>control</code> 레지스터를 가진다.(HLS 코드로 만들어 져 있다.)
+<ul>
+<li>insns : DRAM 내부 instruction stream의  주소</li>
+<li>insns_count : fetch할 insturction의 갯수(DMA로 이동할 instruction 의 갯수)</li>
+<li>control : fetch 모듈의 시작</li>
+</ul>
+</li>
+<li>Decode 된 instruction은 각 내용에 따라 load, compute, store 모듈의 command queue에 제공됨
+<ul>
+<li>STORE insn : Store CMD_QUE에 입력</li>
+<li>GEMM/ALU insn : Compute CMD_QUE에 입력</li>
+<li>LOAD insn : micro-op kernel이나 레지스터 파일 데이터를 load하는 명령은 Compute CMD_QUE에 입력</li>
+<li>LOAD insn : Input이나 weight를 load하는 명령은 Compute CMD_QUE에 입력</li>
+</ul>
+</li>
+<li>CMD_QUE가 full이면 full이 해제될 때 까지 fetch모듈은 stall 됨 (queue를 충분히 크게하라, 병렬 처리 보장 하라)</li>
+</ol>
+<h4 id="코드분석">코드분석</h4>
+<ol>
+<li>Fetch 모듈의 코드는 간단하게 DRAM으로 부터 Instruction을 읽어 opcode를 확인한 후 instruction을 적절한 모듈의 CMD_QUEUE에 push한다.</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/*! log2 of instruction data type width */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define VTA_LOG_INS_WIDTH 7
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="cm">/*! Instruction data type width */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define VTA_INS_WIDTH (1 &lt;&lt; VTA_LOG_INS_WIDTH)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">ap_uint</span><span class="o">&lt;</span><span class="n">VTA_INS_WIDTH</span><span class="o">&gt;</span> <span class="n">insn_T</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief The instruction opcode */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">uint64_t</span> <span class="nl">opcode</span>         <span class="p">:</span> <span class="n">VTA_OPCODE_BIT_WIDTH</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief Unused in this instruction */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">uint64_t</span> <span class="nl">pop_prev_dep</span>   <span class="p">:</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief Pop dependence token from GEMM stage */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">uint64_t</span> <span class="nl">pop_next_dep</span>   <span class="p">:</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief Unused in this instruction */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">uint64_t</span> <span class="nl">push_prev_dep</span>  <span class="p">:</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief Push dependence token to GEMM stage */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">uint64_t</span> <span class="nl">push_next_dep</span>  <span class="p">:</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief Padding */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">uint64_t</span> <span class="nl">pad_0</span>          <span class="p">:</span> <span class="mi">64</span> <span class="o">-</span> <span class="n">VTA_OPCODE_BIT_WIDTH</span> <span class="o">-</span> <span class="mi">4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief Padding */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">uint64_t</span> <span class="nl">pad_1</span>          <span class="p">:</span> <span class="mi">64</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">VTAGenericInsn</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">union</span> <span class="n">VTAInsn</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief VTA generic instruction */</span>
+</span></span><span class="line"><span class="cl">  <span class="n">VTAGenericInsn</span> <span class="n">generic</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief VTA load/store instruction */</span>
+</span></span><span class="line"><span class="cl">  <span class="n">VTAMemInsn</span> <span class="n">mem</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief VTA GEMM instruction */</span>
+</span></span><span class="line"><span class="cl">  <span class="n">VTAGemInsn</span> <span class="n">gemm</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief VTA ALU instruction */</span>
+</span></span><span class="line"><span class="cl">  <span class="n">VTAAluInsn</span> <span class="n">alu</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">fetch</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">uint32_t</span> <span class="n">insn_count</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="k">volatile</span> <span class="n">insn_T</span> <span class="o">*</span><span class="n">insns</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hls</span><span class="o">::</span><span class="n">stream</span><span class="o">&lt;</span><span class="n">insn_T</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">load_queue</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hls</span><span class="o">::</span><span class="n">stream</span><span class="o">&lt;</span><span class="n">insn_T</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">gemm_queue</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hls</span><span class="o">::</span><span class="n">stream</span><span class="o">&lt;</span><span class="n">insn_T</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">store_queue</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="nf">PRAGMA_HLS</span><span class="p">(</span><span class="n">HLS</span> <span class="n">INTERFACE</span> <span class="n">s_axilite</span> <span class="n">port</span> <span class="o">=</span> <span class="n">insn_count</span> <span class="n">bundle</span> <span class="o">=</span> <span class="n">CONTROL_BUS</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">VTA_FETCH_INSN_COUNT_OFFSET</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE m_axi port = insns offset = slave bundle = ins_port
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE axis port = load_queue
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE axis port = gemm_queue
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE axis port = store_queue
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE s_axilite port = return bundle = CONTROL_BUS
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl">  <span class="nl">INSN_DECODE</span><span class="p">:</span> <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">pc</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">pc</span> <span class="o">&lt;</span> <span class="n">insn_count</span><span class="p">;</span> <span class="n">pc</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS PIPELINE
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>    <span class="c1">// Read instruction fields
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">insn_T</span> <span class="n">raw_insn</span> <span class="o">=</span> <span class="n">insns</span><span class="p">[</span><span class="n">pc</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="n">VTAInsn</span> <span class="n">insn</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">insn</span><span class="p">.</span><span class="n">generic</span> <span class="o">=</span> <span class="o">*</span><span class="p">((</span><span class="n">VTAGenericInsn</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">raw_insn</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Do some partial decoding
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">opcode_T</span> <span class="n">opcode</span> <span class="o">=</span> <span class="n">insn</span><span class="p">.</span><span class="n">generic</span><span class="p">.</span><span class="n">opcode</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">memop_id_T</span> <span class="n">memory_type</span> <span class="o">=</span> <span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">memory_type</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Push to appropriate instruction queue
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">opcode</span> <span class="o">==</span> <span class="n">VTA_OPCODE_STORE</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">store_queue</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="n">raw_insn</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">opcode</span> <span class="o">==</span> <span class="n">VTA_OPCODE_LOAD</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="p">(</span><span class="n">memory_type</span> <span class="o">==</span> <span class="n">VTA_MEM_ID_INP</span> <span class="o">||</span> <span class="n">memory_type</span> <span class="o">==</span> <span class="n">VTA_MEM_ID_WGT</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">load_queue</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="n">raw_insn</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">gemm_queue</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="n">raw_insn</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">gemm_queue</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="n">raw_insn</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="compute-module">Compute Module</h3>
+<ol>
+<li>compute 모듈은  tensor 연산을 위한 RISC형태의 모듈로 ALU/GEMM으로 구성</li>
+<li>micro-op cache로 부터 micro-op를 읽어서 수행하며 micro-op는 ALU, GEMM operation이 있음</li>
+<li>compute 모듈은 footprint를 줄이기 위해 2단 nested loop에서 micro-op secqunce를 실행(조건 분기등을 피하기 위해)</li>
+</ol>
+<h4 id="코드분석-1">코드분석</h4>
+<ol>
+<li>instruction을 읽어 Load/Store 모듈에 dependancy가 있으면 DEP_QUEUE를 pop을 대기한다</li>
+<li>opcode가 FINISH, LOAD 또는 uOP/ACC 메모리 로드, GEMM/ALU 연산 수행인지 확인하여 해당 동작을 수행한다</li>
+<li>Load/Store 모듈이 dependancy를 기다린다면 DEP_QUEUE를 push을 대기한다</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">compute</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="k">volatile</span> <span class="kt">uint32_t</span> <span class="o">&amp;</span><span class="n">done</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="k">volatile</span> <span class="n">uop_T</span> <span class="o">*</span><span class="n">uops</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="k">volatile</span> <span class="n">bus_T</span> <span class="o">*</span><span class="n">biases</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hls</span><span class="o">::</span><span class="n">stream</span><span class="o">&lt;</span><span class="n">insn_T</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">gemm_queue</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hls</span><span class="o">::</span><span class="n">stream</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">l2g_dep_queue</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hls</span><span class="o">::</span><span class="n">stream</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">s2g_dep_queue</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hls</span><span class="o">::</span><span class="n">stream</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">g2l_dep_queue</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hls</span><span class="o">::</span><span class="n">stream</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">g2s_dep_queue</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">bus_T</span> <span class="n">inp_mem</span><span class="p">[</span><span class="n">VTA_INP_BUFF_DEPTH</span><span class="p">][</span><span class="n">INP_MAT_AXI_RATIO</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="n">bus_T</span> <span class="n">wgt_mem</span><span class="p">[</span><span class="n">VTA_WGT_BUFF_DEPTH</span><span class="p">][</span><span class="n">WGT_MAT_AXI_RATIO</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="n">bus_T</span> <span class="n">out_mem</span><span class="p">[</span><span class="n">VTA_ACC_BUFF_DEPTH</span><span class="p">][</span><span class="n">OUT_MAT_AXI_RATIO</span><span class="p">])</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="nf">PRAGMA_HLS</span><span class="p">(</span><span class="n">HLS</span> <span class="n">INTERFACE</span> <span class="n">s_axilite</span> <span class="n">port</span> <span class="o">=</span> <span class="n">done</span> <span class="n">bundle</span> <span class="o">=</span> <span class="n">CONTROL_BUS</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">VTA_COMPUTE_DONE_WR_OFFSET</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE m_axi port = uops offset = slave bundle = uop_port
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE m_axi port = biases offset = slave bundle = data_port
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE axis port = gemm_queue
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE axis port = l2g_dep_queue
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE axis port = s2g_dep_queue
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE axis port = g2l_dep_queue
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE axis port = g2s_dep_queue
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE bram port = inp_mem
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE bram port = wgt_mem
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE bram port = out_mem
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE s_axilite port = return bundle = CONTROL_BUS
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS RESOURCE variable = inp_mem core = RAM_1P
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS RESOURCE variable = wgt_mem core = RAM_1P
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS RESOURCE variable = out_mem core = RAM_1P
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Micro-op storage
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">static</span> <span class="n">uop_T</span> <span class="n">uop_mem</span><span class="p">[</span><span class="n">VTA_UOP_BUFF_DEPTH</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Accumulator storage
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">static</span> <span class="n">bus_T</span> <span class="n">acc_mem</span><span class="p">[</span><span class="n">VTA_ACC_BUFF_DEPTH</span><span class="p">][</span><span class="n">ACC_MAT_AXI_RATIO</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS ARRAY_RESHAPE variable = acc_mem complete dim=2
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="c1">// This is necessary to obtain II=1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#pragma HLS DEPENDENCE variable = acc_mem inter false
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Pop GEMM instruction
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">insn_T</span> <span class="n">raw_insn</span> <span class="o">=</span> <span class="n">gemm_queue</span><span class="p">.</span><span class="nf">read</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Cast to GenericInsn
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">VTAInsn</span> <span class="n">insn</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">insn_T</span> <span class="n">raw_copy</span> <span class="o">=</span> <span class="n">raw_insn</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">insn</span><span class="p">.</span><span class="n">generic</span> <span class="o">=</span> <span class="o">*</span><span class="p">((</span><span class="n">VTAGenericInsn</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">raw_copy</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Pop dependence token if instructed
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">generic</span><span class="p">.</span><span class="n">pop_prev_dep</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">l2g_dep_queue</span><span class="p">.</span><span class="nf">read</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">generic</span><span class="p">.</span><span class="n">pop_next_dep</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">s2g_dep_queue</span><span class="p">.</span><span class="nf">read</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Set done value
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">done</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Perform action based on opcode
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">generic</span><span class="p">.</span><span class="n">opcode</span> <span class="o">==</span> <span class="n">VTA_OPCODE_FINISH</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Set done flag if we reach a FINISH instruction
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">done</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">generic</span><span class="p">.</span><span class="n">opcode</span> <span class="o">==</span> <span class="n">VTA_OPCODE_LOAD</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Initialize indices
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">memop_sram_T</span> <span class="n">sram_idx</span> <span class="o">=</span> <span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">sram_base</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">memop_dram_T</span> <span class="n">dram_idx</span> <span class="o">=</span> <span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">dram_base</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">memop_sram_T</span> <span class="n">x_width</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">        <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">x_pad_0</span> <span class="o">+</span> <span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">x_size</span> <span class="o">+</span> <span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">x_pad_1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">memop_sram_T</span> <span class="n">y_offset_0</span> <span class="o">=</span> <span class="n">x_width</span> <span class="o">*</span> <span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">y_pad_0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">memop_sram_T</span> <span class="n">y_offset_1</span> <span class="o">=</span> <span class="n">x_width</span> <span class="o">*</span> <span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">y_pad_1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">memory_type</span> <span class="o">==</span> <span class="n">VTA_MEM_ID_UOP</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// Perform data transfer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="nf">memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">uop_mem</span><span class="p">[</span><span class="n">sram_idx</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">             <span class="p">(</span><span class="k">const</span> <span class="n">uop_T</span><span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">uops</span><span class="p">[</span><span class="n">dram_idx</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">             <span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">x_size</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">uop_T</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">memory_type</span> <span class="o">==</span> <span class="n">VTA_MEM_ID_ACC</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// Perform data transfer from DRAM
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="n">load_pad_2d</span><span class="o">&lt;</span><span class="n">bus_T</span><span class="p">,</span> <span class="n">ACC_MAT_AXI_RATIO</span><span class="p">,</span> <span class="n">VTA_ACC_ELEM_BYTES</span><span class="o">&gt;</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">          <span class="n">biases</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">acc_mem</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">sram_idx</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">dram_idx</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">y_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">x_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">x_stride</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">x_pad_0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">insn</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">x_pad_1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">y_offset_0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">y_offset_1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">generic</span><span class="p">.</span><span class="n">opcode</span> <span class="o">==</span> <span class="n">VTA_OPCODE_GEMM</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">gemm</span><span class="p">(</span><span class="n">raw_copy</span><span class="p">,</span> <span class="n">uop_mem</span><span class="p">,</span> <span class="n">acc_mem</span><span class="p">,</span> <span class="n">inp_mem</span><span class="p">,</span> <span class="n">wgt_mem</span><span class="p">,</span> <span class="n">out_mem</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">generic</span><span class="p">.</span><span class="n">opcode</span> <span class="o">==</span> <span class="n">VTA_OPCODE_ALU</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">alu</span><span class="p">(</span><span class="n">raw_copy</span><span class="p">,</span> <span class="n">uop_mem</span><span class="p">,</span> <span class="n">acc_mem</span><span class="p">,</span> <span class="n">inp_mem</span><span class="p">,</span> <span class="n">wgt_mem</span><span class="p">,</span> <span class="n">out_mem</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Push dependence token if instructed
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">generic</span><span class="p">.</span><span class="n">push_prev_dep</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">g2l_dep_queue</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">generic</span><span class="p">.</span><span class="n">push_next_dep</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">g2s_dep_queue</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="gemm-core">GEMM core</h4>
+<ol>
+<li>GEMM core는 2-level nested loop 상에서 GEMM instruction을 수행을 위한 micro-code sequence를 실행</li>
+<li>cycle 당 1개 input-weight matrix multiplication를 수행하며 행렬 연산 dimension은 hardware tensorization intrinsic으로 결정됨</li>
+<li>tensorization intrinsic은 input, weight, accumulate tensor의 dimension으로 결정되며 overflow를 막기 위해 accumulator tensor가 더 큰 타입을 가짐
+<ul>
+<li>일반적으로 input/weight가 low-precision (8-bits or less), accumulator tenson가 32 bit</li>
+</ul>
+</li>
+<li>core의 utilization을 높이기 위해 input buffer, weight buffer, register file 충분한 Read/write bandwidth를 가져야 함
+<img src="/p/tvmvta-vta-concept-and-design/06_vta_gemm_core.png"
+	width="1412"
+	height="920"
+	srcset="/p/tvmvta-vta-concept-and-design/06_vta_gemm_core_hud39a783eb5a75f23d7b6fdc2b1ba74c0_190532_480x0_resize_box_3.png 480w, /p/tvmvta-vta-concept-and-design/06_vta_gemm_core_hud39a783eb5a75f23d7b6fdc2b1ba74c0_190532_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="VTA GEMM core"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="153"
+		data-flex-basis="368px"
+	
+></li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span><span class="lnt">90
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">gemm</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="n">insn_T</span> <span class="n">insn_raw</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">uop_T</span> <span class="n">uop_mem</span><span class="p">[</span><span class="n">VTA_UOP_BUFF_DEPTH</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="n">bus_T</span> <span class="n">acc_mem</span><span class="p">[</span><span class="n">VTA_ACC_BUFF_DEPTH</span><span class="p">][</span><span class="n">ACC_MAT_AXI_RATIO</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="n">bus_T</span> <span class="n">inp_mem</span><span class="p">[</span><span class="n">VTA_INP_BUFF_DEPTH</span><span class="p">][</span><span class="n">INP_MAT_AXI_RATIO</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="n">bus_T</span> <span class="n">wgt_mem</span><span class="p">[</span><span class="n">VTA_WGT_BUFF_DEPTH</span><span class="p">][</span><span class="n">WGT_MAT_AXI_RATIO</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="n">bus_T</span> <span class="n">out_mem</span><span class="p">[</span><span class="n">VTA_ACC_BUFF_DEPTH</span><span class="p">][</span><span class="n">OUT_MAT_AXI_RATIO</span><span class="p">])</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INLINE
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl">  <span class="n">VTAGemInsn</span> <span class="n">insn</span> <span class="o">=</span> <span class="o">*</span><span class="p">((</span><span class="n">VTAGemInsn</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">insn_raw</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Loop offset
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">acc_idx_T</span> <span class="n">dst_offset_out</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">inp_idx_T</span> <span class="n">src_offset_out</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">wgt_idx_T</span> <span class="n">wgt_offset_out</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Outer Loop
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nl">EXE_OUT_LOOP</span><span class="p">:</span> <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">it_out</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">it_out</span> <span class="o">&lt;</span> <span class="n">insn</span><span class="p">.</span><span class="n">iter_out</span><span class="p">;</span> <span class="n">it_out</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">acc_idx_T</span> <span class="n">dst_offset_in</span> <span class="o">=</span> <span class="n">dst_offset_out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">inp_idx_T</span> <span class="n">src_offset_in</span> <span class="o">=</span> <span class="n">src_offset_out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">wgt_idx_T</span> <span class="n">wgt_offset_in</span> <span class="o">=</span> <span class="n">wgt_offset_out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Inner Loop
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nl">EXE_IN_LOOP</span><span class="p">:</span> <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">it_in</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">it_in</span> <span class="o">&lt;</span> <span class="n">insn</span><span class="p">.</span><span class="n">iter_in</span><span class="p">;</span> <span class="n">it_in</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="c1">// Iterate over micro op
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="nl">READ_GEMM_UOP</span><span class="p">:</span> <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">upc</span> <span class="o">=</span> <span class="n">insn</span><span class="p">.</span><span class="n">uop_bgn</span><span class="p">;</span> <span class="n">upc</span> <span class="o">&lt;</span> <span class="n">insn</span><span class="p">.</span><span class="n">uop_end</span><span class="p">;</span> <span class="n">upc</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS PIPELINE II = 1
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="c1">// Read micro-op fields
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">uop_T</span> <span class="n">uop</span> <span class="o">=</span> <span class="n">uop_mem</span><span class="p">[</span><span class="n">upc</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// Decode indices
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">acc_idx_T</span> <span class="n">dst_idx</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">            <span class="n">uop</span><span class="p">.</span><span class="nf">range</span><span class="p">(</span><span class="n">VTA_UOP_GEM_0_1</span><span class="p">,</span> <span class="n">VTA_UOP_GEM_0_0</span><span class="p">)</span> <span class="o">+</span> <span class="n">dst_offset_in</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">inp_idx_T</span> <span class="n">src_idx</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">            <span class="n">uop</span><span class="p">.</span><span class="nf">range</span><span class="p">(</span><span class="n">VTA_UOP_GEM_1_1</span><span class="p">,</span> <span class="n">VTA_UOP_GEM_1_0</span><span class="p">)</span> <span class="o">+</span> <span class="n">src_offset_in</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">wgt_idx_T</span> <span class="n">wgt_idx</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">            <span class="n">uop</span><span class="p">.</span><span class="nf">range</span><span class="p">(</span><span class="n">VTA_UOP_GEM_2_1</span><span class="p">,</span> <span class="n">VTA_UOP_GEM_2_0</span><span class="p">)</span> <span class="o">+</span> <span class="n">wgt_offset_in</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// Read in weight tensor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">wgt_T</span> <span class="n">w_tensor</span><span class="p">[</span><span class="n">VTA_BLOCK_OUT</span><span class="p">][</span><span class="n">VTA_BLOCK_IN</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">read_tensor</span><span class="o">&lt;</span><span class="n">bus_T</span><span class="p">,</span> <span class="n">wgt_T</span><span class="p">,</span> <span class="n">wgt_idx_T</span><span class="p">,</span> <span class="n">VTA_BUS_WIDTH</span><span class="p">,</span> <span class="n">VTA_WGT_WIDTH</span><span class="p">,</span> <span class="n">VTA_BLOCK_OUT</span><span class="p">,</span> <span class="n">VTA_BLOCK_IN</span><span class="o">&gt;</span><span class="p">(</span><span class="n">wgt_idx</span><span class="p">,</span> <span class="n">wgt_mem</span><span class="p">,</span> <span class="n">w_tensor</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Read in input tensor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">inp_T</span> <span class="n">i_tensor</span><span class="p">[</span><span class="n">VTA_BATCH</span><span class="p">][</span><span class="n">VTA_BLOCK_IN</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">read_tensor</span><span class="o">&lt;</span><span class="n">bus_T</span><span class="p">,</span> <span class="n">inp_T</span><span class="p">,</span> <span class="n">inp_idx_T</span><span class="p">,</span> <span class="n">VTA_BUS_WIDTH</span><span class="p">,</span> <span class="n">VTA_INP_WIDTH</span><span class="p">,</span> <span class="n">VTA_BATCH</span><span class="p">,</span> <span class="n">VTA_BLOCK_IN</span><span class="o">&gt;</span><span class="p">(</span><span class="n">src_idx</span><span class="p">,</span> <span class="n">inp_mem</span><span class="p">,</span> <span class="n">i_tensor</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Read in accum tensor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">acc_T</span> <span class="n">a_tensor</span><span class="p">[</span><span class="n">VTA_BATCH</span><span class="p">][</span><span class="n">VTA_BLOCK_OUT</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">read_tensor</span><span class="o">&lt;</span><span class="n">bus_T</span><span class="p">,</span> <span class="n">acc_T</span><span class="p">,</span> <span class="n">acc_idx_T</span><span class="p">,</span> <span class="n">VTA_BUS_WIDTH</span><span class="p">,</span> <span class="n">VTA_ACC_WIDTH</span><span class="p">,</span> <span class="n">VTA_BATCH</span><span class="p">,</span> <span class="n">VTA_BLOCK_OUT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dst_idx</span><span class="p">,</span> <span class="n">acc_mem</span><span class="p">,</span> <span class="n">a_tensor</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Output tensor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">out_T</span> <span class="n">o_tensor</span><span class="p">[</span><span class="n">VTA_BATCH</span><span class="p">][</span><span class="n">VTA_BLOCK_OUT</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// Inner GEMM loop
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="n">VTA_BATCH</span><span class="p">;</span> <span class="n">b</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">oc</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">oc</span> <span class="o">&lt;</span> <span class="n">VTA_BLOCK_OUT</span><span class="p">;</span> <span class="n">oc</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// Initialize the accumulator values
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">acc_T</span> <span class="n">accum</span> <span class="o">=</span> <span class="n">a_tensor</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="n">oc</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// Dot product sum
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">sum_T</span> <span class="n">tmp</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// Inner matrix multiplication loop (input channel/feature)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ic</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ic</span> <span class="o">&lt;</span> <span class="n">VTA_BLOCK_IN</span><span class="p">;</span> <span class="n">ic</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="n">wgt_T</span> <span class="n">w_elem</span> <span class="o">=</span> <span class="n">w_tensor</span><span class="p">[</span><span class="n">oc</span><span class="p">][</span><span class="n">ic</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">              <span class="n">inp_T</span> <span class="n">i_elem</span> <span class="o">=</span> <span class="n">i_tensor</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="n">ic</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">              <span class="n">mul_T</span> <span class="n">prod_dsp</span> <span class="o">=</span> <span class="n">i_elem</span> <span class="o">*</span> <span class="n">w_elem</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">              <span class="n">tmp</span> <span class="o">+=</span> <span class="p">(</span><span class="n">sum_T</span><span class="p">)</span> <span class="n">prod_dsp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// Update summation
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">accum</span> <span class="o">+=</span> <span class="p">(</span><span class="n">acc_T</span><span class="p">)</span> <span class="n">tmp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// Write back result acc_mem
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">a_tensor</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="n">oc</span><span class="p">]</span> <span class="o">=</span> <span class="n">insn</span><span class="p">.</span><span class="n">reset_reg</span> <span class="o">?</span> <span class="p">(</span><span class="n">acc_T</span><span class="p">)</span> <span class="mi">0</span> <span class="o">:</span> <span class="n">accum</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// And output vector
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">o_tensor</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="n">oc</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">out_T</span><span class="p">)</span> <span class="n">accum</span><span class="p">.</span><span class="nf">range</span><span class="p">(</span><span class="n">VTA_OUT_WIDTH</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">          <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// Write the results back into accumulator
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">write_tensor</span><span class="o">&lt;</span><span class="n">bus_T</span><span class="p">,</span> <span class="n">acc_T</span><span class="p">,</span> <span class="n">acc_idx_T</span><span class="p">,</span> <span class="n">VTA_BUS_WIDTH</span><span class="p">,</span> <span class="n">VTA_ACC_WIDTH</span><span class="p">,</span> <span class="n">VTA_BATCH</span><span class="p">,</span> <span class="n">VTA_BLOCK_OUT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dst_idx</span><span class="p">,</span> <span class="n">a_tensor</span><span class="p">,</span> <span class="n">acc_mem</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Write the results back in the output buffer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">write_tensor</span><span class="o">&lt;</span><span class="n">bus_T</span><span class="p">,</span> <span class="n">out_T</span><span class="p">,</span> <span class="n">acc_idx_T</span><span class="p">,</span> <span class="n">VTA_BUS_WIDTH</span><span class="p">,</span> <span class="n">VTA_OUT_WIDTH</span><span class="p">,</span> <span class="n">VTA_BATCH</span><span class="p">,</span> <span class="n">VTA_BLOCK_OUT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dst_idx</span><span class="p">,</span> <span class="n">o_tensor</span><span class="p">,</span> <span class="n">out_mem</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// Update offsets
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="n">dst_offset_in</span> <span class="o">+=</span> <span class="n">insn</span><span class="p">.</span><span class="n">dst_factor_in</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">src_offset_in</span> <span class="o">+=</span> <span class="n">insn</span><span class="p">.</span><span class="n">src_factor_in</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">wgt_offset_in</span> <span class="o">+=</span> <span class="n">insn</span><span class="p">.</span><span class="n">wgt_factor_in</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Update offsets
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">dst_offset_out</span> <span class="o">+=</span> <span class="n">insn</span><span class="p">.</span><span class="n">dst_factor_out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">src_offset_out</span> <span class="o">+=</span> <span class="n">insn</span><span class="p">.</span><span class="n">src_factor_out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">wgt_offset_out</span> <span class="o">+=</span> <span class="n">insn</span><span class="p">.</span><span class="n">wgt_factor_out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="alu-core">ALU core</h4>
+<ol>
+<li>Tensor ALU는 ctivation, normalization, pooling을 위한 표준 연산자를 지원
+<ul>
+<li>VTA는 모듈식 설계 이므로 Operator coverage를 높이기 위해 지원 연산을 확장할 수 있다고 기술하고 있음</li>
+</ul>
+</li>
+<li>tensor-tensor operations과 tensor-scalar operation(immediate value가 있는)을 지원</li>
+<li>micro-code는 오직 지정된 data access pattern만 다룸
+<img src="/p/tvmvta-vta-concept-and-design/07_vta_alu_core.png"
+	width="1412"
+	height="888"
+	srcset="/p/tvmvta-vta-concept-and-design/07_vta_alu_core_hua3f79ac969eb992728c7762e151c5eb3_190743_480x0_resize_box_3.png 480w, /p/tvmvta-vta-concept-and-design/07_vta_alu_core_hua3f79ac969eb992728c7762e151c5eb3_190743_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="VTA ALU Core"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="159"
+		data-flex-basis="381px"
+	
+></li>
+<li>Tensor ALU는 읽기 포트가 부족해서 II = 2이고 레지스터 파일이 32bit이므로 tensor-tensor 연산을 한번에 수행하는 것은 비용이 많이듬,  여러 사이클의 vector-vector 연산으로 tensor-tensor 연산을 수행</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">alu</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="n">insn_T</span> <span class="n">insn_raw</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">uop_T</span> <span class="n">uop_mem</span><span class="p">[</span><span class="n">VTA_UOP_BUFF_DEPTH</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="n">bus_T</span> <span class="n">acc_mem</span><span class="p">[</span><span class="n">VTA_ACC_BUFF_DEPTH</span><span class="p">][</span><span class="n">ACC_MAT_AXI_RATIO</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="n">bus_T</span> <span class="n">inp_mem</span><span class="p">[</span><span class="n">VTA_INP_BUFF_DEPTH</span><span class="p">][</span><span class="n">INP_MAT_AXI_RATIO</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="n">bus_T</span> <span class="n">wgt_mem</span><span class="p">[</span><span class="n">VTA_WGT_BUFF_DEPTH</span><span class="p">][</span><span class="n">WGT_MAT_AXI_RATIO</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="n">bus_T</span> <span class="n">out_mem</span><span class="p">[</span><span class="n">VTA_ACC_BUFF_DEPTH</span><span class="p">][</span><span class="n">OUT_MAT_AXI_RATIO</span><span class="p">])</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INLINE
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl">  <span class="n">VTAAluInsn</span> <span class="n">insn</span> <span class="o">=</span> <span class="o">*</span><span class="p">((</span><span class="n">VTAAluInsn</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">insn_raw</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Loop offset
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">acc_idx_T</span> <span class="n">dst_offset_out</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">inp_idx_T</span> <span class="n">src_offset_out</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Outer Loop
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nl">EXE_OUT_LOOP</span><span class="p">:</span> <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">it_out</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">it_out</span> <span class="o">&lt;</span> <span class="n">insn</span><span class="p">.</span><span class="n">iter_out</span><span class="p">;</span> <span class="n">it_out</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">acc_idx_T</span> <span class="n">dst_offset_in</span> <span class="o">=</span> <span class="n">dst_offset_out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">inp_idx_T</span> <span class="n">src_offset_in</span> <span class="o">=</span> <span class="n">src_offset_out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Inner Loop
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nl">EXE_IN_LOOP</span><span class="p">:</span> <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">it_in</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">it_in</span> <span class="o">&lt;</span> <span class="n">insn</span><span class="p">.</span><span class="n">iter_in</span><span class="p">;</span> <span class="n">it_in</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// Iterate over micro op
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="nl">READ_ALU_UOP</span><span class="p">:</span> <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">upc</span> <span class="o">=</span> <span class="n">insn</span><span class="p">.</span><span class="n">uop_bgn</span><span class="p">;</span> <span class="n">upc</span> <span class="o">&lt;</span> <span class="n">insn</span><span class="p">.</span><span class="n">uop_end</span><span class="p">;</span> <span class="n">upc</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS PIPELINE II = 2
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="c1">// Read micro-op fields
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">uop_T</span> <span class="n">uop</span> <span class="o">=</span> <span class="n">uop_mem</span><span class="p">[</span><span class="n">upc</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// Decode
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">acc_idx_T</span> <span class="n">dst_idx</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">            <span class="n">uop</span><span class="p">.</span><span class="nf">range</span><span class="p">(</span><span class="n">VTA_UOP_ALU_0_1</span><span class="p">,</span> <span class="n">VTA_UOP_ALU_0_0</span><span class="p">)</span> <span class="o">+</span> <span class="n">dst_offset_in</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">acc_idx_T</span> <span class="n">src_idx</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">            <span class="n">uop</span><span class="p">.</span><span class="nf">range</span><span class="p">(</span><span class="n">VTA_UOP_ALU_1_1</span><span class="p">,</span> <span class="n">VTA_UOP_ALU_1_0</span><span class="p">)</span> <span class="o">+</span> <span class="n">src_offset_in</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// Read in src tensor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">acc_T</span> <span class="n">src_tensor</span><span class="p">[</span><span class="n">VTA_BATCH</span><span class="p">][</span><span class="n">VTA_BLOCK_OUT</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">read_tensor</span><span class="o">&lt;</span><span class="n">bus_T</span><span class="p">,</span> <span class="n">acc_T</span><span class="p">,</span> <span class="n">acc_idx_T</span><span class="p">,</span> <span class="n">VTA_BUS_WIDTH</span><span class="p">,</span> <span class="n">VTA_ACC_WIDTH</span><span class="p">,</span> <span class="n">VTA_BATCH</span><span class="p">,</span> <span class="n">VTA_BLOCK_OUT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">src_idx</span><span class="p">,</span> <span class="n">acc_mem</span><span class="p">,</span> <span class="n">src_tensor</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Read in dst tensor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">acc_T</span> <span class="n">dst_tensor</span><span class="p">[</span><span class="n">VTA_BATCH</span><span class="p">][</span><span class="n">VTA_BLOCK_OUT</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">read_tensor</span><span class="o">&lt;</span><span class="n">bus_T</span><span class="p">,</span> <span class="n">acc_T</span><span class="p">,</span> <span class="n">acc_idx_T</span><span class="p">,</span> <span class="n">VTA_BUS_WIDTH</span><span class="p">,</span> <span class="n">VTA_ACC_WIDTH</span><span class="p">,</span> <span class="n">VTA_BATCH</span><span class="p">,</span> <span class="n">VTA_BLOCK_OUT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dst_idx</span><span class="p">,</span> <span class="n">acc_mem</span><span class="p">,</span> <span class="n">dst_tensor</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Output tensor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">out_T</span> <span class="n">o_tensor</span><span class="p">[</span><span class="n">VTA_BATCH</span><span class="p">][</span><span class="n">VTA_BLOCK_OUT</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// Perform ALU op over matrix elements
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">VTA_BATCH</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="n">VTA_BLOCK_OUT</span><span class="p">;</span> <span class="n">b</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// Read in operands
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">acc_T</span> <span class="n">src_0</span> <span class="o">=</span> <span class="n">dst_tensor</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">b</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">            <span class="n">acc_T</span> <span class="n">src_1</span> <span class="o">=</span> <span class="n">insn</span><span class="p">.</span><span class="n">use_imm</span> <span class="o">?</span> <span class="p">(</span><span class="n">acc_T</span><span class="p">)</span> <span class="n">insn</span><span class="p">.</span><span class="nl">imm</span> <span class="p">:</span> <span class="n">src_tensor</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">b</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">            <span class="n">aluop_shr_arg_T</span> <span class="n">shft_by</span> <span class="o">=</span> <span class="n">src_1</span><span class="p">.</span><span class="nf">range</span><span class="p">(</span><span class="n">VTA_SHR_ARG_BIT_WIDTH</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">aluop_mul_arg_T</span> <span class="n">mul_by</span> <span class="o">=</span> <span class="n">src_1</span><span class="p">.</span><span class="nf">range</span><span class="p">(</span><span class="n">VTA_MUL_ARG_BIT_WIDTH</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">alu_opcode</span> <span class="o">==</span> <span class="n">VTA_ALU_OPCODE_MIN</span> <span class="o">||</span> <span class="n">insn</span><span class="p">.</span><span class="n">alu_opcode</span> <span class="o">==</span> <span class="n">VTA_ALU_OPCODE_MAX</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="c1">// Compute Min/Max
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>              <span class="n">acc_T</span> <span class="n">mix_val</span> <span class="o">=</span> <span class="n">src_0</span> <span class="o">&lt;</span> <span class="n">src_1</span> <span class="o">?</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">alu_opcode</span> <span class="o">==</span> <span class="n">VTA_ALU_OPCODE_MIN</span> <span class="o">?</span> <span class="nl">src_0</span> <span class="p">:</span> <span class="n">src_1</span><span class="p">)</span> <span class="o">:</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">alu_opcode</span> <span class="o">==</span> <span class="n">VTA_ALU_OPCODE_MIN</span> <span class="o">?</span> <span class="nl">src_1</span> <span class="p">:</span> <span class="n">src_0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">              <span class="n">dst_tensor</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">mix_val</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">              <span class="n">o_tensor</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">out_T</span><span class="p">)</span> <span class="n">mix_val</span><span class="p">.</span><span class="nf">range</span><span class="p">(</span><span class="n">VTA_OUT_WIDTH</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">alu_opcode</span> <span class="o">==</span> <span class="n">VTA_ALU_OPCODE_ADD</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="c1">// Compute Sum
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>              <span class="n">acc_T</span> <span class="n">add_val</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">                  <span class="n">src_0</span><span class="p">.</span><span class="nf">range</span><span class="p">(</span><span class="n">VTA_ACC_WIDTH</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">src_1</span><span class="p">.</span><span class="nf">range</span><span class="p">(</span><span class="n">VTA_ACC_WIDTH</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">              <span class="n">dst_tensor</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">add_val</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">              <span class="n">o_tensor</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">out_T</span><span class="p">)</span> <span class="n">add_val</span><span class="p">.</span><span class="nf">range</span><span class="p">(</span><span class="n">VTA_OUT_WIDTH</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">alu_opcode</span> <span class="o">==</span> <span class="n">VTA_ALU_OPCODE_SHR</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="c1">// Compute Shift Right
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>              <span class="n">acc_T</span> <span class="n">shr_val</span> <span class="o">=</span> <span class="n">src_0</span> <span class="o">&gt;&gt;</span> <span class="n">shft_by</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">              <span class="n">dst_tensor</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">shr_val</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">              <span class="n">o_tensor</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">out_T</span><span class="p">)</span> <span class="n">shr_val</span><span class="p">.</span><span class="nf">range</span><span class="p">(</span><span class="n">VTA_OUT_WIDTH</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">          <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1">// Write the results back into accumulator
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">write_tensor</span><span class="o">&lt;</span><span class="n">bus_T</span><span class="p">,</span> <span class="n">acc_T</span><span class="p">,</span> <span class="n">acc_idx_T</span><span class="p">,</span> <span class="n">VTA_BUS_WIDTH</span><span class="p">,</span> <span class="n">VTA_ACC_WIDTH</span><span class="p">,</span> <span class="n">VTA_BATCH</span><span class="p">,</span> <span class="n">VTA_BLOCK_OUT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dst_idx</span><span class="p">,</span> <span class="n">dst_tensor</span><span class="p">,</span> <span class="n">acc_mem</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Write the results back in the output buffer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">write_tensor</span><span class="o">&lt;</span><span class="n">bus_T</span><span class="p">,</span> <span class="n">out_T</span><span class="p">,</span> <span class="n">acc_idx_T</span><span class="p">,</span> <span class="n">VTA_BUS_WIDTH</span><span class="p">,</span> <span class="n">VTA_OUT_WIDTH</span><span class="p">,</span> <span class="n">VTA_BATCH</span><span class="p">,</span> <span class="n">VTA_BLOCK_OUT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dst_idx</span><span class="p">,</span> <span class="n">o_tensor</span><span class="p">,</span> <span class="n">out_mem</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// Update offsets
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="n">dst_offset_in</span> <span class="o">+=</span> <span class="n">insn</span><span class="p">.</span><span class="n">dst_factor_in</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">src_offset_in</span> <span class="o">+=</span> <span class="n">insn</span><span class="p">.</span><span class="n">src_factor_in</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Update offsets
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">dst_offset_out</span> <span class="o">+=</span> <span class="n">insn</span><span class="p">.</span><span class="n">dst_factor_out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">src_offset_out</span> <span class="o">+=</span> <span class="n">insn</span><span class="p">.</span><span class="n">src_factor_out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="load-and-store-modules">Load and Store Modules</h3>
+<ol>
+<li>Load&amp;Store 모듈은 DRAM에서 SRAM으로 데이터를 전송하기 위한 2D DMA 수행</li>
+<li>stride와 2D Pading을 지원하므로 CPU에서 data를 re-lay하는 오버헤드를 줄일 수 있음
+<img src="/p/tvmvta-vta-concept-and-design/08_vta_2d_dma.png"
+	width="2172"
+	height="480"
+	srcset="/p/tvmvta-vta-concept-and-design/08_vta_2d_dma_hu8e1725c7ce197713e83639b1ec22dab1_130518_480x0_resize_box_3.png 480w, /p/tvmvta-vta-concept-and-design/08_vta_2d_dma_hu8e1725c7ce197713e83639b1ec22dab1_130518_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="VTA Load & Store"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="452"
+		data-flex-basis="1086px"
+	
+></li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">load</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="k">volatile</span> <span class="n">bus_T</span> <span class="o">*</span><span class="n">inputs</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="k">volatile</span> <span class="n">bus_T</span> <span class="o">*</span><span class="n">weights</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hls</span><span class="o">::</span><span class="n">stream</span><span class="o">&lt;</span><span class="n">insn_T</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">load_queue</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hls</span><span class="o">::</span><span class="n">stream</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">g2l_dep_queue</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hls</span><span class="o">::</span><span class="n">stream</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">l2g_dep_queue</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">bus_T</span> <span class="n">inp_mem</span><span class="p">[</span><span class="n">VTA_INP_BUFF_DEPTH</span><span class="p">][</span><span class="n">INP_MAT_AXI_RATIO</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="n">bus_T</span> <span class="n">wgt_mem</span><span class="p">[</span><span class="n">VTA_WGT_BUFF_DEPTH</span><span class="p">][</span><span class="n">WGT_MAT_AXI_RATIO</span><span class="p">])</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE m_axi port = inputs offset = slave bundle = data_port
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE m_axi port = weights offset = slave bundle = data_port
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE axis port = load_queue
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE axis port = g2l_dep_queue
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE axis port = l2g_dep_queue
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE bram port = wgt_mem
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE bram port = inp_mem
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE s_axilite port = return bundle = CONTROL_BUS
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS RESOURCE variable = inp_mem core = RAM_1P
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS RESOURCE variable = wgt_mem core = RAM_1P
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Pop load instruction
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">insn_T</span> <span class="n">raw_insn</span> <span class="o">=</span> <span class="n">load_queue</span><span class="p">.</span><span class="nf">read</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Cast to MemInsn
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">insn_T</span> <span class="n">raw_copy</span> <span class="o">=</span> <span class="n">raw_insn</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">VTAMemInsn</span> <span class="n">insn</span> <span class="o">=</span> <span class="o">*</span><span class="p">((</span><span class="n">VTAMemInsn</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">raw_copy</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Pop dependence token if instructed
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">pop_next_dep</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">g2l_dep_queue</span><span class="p">.</span><span class="nf">read</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Pre-processing
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">memop_sram_T</span> <span class="n">x_width</span> <span class="o">=</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">x_pad_0</span> <span class="o">+</span> <span class="n">insn</span><span class="p">.</span><span class="n">x_size</span> <span class="o">+</span> <span class="n">insn</span><span class="p">.</span><span class="n">x_pad_1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">memop_sram_T</span> <span class="n">y_offset_0</span> <span class="o">=</span> <span class="n">x_width</span> <span class="o">*</span> <span class="n">insn</span><span class="p">.</span><span class="n">y_pad_0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS RESOURCE variable = y_offset_0 core = Mul_LUT latency = 4
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>  <span class="n">memop_sram_T</span> <span class="n">y_offset_1</span> <span class="o">=</span> <span class="n">x_width</span> <span class="o">*</span> <span class="n">insn</span><span class="p">.</span><span class="n">y_pad_1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS RESOURCE variable = y_offset_1 core = Mul_LUT latency = 4
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">memory_type</span> <span class="o">==</span> <span class="n">VTA_MEM_ID_INP</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">load_pad_2d</span><span class="o">&lt;</span><span class="n">bus_T</span><span class="p">,</span> <span class="n">INP_MAT_AXI_RATIO</span><span class="p">,</span> <span class="n">VTA_INP_ELEM_BYTES</span><span class="o">&gt;</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">inputs</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">inp_mem</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">insn</span><span class="p">.</span><span class="n">sram_base</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">insn</span><span class="p">.</span><span class="n">dram_base</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">insn</span><span class="p">.</span><span class="n">y_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">insn</span><span class="p">.</span><span class="n">x_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">insn</span><span class="p">.</span><span class="n">x_stride</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">insn</span><span class="p">.</span><span class="n">x_pad_0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">insn</span><span class="p">.</span><span class="n">x_pad_1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">y_offset_0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">y_offset_1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">memory_type</span> <span class="o">==</span> <span class="n">VTA_MEM_ID_WGT</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">load_2d</span><span class="o">&lt;</span><span class="n">bus_T</span><span class="p">,</span> <span class="n">WGT_MAT_AXI_RATIO</span><span class="p">,</span> <span class="n">VTA_WGT_ELEM_BYTES</span><span class="o">&gt;</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">weights</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">wgt_mem</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">insn</span><span class="p">.</span><span class="n">sram_base</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">insn</span><span class="p">.</span><span class="n">dram_base</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">insn</span><span class="p">.</span><span class="n">y_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">insn</span><span class="p">.</span><span class="n">x_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">insn</span><span class="p">.</span><span class="n">x_stride</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Push dependence token if instructed
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">push_next_dep</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">l2g_dep_queue</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">store</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="k">volatile</span> <span class="n">bus_T</span> <span class="o">*</span><span class="n">outputs</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hls</span><span class="o">::</span><span class="n">stream</span><span class="o">&lt;</span><span class="n">insn_T</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">store_queue</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hls</span><span class="o">::</span><span class="n">stream</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">g2s_dep_queue</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">hls</span><span class="o">::</span><span class="n">stream</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">s2g_dep_queue</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="n">bus_T</span> <span class="n">out_mem</span><span class="p">[</span><span class="n">VTA_ACC_BUFF_DEPTH</span><span class="p">][</span><span class="n">OUT_MAT_AXI_RATIO</span><span class="p">])</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE m_axi port = outputs offset = slave bundle = data_port
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE axis port = store_queue
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE axis port = g2s_dep_queue
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE axis port = s2g_dep_queue
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE bram port = out_mem
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS INTERFACE s_axilite port = return bundle = CONTROL_BUS
+</span></span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS RESOURCE variable = out_mem core = RAM_1P
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Pop store instruction
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">insn_T</span> <span class="n">raw_insn</span> <span class="o">=</span> <span class="n">store_queue</span><span class="p">.</span><span class="nf">read</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Cast to MemInsn
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">insn_T</span> <span class="n">raw_copy</span> <span class="o">=</span> <span class="n">raw_insn</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">VTAMemInsn</span> <span class="n">insn</span> <span class="o">=</span> <span class="o">*</span><span class="p">((</span><span class="n">VTAMemInsn</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">raw_copy</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Pop dependence token if instructed
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">pop_prev_dep</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">g2s_dep_queue</span><span class="p">.</span><span class="nf">read</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Initialize indices
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">memop_sram_T</span> <span class="n">sram_idx</span> <span class="o">=</span> <span class="n">insn</span><span class="p">.</span><span class="n">sram_base</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">memop_dram_T</span> <span class="n">dram_idx</span> <span class="o">=</span> <span class="n">insn</span><span class="p">.</span><span class="n">dram_base</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Copy along y dimension
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">insn</span><span class="p">.</span><span class="n">y_size</span><span class="p">;</span> <span class="n">y</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS PIPELINE
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>    <span class="c1">// Perform data transfer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">memcpy</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">      <span class="n">const_cast</span><span class="o">&lt;</span><span class="n">bus_T</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">outputs</span><span class="p">[</span><span class="n">dram_idx</span> <span class="o">*</span> <span class="n">OUT_MAT_AXI_RATIO</span><span class="p">]),</span>
+</span></span><span class="line"><span class="cl">      <span class="p">(</span><span class="k">const</span> <span class="n">bus_T</span><span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">out_mem</span><span class="p">[</span><span class="n">sram_idx</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="n">insn</span><span class="p">.</span><span class="n">x_size</span> <span class="o">*</span> <span class="n">VTA_OUT_ELEM_BYTES</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#pragma HLS RESOURCE variable = sram_idx core = Mul_LUT
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>    <span class="n">sram_idx</span> <span class="o">+=</span> <span class="n">insn</span><span class="p">.</span><span class="n">x_size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dram_idx</span> <span class="o">+=</span> <span class="n">insn</span><span class="p">.</span><span class="n">x_stride</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Push dependence token if instructed
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">insn</span><span class="p">.</span><span class="n">push_prev_dep</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">s2g_dep_queue</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="vivado-구조-분석">Vivado 구조 분석</h2>
+<ol>
+<li>실제 HLS 파일에는 vta top 모듈이 정의 되어 있지만 실제로 vivado에서 합성한 모듈은 top모듈을 사용하지 않고 Fetch, Compute, Load, Store 모듈과 FIFO IP를 이용하여 연결하였다. 이유는 글쎄?
+<img src="/p/tvmvta-vta-concept-and-design/09_vta_vivado_top.png"
+	width="2913"
+	height="1179"
+	srcset="/p/tvmvta-vta-concept-and-design/09_vta_vivado_top_hu47c01c6d02c95eb0a55627ffc8e72036_226190_480x0_resize_box_3.png 480w, /p/tvmvta-vta-concept-and-design/09_vta_vivado_top_hu47c01c6d02c95eb0a55627ffc8e72036_226190_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+		alt="Vivado Structure"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="247"
+		data-flex-basis="592px"
+	
+></li>
+</ol>
+
+</section>
+
+    
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/vta_hw/">VTA_HW</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/tvm-tvm-install-base-on-conda/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[TVM] TVM Install (base on CONDA)</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2022 - 
+        
+        2024 MW Devlog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+                
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
