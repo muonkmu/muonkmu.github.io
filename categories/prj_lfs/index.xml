@@ -193,11 +193,11 @@
 </description>
         </item>
         <item>
-        <title>[LFS_prj] 06 Ubutu porting</title>
-        <link>https://muonkmu.github.io/p/lfs_prj-06-ubutu-porting/</link>
+        <title>[LFS_prj] 03 Build Cross Toolchain</title>
+        <link>https://muonkmu.github.io/p/lfs_prj-03-build-cross-toolchain/</link>
         <pubDate>Sat, 18 Mar 2023 00:00:00 +0000</pubDate>
         
-        <guid>https://muonkmu.github.io/p/lfs_prj-06-ubutu-porting/</guid>
+        <guid>https://muonkmu.github.io/p/lfs_prj-03-build-cross-toolchain/</guid>
         <description>&lt;p&gt;LFS 시스템 빌드를 위한 cross tool chain의 설정과정을 다룬다.&lt;/p&gt;
 &lt;h2 id=&#34;techical-note&#34;&gt;Techical note&lt;/h2&gt;
 &lt;p&gt;LFS 시스템의 빌드 단계는 아래의 단계를 따른다&lt;/p&gt;

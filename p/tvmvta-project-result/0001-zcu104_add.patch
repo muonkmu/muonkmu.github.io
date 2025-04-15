@@ -1,0 +1,173 @@
+diff --git a/3rdparty/vta-hw b/3rdparty/vta-hw
+--- a/3rdparty/vta-hw
++++ b/3rdparty/vta-hw
+@@ -1 +1 @@
+-Subproject commit 36a91576edf633479c78649e050f18dd2ddc8103
++Subproject commit 36a91576edf633479c78649e050f18dd2ddc8103-dirty
+diff --git a/apps/benchmark/arm_cpu_imagenet_bench.py b/apps/benchmark/arm_cpu_imagenet_bench.py
+index c618a89c8..32595cc18 100644
+--- a/apps/benchmark/arm_cpu_imagenet_bench.py
++++ b/apps/benchmark/arm_cpu_imagenet_bench.py
+@@ -93,7 +93,7 @@ if __name__ == "__main__":
+     parser.add_argument(
+         "--model",
+         type=str,
+-        choices=["rk3399", "mate10", "mate10pro", "p20", "p20pro", "pixel2", "rasp3b", "pynq"],
++        choices=["rk3399", "mate10", "mate10pro", "p20", "p20pro", "pixel2", "rasp3b", "pynq", "ultra96","zcu104"],
+         default="rk3399",
+         help="The model of the test device. If your device is not listed in "
+         "the choices list, pick the most similar one as argument.",
+diff --git a/cmake/modules/VTA.cmake b/cmake/modules/VTA.cmake
+index f3fd47325..562513912 100644
+--- a/cmake/modules/VTA.cmake
++++ b/cmake/modules/VTA.cmake
+@@ -109,7 +109,8 @@ elseif(PYTHON)
+     tvm_file_glob(GLOB FPGA_RUNTIME_SRCS vta/runtime/*.cc)
+     # Rules for Zynq-class FPGAs with pynq OS support (see pynq.io)
+     if(${VTA_TARGET} STREQUAL "pynq" OR
+-       ${VTA_TARGET} STREQUAL "ultra96")
++       ${VTA_TARGET} STREQUAL "ultra96" OR
++       ${VTA_TARGET} STREQUAL "zcu104")
+       list(APPEND FPGA_RUNTIME_SRCS ${VTA_HW_PATH}/src/pynq/pynq_driver.cc)
+       # Rules for Pynq v2.4
+       find_library(__cma_lib NAMES cma PATH /usr/lib)
+@@ -131,7 +132,8 @@ elseif(PYTHON)
+       target_compile_definitions(vta PUBLIC ${__strip_def})
+     endforeach()
+     if(${VTA_TARGET} STREQUAL "pynq" OR
+-       ${VTA_TARGET} STREQUAL "ultra96")
++       ${VTA_TARGET} STREQUAL "ultra96" OR
++       ${VTA_TARGET} STREQUAL "zcu104")
+       target_link_libraries(vta ${__cma_lib})
+     elseif(${VTA_TARGET} STREQUAL "de10nano")  # DE10-Nano rules
+      #target_compile_definitions(vta PUBLIC VTA_MAX_XFER=2097152) # (1<<21)
+diff --git a/python/tvm/target/target.py b/python/tvm/target/target.py
+index ec74cbcdb..3823a40f1 100644
+--- a/python/tvm/target/target.py
++++ b/python/tvm/target/target.py
+@@ -567,6 +567,7 @@ def arm_cpu(model="unknown", options=None):
+         "rk3399": ["-model=rk3399", "-mtriple=aarch64-linux-gnu", "-mattr=+neon"],
+         "pynq": ["-model=pynq", "-mtriple=armv7a-linux-eabi", "-mattr=+neon"],
+         "ultra96": ["-model=ultra96", "-mtriple=aarch64-linux-gnu", "-mattr=+neon"],
++        "zcu104": ["-model=zcu104", "-mtriple=aarch64-linux-gnu", "-mattr=+neon"],
+         "beagleai": [
+             "-model=beagleai",
+             "-mtriple=armv7a-linux-gnueabihf",
+diff --git a/vta/python/vta/environment.py b/vta/python/vta/environment.py
+index 087c7e852..87c567fc0 100644
+--- a/vta/python/vta/environment.py
++++ b/vta/python/vta/environment.py
+@@ -232,7 +232,7 @@ class Environment(object):
+         """The target host"""
+         if self.TARGET in ["pynq", "de10nano"]:
+             return "llvm -mtriple=armv7-none-linux-gnueabihf"
+-        if self.TARGET == "ultra96":
++        if self.TARGET in ["ultra96", "zcu104"]:
+             return "llvm -mtriple=aarch64-linux-gnu"
+         if self.TARGET in ["sim", "tsim", "intelfocl"]:
+             return "llvm"
+diff --git a/vta/python/vta/exec/rpc_server.py b/vta/python/vta/exec/rpc_server.py
+index 1abad98b2..abeb46231 100644
+--- a/vta/python/vta/exec/rpc_server.py
++++ b/vta/python/vta/exec/rpc_server.py
+@@ -65,7 +65,8 @@ def server_start():
+     def program_fpga(file_name):
+         # pylint: disable=import-outside-toplevel
+         env = get_env()
+-        if env.TARGET == "pynq":
++        #if env.TARGET == "pynq":
++        if env.TARGET in ["pynq", "ultra96", "zcu104"]:
+             from pynq import xlnk
+ 
+             # Reset xilinx driver
+diff --git a/vta/python/vta/program_bitstream.py b/vta/python/vta/program_bitstream.py
+index a7da89d2f..48bc6b9a5 100644
+--- a/vta/python/vta/program_bitstream.py
++++ b/vta/python/vta/program_bitstream.py
+@@ -26,7 +26,7 @@ def main():
+     parser.add_argument("bitstream", type=str, default="", help="bitstream path")
+     args = parser.parse_args()
+ 
+-    if args.target not in ("pynq", "ultra96", "de10nano", "sim", "tsim"):
++    if args.target not in ("pynq", "ultra96", "zcu104" , "de10nano", "sim", "tsim"):
+         raise RuntimeError("Unknown target {}".format(args.target))
+ 
+     curr_path = os.path.dirname(os.path.abspath(os.path.expanduser(__file__)))
+@@ -68,7 +68,7 @@ def intelfocl_bitstream_program(bitstream_path, mem_size=4 * 1024 * 1024 * 1024)
+ def bitstream_program(target, bitstream, *args):
+     """program bitstream to devices"""
+ 
+-    if target in ["pynq", "ultra96"]:
++    if target in ["pynq", "ultra96", "zcu104"]:
+         pynq_bitstream_program(bitstream)
+     elif target in ["de10nano"]:
+         de10nano_bitstream_program(bitstream)
+diff --git a/vta/python/vta/testing/utils.py b/vta/python/vta/testing/utils.py
+index f16335966..a6fd55282 100644
+--- a/vta/python/vta/testing/utils.py
++++ b/vta/python/vta/testing/utils.py
+@@ -52,7 +52,7 @@ def run(run_func):
+                 assert simulator.enabled()
+             run_func(env, rpc.LocalSession())
+ 
+-    elif env.TARGET in ["pynq", "ultra96", "de10nano"]:
++    elif env.TARGET in ["pynq", "ultra96", "zcu104",  "de10nano"]:
+         # The environment variables below should be set if we are using
+         # a tracker to obtain a remote for a test device
+         tracker_host = os.environ.get("TVM_TRACKER_HOST", None)
+diff --git a/vta/tutorials/matrix_multiply.py b/vta/tutorials/matrix_multiply.py
+index 0d1167854..e76c351ed 100644
+--- a/vta/tutorials/matrix_multiply.py
++++ b/vta/tutorials/matrix_multiply.py
+@@ -52,7 +52,8 @@ port = int(os.environ.get("VTA_RPC_PORT", "9091"))
+ 
+ # We configure both the bitstream and the runtime system on the Pynq
+ # to match the VTA configuration specified by the vta_config.json file.
+-if env.TARGET == "pynq" or env.TARGET == "de10nano":
++#if env.TARGET == "pynq" or env.TARGET == "de10nano":
++if env.TARGET in ["pynq", "de10nano", "ultra96", "zcu104"]:
+ 
+     # Make sure that TVM was compiled with RPC=1
+     assert tvm.runtime.enabled("rpc")
+diff --git a/vta/tutorials/optimize/convolution_opt.py b/vta/tutorials/optimize/convolution_opt.py
+index 521a73ab5..4ca006c32 100644
+--- a/vta/tutorials/optimize/convolution_opt.py
++++ b/vta/tutorials/optimize/convolution_opt.py
+@@ -57,7 +57,8 @@ port = int(os.environ.get("VTA_RPC_PORT", "9091"))
+ 
+ # We configure both the bitstream and the runtime system on the Pynq
+ # to match the VTA configuration specified by the vta_config.json file.
+-if env.TARGET == "pynq":
++#if env.TARGET == "pynq":
++if env.TARGET in ["pynq", "ultra96", "zcu104"]:
+ 
+     # Make sure that TVM was compiled with RPC=1
+     assert tvm.runtime.enabled("rpc")
+diff --git a/vta/tutorials/optimize/matrix_multiply_opt.py b/vta/tutorials/optimize/matrix_multiply_opt.py
+index b470475b1..403990f64 100644
+--- a/vta/tutorials/optimize/matrix_multiply_opt.py
++++ b/vta/tutorials/optimize/matrix_multiply_opt.py
+@@ -55,7 +55,8 @@ port = int(os.environ.get("VTA_RPC_PORT", "9091"))
+ 
+ # We configure both the bitstream and the runtime system on the Pynq
+ # to match the VTA configuration specified by the vta_config.json file.
+-if env.TARGET == "pynq":
++# if env.TARGET == "pynq":
++if env.TARGET in ["pynq", "ultra96", "zcu104"]:
+ 
+     # Make sure that TVM was compiled with RPC=1
+     assert tvm.runtime.enabled("rpc")
+diff --git a/vta/tutorials/vta_get_started.py b/vta/tutorials/vta_get_started.py
+index 3482258de..a83df9f35 100644
+--- a/vta/tutorials/vta_get_started.py
++++ b/vta/tutorials/vta_get_started.py
+@@ -76,7 +76,8 @@ port = int(os.environ.get("VTA_RPC_PORT", "9091"))
+ 
+ # We configure both the bitstream and the runtime system on the Pynq
+ # to match the VTA configuration specified by the vta_config.json file.
+-if env.TARGET == "pynq" or env.TARGET == "de10nano":
++#if env.TARGET == "pynq" or env.TARGET == "de10nano":
++if env.TARGET in ["pynq", "de10nano", "ultra96", "zcu104"]:
+ 
+     # Make sure that TVM was compiled with RPC=1
+     assert tvm.runtime.enabled("rpc")
