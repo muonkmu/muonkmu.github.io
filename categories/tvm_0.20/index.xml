@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>TVM_0.20 on MW Devlog</title>
+        <link>https://muonkmu.github.io/categories/tvm_0.20/</link>
+        <description>Recent content in TVM_0.20 on MW Devlog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Tue, 15 Apr 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://muonkmu.github.io/categories/tvm_0.20/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>[TVM_0.20] Design and Architecture</title>
+        <link>https://muonkmu.github.io/p/tvm_0.20-design-and-architecture/</link>
+        <pubDate>Tue, 15 Apr 2025 00:00:00 +0000</pubDate>
+        
+        <guid>https://muonkmu.github.io/p/tvm_0.20-design-and-architecture/</guid>
+        <description>&lt;p&gt;TVM이 0.18버전부터 Transformer등으로 대표되는 LLM 등에 대응하기 위해 TVM Unity로 진화하였다.(가장 큰 변화는 relay 대신 relax를 사용)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://discuss.tvm.apache.org/t/relax-co-designing-high-level-abstraction-towards-tvm-unity/12496&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://discuss.tvm.apache.org/t/relax-co-designing-high-level-abstraction-towards-tvm-unity/12496&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;TVM을 다룰 수 있어야 신규 ACCELERATOR를 개발하더라도 이에 맞는 컴파일러를 구축할 수 있기에 현재 TVM에 대한 이론을 정리하고자 한다.&lt;/p&gt;
+&lt;h2 id=&#34;overall-flow&#34;&gt;Overall Flow&lt;/h2&gt;
+&lt;p&gt;전체적인 Compile flow를 다룬다.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Model Creation
+&lt;ul&gt;
+&lt;li&gt;compile/optimize 될 모델을 생성, IRModule의 형태이며 NNModule, TVMScript을 사용하여 직접 코딩하거나 기존 pre-trained model(pytorch 같은)을 Relax frontend를 이용하여 import 한다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Transformation
+&lt;ul&gt;
+&lt;li&gt;IRModule을 다른 IRModule 형태로 변환 (대표적으로 quantization), Target과 독립적이지만 타겟이 transformation pipeline의 설정에 영향을 끼치도록 할 수 있다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Target Translation
+&lt;ul&gt;
+&lt;li&gt;IRModule을 Target에 실행 가능한 codegen 과정&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Runtime Execution
+&lt;ul&gt;
+&lt;li&gt;컴파일된 모듈을 runtime.Module에 적재하여 실행시키는 것
+&lt;img src=&#34;https://muonkmu.github.io/p/tvm_0.20-design-and-architecture/01_tvm_overall_flow.svg&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;key-data-structures&#34;&gt;Key data structures&lt;/h2&gt;
+&lt;p&gt;IRModule은  primary data structure이며 2가지 주요한 형태의 function을 제공&lt;/p&gt;
+&lt;h3 id=&#34;relaxfunction&#34;&gt;relax::Function&lt;/h3&gt;
+&lt;p&gt;high-level functional program representation. 주로 end-to-end model 또는 전체 모델의 sub-graph 에 대응, control-flow와 complex data structure를 지원하는 computational graph로 생각할 수 있다.&lt;/p&gt;
+&lt;h3 id=&#34;tirprimfunc&#34;&gt;tir::PrimFunc&lt;/h3&gt;
+&lt;p&gt;low-level program representation이며 loop-nest choice, multi-dimensional load/store, threading, vector/tensor instructions을 포함. 모델 레이어를 실행하는 operator program에 대응&lt;/p&gt;
+&lt;p&gt;Compilation/Transformation과정에서 모든 Relax operator는 Target device에서 바로 실행 가능한 tir::PrimFunc 또는 TVM PackedFunc으로 lowering 된다. 반면 Relax operator의 Call은 R.call_tir / R.call_dps 같은 low-level function으로 lowering 된다.&lt;/p&gt;
+&lt;h2 id=&#34;transformations&#34;&gt;Transformations&lt;/h2&gt;
+&lt;p&gt;Key data structure 간 변환 작업을 Transformations이라 하며 하기 2가지 목표를 가진다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;optimization : 동등하거나 최적화된 변환&lt;/li&gt;
+&lt;li&gt;lowering : 타겟에 가까운 lower-level representation로 변환&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;relax-transformations&#34;&gt;relax transformations&lt;/h3&gt;
+&lt;p&gt;Relax function에 적용되는 graph-level optimizations. constant folding / dead-code elimination / library dispatch 등&lt;/p&gt;
+&lt;h3 id=&#34;tir-transformations&#34;&gt;tir transformations&lt;/h3&gt;
+&lt;p&gt;tir function에 적용되며 하기 2가지 타입의 변환이 있음&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;TensorIR schedule
+&lt;ul&gt;
+&lt;li&gt;TensorIR functions을 target 코드를 생성하기 위한 user-guided instructions과 control을 가지고 최적화 하는 방법을 정의&lt;/li&gt;
+&lt;li&gt;TVM unity는 TensorIR schedule을 자동으로 찾아주는 &lt;code&gt;MetaSchedule&lt;/code&gt;을 제공&lt;/li&gt;
+&lt;li&gt;TensorIR 챕터에서 더 자세히 다룰 예정
+(역자 주 : Tensor는 다차원 배열을 의미한다. TensorIR schedule이란 Tensor를 어떻게 분할하여 처리할 것인가를 정의하는 것이라 생각할 수 있다.)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Lowering Passes
+&lt;ul&gt;
+&lt;li&gt;TensorIR schedule 적용 후 TIR PrimFunc을 좀 더 Target에 적합한 TIR PrimFunc로 변환&lt;/li&gt;
+&lt;li&gt;예를 들어 multi-dimensional access를 one-dimensional pointer access로 flatten, 내장함수를 타겟에 맞도록 확장, runtime calling convention에 맞는 function decorate.
+(내장함수 : __enable_interrupt() 같은 컴파일러 제공함수?)&lt;/li&gt;
+&lt;li&gt;TVM은 low-level optimization은 타겟 컴파일러에가 맞기기 때문에 거의 다루지 않는다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;cross-level-trasnsformation&#34;&gt;cross-level trasnsformation&lt;/h3&gt;
+&lt;p&gt;TVM은 end-to-end 모델을 최적화 하기 위한 단일 전략을 채용. 즉 IRModule이 relax와 tir function을 둘다 가지고 있으므로 이들에게 각각 다른 Transformation을 적용한다.
+예를 들어 relax.LegalizeOps는 relax operator를 lowering 하고 TIR PrimFunc을 IRModule에 추가한다음, relax연산자를  TIR PrimFunc로 호출하는 것으로 대체한다.
+다른 예로, fusion pipeline(relax.FuseOps,relax.FuseTIR 등)은 이는 여러 연속적인 텐서 연산을 하나로 융합함.&lt;/p&gt;
+&lt;h2 id=&#34;target-translation&#34;&gt;Target Translation&lt;/h2&gt;
+&lt;p&gt;IRModule을 Target 실행 바이너리로 변환, TVM은 Relax function (sub-graph)를 외부 코드 제너레이터를 이용하여 translation 하는 것을 지원한다.&lt;/p&gt;
+&lt;h2 id=&#34;runtime-execution&#34;&gt;Runtime Execution&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;TVM’s runtime의 주요 목적은 컴파일된 artifact의 로딩과 실행을 위한 간소한 API를 제공하는 것(C++, Rust, Go 등)&lt;/li&gt;
+&lt;li&gt;tvm.runtime.Module은 컴파일 결과를 캡슐화하고 PackedFuncs을 얻기 위한 GetFunction method를 가짐&lt;/li&gt;
+&lt;li&gt;tvm.runtime.PackedFunc은 생성 코드를 위한(실행을 위한) type-erased function&lt;/li&gt;
+&lt;li&gt;좀 더 자세한 내용은 runtime chapter에서 다룸&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;summary-and-discussions&#34;&gt;Summary and Discussions&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;컴파일 flow에서 key data structure
+&lt;ul&gt;
+&lt;li&gt;IRModule: relax.Function, tir.PrimFunc 포함&lt;/li&gt;
+&lt;li&gt;runtime.Module: runtime.PackedFunc 포함&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;컴파일에서 주요한 파트는 key data structure간 Transformation
+&lt;ul&gt;
+&lt;li&gt;relax/transform, tir/transform는 determinstic rule-based transformations&lt;/li&gt;
+&lt;li&gt;meta-schedule은 search-based transformations&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;TVM은 key data structures와 transformations을 python, C++ API로 노출 시키므로 TVM을 numpy 사용하듯 사용할 수 있다.
+&lt;ul&gt;
+&lt;li&gt;IRModule을 python API를 이용하여 직접 구축할 수 있다.&lt;/li&gt;
+&lt;li&gt;custom transformations(e.g. customize quantization) 작성할 수 있다.&lt;/li&gt;
+&lt;li&gt;TVM의 파이썬 API를 사용하여 직접 IR을 조작할 수 있다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>
