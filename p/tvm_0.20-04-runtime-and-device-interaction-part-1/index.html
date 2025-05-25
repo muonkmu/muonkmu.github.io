@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Runtime 상세 파트 1'>
+<title>[TVM_0.20] 04 Runtime and Device Interaction Part 1</title>
+
+<link rel='canonical' href='https://muonkmu.github.io/p/tvm_0.20-04-runtime-and-device-interaction-part-1/'>
+
+<link rel="stylesheet" href="/scss/style.min.f3b6945bee58731371ef6d5a992e6775ef6e63b9642101b9f59903b1c9e16941.css"><meta property='og:title' content='[TVM_0.20] 04 Runtime and Device Interaction Part 1'>
+<meta property='og:description' content='Runtime 상세 파트 1'>
+<meta property='og:url' content='https://muonkmu.github.io/p/tvm_0.20-04-runtime-and-device-interaction-part-1/'>
+<meta property='og:site_name' content='MW Devlog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='TVM' /><meta property='article:published_time' content='2025-05-01T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-05-01T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="[TVM_0.20] 04 Runtime and Device Interaction Part 1">
+<meta name="twitter:description" content="Runtime 상세 파트 1">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/minwook_large_hu93fbe6c7fccf94bb4165ea496a9d4637_41368_300x0_resize_q75_box.jpg" width="300"
+                            height="246" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">MW Devlog</a></h1>
+            <h2 class="site-description">Embedded Engineer (HW,SW,SYSTEM)</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href=''
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href=''
+                        target="_blank"
+                        title="Linkedin"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-linkedin" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+ <path stroke="none" d="M0 0h24v24H0z" fill="none"/> <rect x="4" y="4" width="16" height="16" rx="2" /> <line x1="8" y1="11" x2="8" y2="16" /> <line x1="8" y1="8" x2="8" y2="8.01" /> <line x1="12" y1="16" x2="12" y2="11" />
+ <path d="M16 16v-3a2 2 0 0 0 -4 0" />
+</svg>
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#tvm-runtime-system">TVM Runtime System</a>
+      <ol>
+        <li><a href="#packedfunc">PackedFunc</a></li>
+        <li><a href="#module">Module</a></li>
+        <li><a href="#remote-deployment">Remote Deployment</a></li>
+        <li><a href="#tvm-object-and-compiler-stack">TVM Object and Compiler Stack</a></li>
+        <li><a href="#implementation-details">Implementation Details</a></li>
+        <li><a href="#역자해설">역자해설</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/tvm_0.20/" style="background-color: #A103C0; color: #fff;">
+                TVM_0.20
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/tvm_0.20-04-runtime-and-device-interaction-part-1/">[TVM_0.20] 04 Runtime and Device Interaction Part 1</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Runtime 상세 파트 1
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 01, 2025</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    9 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    
+        <section class="article-content">
+    
+    
+    <h2 id="tvm-runtime-system">TVM Runtime System</h2>
+<p>TVM runtime의 주요 요구사항은 다음과 같다.</p>
+<ul>
+<li>Deployment: 컴파일된 함수를 python/javscript/c++ 언어에서 호출</li>
+<li>Debug: python으로 함수를 정의하고 이를 컴파일된 함수에서 호출</li>
+<li>Link: device specific code (CUDA등)을 호출하도록 드라이버 코드를 작성하고 이를 컴파일된 호스트 함수에서 호출</li>
+<li>Prototype: python에서 IR pass를 정의하고 이를 C++ backend에서 호출</li>
+<li>Expose: python같은 front-end를 가지는 c++로 개발된 컴파일러 스택</li>
+<li>Experiment: 컴파일된 함수를 타켓으로 전송하여 타겟에서 직접 실행<br>
+<img src="/p/tvm_0.20-04-runtime-and-device-interaction-part-1/tvm_runtiemsystem_overview.png"
+	width="1669"
+	height="634"
+	srcset="/p/tvm_0.20-04-runtime-and-device-interaction-part-1/tvm_runtiemsystem_overview_hu71e4328d2b14f24e9d1d4a2efd163265_192781_480x0_resize_box_3.png 480w, /p/tvm_0.20-04-runtime-and-device-interaction-part-1/tvm_runtiemsystem_overview_hu71e4328d2b14f24e9d1d4a2efd163265_192781_1024x0_resize_box_3.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="263"
+		data-flex-basis="631px"
+	
+></li>
+</ul>
+<h3 id="packedfunc">PackedFunc</h3>
+<p><a class="link" href="https://github.com/apache/tvm/blob/main/include/tvm/runtime/packed_func.h"  target="_blank" rel="noopener"
+    >PackedFunc</a> 객체는 caller와 callee가 다른 언어가 될 수 있는 function call을 나타냄.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;tvm/runtime/packed_func.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">MyAdd</span><span class="p">(</span><span class="n">TVMArgs</span> <span class="n">args</span><span class="p">,</span> <span class="n">TVMRetValue</span><span class="o">*</span> <span class="n">rv</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// automatically convert arguments to desired type.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// automatically assign value return to rv
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="o">*</span><span class="n">rv</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">CallPacked</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">PackedFunc</span> <span class="n">myadd</span> <span class="o">=</span> <span class="n">PackedFunc</span><span class="p">(</span><span class="n">MyAdd</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// get back 3
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">c</span> <span class="o">=</span> <span class="n">myadd</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>위의 코드에서 서 PackedFunc는 MyAdd이고 다음과 같은 특징을 지님</p>
+<ul>
+<li>두 개의 Argument(arg, rv)를 지니며 type-erased function 이다.</li>
+<li>즉 함수의 입력 유형과 반환 유형을 제한하지 않음</li>
+<li>내부적으로 PackedFunc를 호출 시, input argument를 스택의 TVMArg에 패킹하고 결과를 TVMRetValue을 통해 반환</li>
+</ul>
+<p>C++의 Template 문법 덕택에 PackedFunc을 python 같은 dynamic language에서 glue 코드 없이 일반 함수 호출하듯이 콜할 수 있다.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="c1">// register a global packed function in c++
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">TVM_REGISTER_GLOBAL</span><span class="p">(</span><span class="s">&#34;myadd&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span><span class="n">set_body</span><span class="p">(</span><span class="n">MyAdd</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># packedfunction 호출</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">tvm</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">myadd</span> <span class="o">=</span> <span class="n">tvm</span><span class="o">.</span><span class="n">get_global_func</span><span class="p">(</span><span class="s2">&#34;myadd&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># prints 3</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">myadd</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>상기와 같은 호출 구조가 가능한 이유는 <code>TVMArgs</code>와 <code>TVMRetValue</code> 구조 덕분인데 TVM은 두 구조의 type을 아래와 같이 제한함</p>
+<ul>
+<li>int, float and string</li>
+<li>PackedFunc itself</li>
+<li>Module for compiled modules</li>
+<li>DLTensor* for tensor object exchange</li>
+<li>TVM Object to represent any object in IR</li>
+</ul>
+<p>위의 제약들은 serialization이 필요 없이 구현을 간편하게 하기 위함이다. 그러나 이러한 제약에도 불구하고 딥러닝 deploy에서 대부분 DLTensor 또는 int/float만 사용하므로 사용하기 충분</p>
+<p>하나의 PackedFunc가 다른 PackedFunc를 인수로 사용할 수 있으므로, 우리는 함수를 python(PackedFunc)에서 C++로 전달할 수 있습니다.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">TVM_REGISTER_GLOBAL</span><span class="p">(</span><span class="s">&#34;callhello&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span><span class="n">set_body</span><span class="p">([](</span><span class="n">TVMArgs</span> <span class="n">args</span><span class="p">,</span> <span class="n">TVMRetValue</span><span class="o">*</span> <span class="n">rv</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">PackedFunc</span> <span class="n">f</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">  <span class="n">f</span><span class="p">(</span><span class="s">&#34;hello world&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">});</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">tvm</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># convert to PackedFunc</span>
+</span></span><span class="line"><span class="cl"><span class="n">f</span> <span class="o">=</span> <span class="n">tvm</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">callhello</span> <span class="o">=</span> <span class="n">tvm</span><span class="o">.</span><span class="n">get_global_func</span><span class="p">(</span><span class="s2">&#34;callhello&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># prints hello world</span>
+</span></span><span class="line"><span class="cl"><span class="n">callhello</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>TVM은 PackedFunc을 모든 언어에 임베디 할 수 있는 <a class="link" href="https://github.com/apache/tvm/blob/main/include/tvm/runtime/base.h"  target="_blank" rel="noopener"
+    >minimum C API</a>을 제공 (python, java, javascript)</p>
+<ul>
+<li>이는 Lua랑 비슷(새로운 언어 대신 C++을 이용한다는 것을 제외하면)</li>
+</ul>
+<p>PackedFunc은 compiler와 deployment stack 양쪽에서 모두 쓰임</p>
+<ul>
+<li>TVM의 모든 compiler pass function은 frontend에 PackedFunc으로 노출됨
+<ul>
+<li>(역자주) TVM에서 내부적으로 사용하는 컴파일 패스 함수들 (예: Relay 최적화, 타입 추론 등)을 사용자가 Python 등에서 쓸 수 있도록 PackedFunc 형태로 포장해서 노출, C++에서 만든 내부 패스를 PackedFunc로 감싸면 Python에서 마치 일반 함수처럼 사용할 수 있게 됨</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">  <span class="kn">from</span> <span class="nn">tvm</span> <span class="kn">import</span> <span class="n">relay</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">mod</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># relay IRModule</span>
+</span></span><span class="line"><span class="cl"><span class="n">mod</span> <span class="o">=</span> <span class="n">relay</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">InferType</span><span class="p">()(</span><span class="n">mod</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 여기서 InferType() 은 Relay의 타입 추론 패스입니다.</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#내부적으로는 C++에 정의된 InferTypePass 같은 함수를</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># → TVM_REGISTER_GLOBAL(&#34;relay._transform.InferType&#34;) 를 통해</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># → PackedFunc 형태로 Python에 노출한 것입니다.</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>컴파일된 module도 컴파일된 함수를 PackedFunc로 반환
+<ul>
+<li>(역자주) TVM으로 모델을 컴파일하면, 그 결과물은 Module 객체로 나오는데, 그 안에 있는 각 함수(예: main, tvmgen_default_fused_&hellip;)도 PackedFunc 형태로 제공</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">lib</span> <span class="o">=</span> <span class="n">tvm</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># 모델 컴파일</span>
+</span></span><span class="line"><span class="cl"><span class="n">f</span> <span class="o">=</span> <span class="n">lib</span><span class="p">[</span><span class="s2">&#34;main&#34;</span><span class="p">]</span>       <span class="c1"># &#34;main&#34; 함수 가져오기</span>
+</span></span><span class="line"><span class="cl"><span class="n">f</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">)</span>       <span class="c1"># 실행!</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#여기서 lib[&#34;main&#34;]은 실제로 PackedFunc 객체입니다.</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#즉, lib[&#34;main&#34;]을 호출하면 내부적으로 PackedFunc.__call__()이 실행되어 모델 추론이 일어납니다.</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>런타임 크기를 최소화 하기 위해 배포 런타임에서 IR Object 지원을 제외함. 이를 통해 배포 런타임의 크기를 200K~600K 정도로 만들 수 있었음</p>
+<ul>
+<li>(역자주) TVM은 크게 컴파일러 영역 (IR 사용)과 런타임 영역 (IR 제거)으로 나누는데 런타임영역에서는 IR기능을 분리, 예를 들어 라즈베리파이에 모델을 실행시키기 위해 <code>libtvm_runtime.so</code>만 넣음, 이 안에는 PackedFunc, DLTensor, CUDA 호출기 등 필요한 것만 포함하며 Relay 같은 IR 처리 로직은 빠져 있음</li>
+</ul>
+<p>PackedFunc를 호출하는데 드는 오버헤드는 스택에 몇 가지 값만 저장하면 되기 때문에 적다.요약하자면, PackedFunc는 컴파일러와 배포를 지원하기 위해 광범위하게 사용하는 TVM의 범용 glue임</p>
+<h3 id="module">Module</h3>
+<p>TVM은 여러 유형의 장치를 지원하기 때문에 다양한 유형의 드라이버를 지원해야 하며 다음과 같은 일을 해야함</p>
+<ul>
+<li>드라이버 API를 사용하여 kernel을 로드</li>
+<li>argument를 packed format으로 셋업하고 kernel을 실행</li>
+<li>사용된 함수가 threadsafe하도록 kernel을 패치</li>
+<li>이러한 driver glue를 C++로 구현하여 사용자에게 제공<br>
+그러나 각 디바이스의 모든 함수에 대해 상기 작업을 할 수 없으므로 PackedFunc을 사용</li>
+</ul>
+<p>TVM은 컴파일된 객체를 <a class="link" href="https://github.com/apache/tvm/blob/main/include/tvm/runtime/module.h"  target="_blank" rel="noopener"
+    >Module</a>로 정의하며 사용자는 Module로 부터 컴파일된 함수를 <code>PackedFunc</code>형식으로 얻을 수 있음.
+생성된 컴파일된 코드는 런타임에 Module에서 동적으로 함수를 가져올 수 있다. 첫 호출 시에 function handle을 캐시하고 subsequent call에서 이를 재사용한다. 우리는 이것을 생성된 코드에서 PackedFunc(e.g., python)과 디바이이스 코드를 연결하는데 사용할 수 있다.</p>
+<p>ModuleNode는 각 유형의 장치에서 구현할 수 있는 abstract class 입니다. 지금까지는 CUDA, Metal, OpenCL 및 동적 공유 라이브러리 로드를 위한 모듈을 지원했습니다. 이 추상화를 통해 새로운 장치를 쉽게 도입할 수 있으며, 각 유형의 장치에 대해 Host Code 생성을 다시 할 필요가 없습니다.</p>
+<h3 id="remote-deployment">Remote Deployment</h3>
+<p>PackedFunc / Module system은 argument를 직렬화하고 원격에서 계산을 수행하는 RPCModule을 사용하여 리모트 디바이스로 직접 전송이 가능.</p>
+<p>RPC server는 runtime에 번들로 제공될 수 있으며 iPhone, Android, Raspberry pi, 브라우저에서 시작할 수 있다.</p>
+<p>이러한 구조(즉각적인 피드백이 가능한)는 많은 이점을 제공하는데 예를 들어 RPC를 사용하여 iPhone에서 실행하고, 결과를 다시 복사한 후 numpy를 통해 호스트에서 검증이 가능하기에 host의 테스트 케이스를 다시 작성할 필요가 없다.</p>
+<h3 id="tvm-object-and-compiler-stack">TVM Object and Compiler Stack</h3>
+<p>앞서 말했듯 compiler stack API 는 PackedFunc을 이용하여 구성됨.
+새로운 primitive를 추가 할 때마다 새로운 Language object나 IR node가 필요했으나 TVM 개발자들은 API를 변경하는 대신 다음 내용을 원함</p>
+<ul>
+<li>어떤 language object나 IR들을 직렬화 할 수 있을 것</li>
+<li>front-end language(ex. python)에서 IR object를 탐색, 출력, 조작 할 수 있을 것
+상기 내용을 해결하기 위해 Base Class인 <a class="link" href="https://github.com/apache/tvm/blob/main/include/tvm/runtime/object.h"  target="_blank" rel="noopener"
+    >Object</a>를 도입, 컴파일 스택의 모든 language object는 <code>Object</code>의 서브클래스 임</li>
+<li>(역자주) primitive는 TVM에서 새로운 연산(operators), IR 노드, 최적화 단위, 메모리 표현, 실행 스케줄링 전략을 의미</li>
+<li>(역자주) language object TVM 내부에서 모델을 표현하거나 최적화하는 데 사용되는 모든 추상 구조물(TIR, Relax, Type)을 의미</li>
+<li>(역자주) 새로운 연산(primitive)을 실험하고 싶다면 Relay, TIR, Relax 중 해당 영역의 새로운 IR 노드 또는 그 노드를 감싸는 &ldquo;language object&rdquo; (예: ObjectRef 타입)를 만들어야 한다</li>
+</ul>
+<p>각 Object는 Object의 Type을 식별하기 위한 고유 식별자인 String 형식의 type_Key를 가지고 있음</p>
+<ul>
+<li>int 대신 String을 선택한 이유는 centeral repo에 코드를 추가하지 않고 분산 방식으로 새로운 Object 클래스를 추가할 수 있도록.
+그러나 Runtime에서는 디스패치 속도를 높이기 위해 type_Key에 대응하는 integer type index를 할당</li>
+</ul>
+<p>하나의 Object는 여러 곳에서 참조되므로 Object의 reference를 나타내는 <code>ObjectRef</code> 클래스를 사용</p>
+<ul>
+<li><code>ObjectRef</code>는 Object 컨테이너의 shared_ptr 라고 볼 수 있음</li>
+<li>Object의 subtype을 유지하면서 <code>ObjectRef</code>의 서브클래스를 정의할 수 있으며 이 서브 클래스는 <code>VisitAttr</code>를 정의(가상함수 오버라이딩) 해야함</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-C++" data-lang="C++"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">AttrVisitor</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">  <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Visit</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">key</span><span class="p">,</span> <span class="kt">double</span><span class="o">*</span> <span class="n">value</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">Visit</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">key</span><span class="p">,</span> <span class="kt">int64_t</span><span class="o">*</span> <span class="n">value</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">Visit</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">key</span><span class="p">,</span> <span class="kt">uint64_t</span><span class="o">*</span> <span class="n">value</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">Visit</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">key</span><span class="p">,</span> <span class="kt">int</span><span class="o">*</span> <span class="n">value</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">Visit</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">key</span><span class="p">,</span> <span class="kt">bool</span><span class="o">*</span> <span class="n">value</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">Visit</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">key</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">*</span> <span class="n">value</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">Visit</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">key</span><span class="p">,</span> <span class="kt">void</span><span class="o">**</span> <span class="n">value</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">Visit</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">key</span><span class="p">,</span> <span class="n">Type</span><span class="o">*</span> <span class="n">value</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">Visit</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">key</span><span class="p">,</span> <span class="n">ObjectRef</span><span class="o">*</span> <span class="n">value</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// ...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">BaseAttrsNode</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Object</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">  <span class="k">virtual</span> <span class="kt">void</span> <span class="n">VisitAttrs</span><span class="p">(</span><span class="n">AttrVisitor</span><span class="o">*</span> <span class="n">v</span><span class="p">)</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// ...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>각 Object의 서브클래스는 자신의 각 멤버를 방문하기 위해 VisitAttr을 오버라이딩. 하기는 TensorNode 예제</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-C++" data-lang="C++"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">TensorNode</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Object</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief The shape of the tensor */</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Array</span><span class="o">&lt;</span><span class="n">Expr</span><span class="o">&gt;</span> <span class="n">shape</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief data type in the content of the tensor */</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Type</span> <span class="n">dtype</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief the source operation, can be None */</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Operation</span> <span class="n">op</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief the output index from source operation */</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">value_index</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">  <span class="cm">/*! \brief constructor */</span>
+</span></span><span class="line"><span class="cl">  <span class="n">TensorNode</span><span class="p">()</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="nf">VisitAttrs</span><span class="p">(</span><span class="n">AttrVisitor</span><span class="o">*</span> <span class="n">v</span><span class="p">)</span> <span class="k">final</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">v</span><span class="o">-&gt;</span><span class="n">Visit</span><span class="p">(</span><span class="s">&#34;shape&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">shape</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">v</span><span class="o">-&gt;</span><span class="n">Visit</span><span class="p">(</span><span class="s">&#34;dtype&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">dtype</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">v</span><span class="o">-&gt;</span><span class="n">Visit</span><span class="p">(</span><span class="s">&#34;op&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">op</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">v</span><span class="o">-&gt;</span><span class="n">Visit</span><span class="p">(</span><span class="s">&#34;value_index&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">value_index</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>상기 예제에서  <code>Operation</code>, <code>Array&lt;Expr&gt;</code>은 ObjectRef이다.
+<code>VisitAttrs</code>는 각 멤버 object를 방문하기 위한 reflection API를 제공함</p>
+<ul>
+<li>VisitAttrs을 node를 방문하거나 language object를 재귀적으로 직렬화 하는데 사용 가능</li>
+<li>front-end언어에서 object 멤버를 얻는데 사용 가능(하기는 TensorNode의 예제임)</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">tvm</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">tvm</span> <span class="kn">import</span> <span class="n">te</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="n">te</span><span class="o">.</span><span class="n">placeholder</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&#34;x&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># access the op field of TensorNode</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>front-end runtime을 변경하지 않고 새로운 Object를 C++에 추가할 수 있고, 추가된 Object를 위한 extention을 쉽게 컴파일 스택에 만들 수 있음, 이것은 object member를 expose하는 가장 빠른 방법은 아니나 가장 심플한 방법 중 하나임(TVM이 테스트를 위한 프로토타이핑에 python을 사용하고 내부적으로 무거운 작업에 C++를 사용하므로)</p>
+<h3 id="implementation-details">Implementation Details</h3>
+<p><code>PackedFunc</code>의 각 argument는 union value인 TVMValue와 type code를 가지고 있음</p>
+<ul>
+<li>(역자주) TVM은 python에서 c++ 코드 호출을 위한 tvm ffi를 제공하며 PackedFunc에서는 argument로 ffi를 사용
+<ul>
+<li>Foreign Function Interface(FFI) : 한 프로그래밍 언어(이하 A)에서 다른 프로그래밍 언어(이하 B)의 코드를 호출하기 위한 인터페이스
+이 디자인은 dynamically typed language를 이에 대응하는 type으로 직접 변환 할 수 있게, statically typed language는 변환 과정에서 runtime type checking을 수행할 수 있게함. 아래는 관련 파일임</li>
+</ul>
+</li>
+<li>C++ API : <a class="link" href="https://github.com/apache/tvm/blob/main/include/tvm/runtime/packed_func.h"  target="_blank" rel="noopener"
+    >packed_func.h</a></li>
+<li>C API and how to provide callback. : <a class="link" href="https://github.com/apache/tvm/blob/v0.19.0/src/runtime/c_runtime_api.cc"  target="_blank" rel="noopener"
+    >c_runtime_api.cc</a></li>
+</ul>
+<p>Extension type을 지원하기 위해 type 정보를 등록하는 registry system을 사용, <a class="link" href="https://github.com/apache/tvm/tree/v0.19.0/apps/extension"  target="_blank" rel="noopener"
+    >Extension types</a>을 참조</p>
+<ul>
+<li>(역자주) 동적 타입 언어(dynamically typed language) : 변수를 선언할 때 타입을 명시하지 않아도 되며, 런타임 시에 타입이 결정되는 언어(파이썬), 동적 타입 언어는 값 자체에 타입 정보가 포함되어 있기 때문에, TVM의 TVMValue + type_code 구조로 쉽게 매핑됨</li>
+</ul>
+<h3 id="역자해설">역자해설</h3>
+<p>TVM에서 Object와 PackedFunc는 런타임 시스템의 두 핵심 구성 요소이며 TVM이 유연하고 확장 가능한 컴파일러/런타임 환경을 제공하는 기반이 됨</p>
+<ul>
+<li>Object는 데이터를 표현하며 Relay/TIR/Relax 등 모든 TVM 언어의 노드, 타입, 표현식, 속성 등은 모두 Object의 서브클래스</li>
+<li>PackedFunc는 함수를 표현하며 TVM 런타임 상에서 함수를 호출할 수 있는 유니버설 함수 래퍼, 모든 함수는 TVMArgs → TVMRetValue 형태로 표현되며, 타입 정보 없이도 호출 가능
+TVM에서 **사용자 정의 타입(custom object type)**을 등록하면, 이 타입도 Object 시스템 및 PackedFunc 시스템과 자연스럽게 통합되어 Python/C++ 경계를 넘을 수 있다. 이것은 하기의 예시임</li>
+</ul>
+<ol>
+<li>1단계 : 사용자 정의 객체 정의 (Object 기반)</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="c1">// my_expr.h
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;tvm/runtime/object.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;tvm/runtime/registry.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">namespace</span> <span class="n">tvm</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">namespace</span> <span class="n">myns</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">MyExprNode</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Object</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"> <span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">value</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="nf">VisitAttrs</span><span class="p">(</span><span class="n">AttrVisitor</span><span class="o">*</span> <span class="n">v</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">v</span><span class="o">-&gt;</span><span class="n">Visit</span><span class="p">(</span><span class="s">&#34;value&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">value</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">static</span> <span class="k">constexpr</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">_type_key</span> <span class="o">=</span> <span class="s">&#34;myns.MyExpr&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">TVM_DECLARE_FINAL_OBJECT_INFO</span><span class="p">(</span><span class="n">MyExprNode</span><span class="p">,</span> <span class="n">Object</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">MyExpr</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ObjectRef</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"> <span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">TVM_DEFINE_OBJECT_REF_METHODS</span><span class="p">(</span><span class="n">MyExpr</span><span class="p">,</span> <span class="n">ObjectRef</span><span class="p">,</span> <span class="n">MyExprNode</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">}</span>  <span class="c1">// namespace myns
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>  <span class="c1">// namespace tvm
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>2단계: 타입 등록 (TVM의 RTTI 시스템에)</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="c1">// my_expr.cc
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&#34;my_expr.h&#34;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">namespace</span> <span class="n">tvm</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">namespace</span> <span class="n">myns</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">TVM_REGISTER_OBJECT_TYPE</span><span class="p">(</span><span class="n">MyExprNode</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">}</span>  <span class="c1">// namespace myns
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>  <span class="c1">// namespace tvm
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>3단계: PackedFunc으로 전달 가능한 함수 등록</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">TVM_REGISTER_GLOBAL</span><span class="p">(</span><span class="s">&#34;myns.print_my_expr&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span><span class="n">set_body_typed</span><span class="p">([](</span><span class="n">tvm</span><span class="o">::</span><span class="n">myns</span><span class="o">::</span><span class="n">MyExpr</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;MyExpr.value = &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="o">-&gt;</span><span class="n">value</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">});</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="4">
+<li>4단계: Python에서 사용</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">tvm.runtime</span> <span class="kn">import</span> <span class="n">Object</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># TVM 내부적으로 Object를 상속한 Python 래퍼 사용 가능</span>
+</span></span><span class="line"><span class="cl"><span class="n">MyExpr</span> <span class="o">=</span> <span class="n">tvm</span><span class="o">.</span><span class="n">_ffi</span><span class="o">.</span><span class="n">get_global_func</span><span class="p">(</span><span class="s2">&#34;myns.MyExpr&#34;</span><span class="p">)</span>  <span class="c1"># 생성자 등록했을 경우</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 또는 C++에서 만든 객체를 받는 경우</span>
+</span></span><span class="line"><span class="cl"><span class="n">print_func</span> <span class="o">=</span> <span class="n">tvm</span><span class="o">.</span><span class="n">get_global_func</span><span class="p">(</span><span class="s2">&#34;myns.print_my_expr&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 임의로 생성한 객체가 있다고 가정하고 전달</span>
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">MyExpr</span><span class="p">(</span><span class="n">Object</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">__init_handle_by_constructor__</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;myns.MyExpr&#34;</span><span class="p">,</span>  <span class="c1"># C++에서 등록한 type_key</span>
+</span></span><span class="line"><span class="cl">            <span class="n">value</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">e</span> <span class="o">=</span> <span class="n">MyExpr</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">print_func</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+    
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/tvm/">TVM</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/tvm_0.20-04-runtime-and-device-interaction-part2/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[TVM_0.20] 04 Runtime and Device Interaction Part2</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/tvm_0.20-03-relax/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[TVM_0.20] 03 Relax</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/tvm_0.20-02-tensorir/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[TVM_0.20] 02 TensorIR</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/tvm_0.20-01-design-and-architecture/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">[TVM_0.20] 01 Design and Architecture</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2022 - 
+        
+        2025 MW Devlog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+                
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
