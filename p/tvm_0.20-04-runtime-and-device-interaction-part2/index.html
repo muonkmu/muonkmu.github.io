@@ -243,15 +243,35 @@
     <li><a href="#introduction-to-module-serialization">Introduction to Module Serialization</a>
       <ol>
         <li><a href="#serialization">Serialization</a></li>
-        <li><a href="#under-the-hood-of-serialization-and-format-standard">Under the Hood of Serialization and Format Standard</a></li>
+        <li><a href="#under-the-hood-of-serialization-and-format-standard">Under the Hood of Serialization and Format Standard</a>
+          <ol>
+            <li><a href="#moduleserializer-헬퍼-클래스">ModuleSerializer 헬퍼 클래스</a></li>
+            <li><a href="#serializemodule">SerializeModule</a></li>
+            <li><a href="#역자주">역자주</a></li>
+          </ol>
+        </li>
         <li><a href="#deserialization">Deserialization</a></li>
       </ol>
     </li>
     <li><a href="#devicetarget-interactions">Device/Target Interactions</a>
       <ol>
-        <li><a href="#deviceapi">DeviceAPI</a></li>
-        <li><a href="#target-definition">Target Definition</a></li>
+        <li><a href="#deviceapi">DeviceAPI</a>
+          <ol>
+            <li><a href="#신규-deviceapi-등록-절차">신규 DeviceAPI 등록 절차</a></li>
+            <li><a href="#역자해석">역자해석</a></li>
+          </ol>
+        </li>
+        <li><a href="#target-definition">Target Definition</a>
+          <ol>
+            <li><a href="#신규-target_kind-등록">신규 TARGET_KIND 등록</a></li>
+            <li><a href="#타겟-옵션-설정">타겟 옵션 설정</a></li>
+            <li><a href="#target-객체-생성">Target 객체 생성</a></li>
+            <li><a href="#target-속성-접근">Target 속성 접근</a></li>
+            <li><a href="#역자-주">역자 주</a></li>
+          </ol>
+        </li>
         <li><a href="#target-code-generators">Target Code Generators</a></li>
+        <li><a href="#역자주-1">역자주</a></li>
       </ol>
     </li>
   </ol>
@@ -322,7 +342,7 @@
 
 
                 <time class="article-time--reading">
-                    1 minute read
+                    12 minute read
                 </time>
             </div>
         
@@ -339,14 +359,712 @@
     
     
     <h2 id="introduction-to-module-serialization">Introduction to Module Serialization</h2>
+<p>TVM 런타임 모듈 배포 시, CPU/GPU에 상관 없이 하나의 Dynamic share library만 배포하면 된다. 이는 TVM의 module serialization 메커니즘 덕택이다.
+이번장에서는 TVM module serialization 표준 포맷과 상세 구현에 대해 다룬다.</p>
 <h3 id="serialization">Serialization</h3>
+<p>Serialization을 위한 기본 API는 <code>tvm.module.Module</code>의 <code>export_library</code> 이다. 이 API에서 내부적으로 하기 스텝을 수행한다.</p>
+<ol>
+<li>모든 DSO(Dynamic sahred object(*.so)?) module을 수집(LLVM 또는 C module)</li>
+<li>DSO 모듈이 있으면 <code>save</code> 함수를 호출하여 이를 파일에 저장</li>
+<li>CUDA나 OpenCL 같은 imported moudle을 가지고 있는지 확인하고 imported moudle이 있을 경우 <code>devc.o</code> 또는 <code>dev.cc</code> 을 생성한다. 그후 module serialization을 위해 <code>_PackImportsToLLVM</code> 또는 <code>_PackImportsToC</code>을 호출한다.
+<ul>
+<li>imported moudle의 type은 제한이 없다.</li>
+<li>imported moudle의 binary blob data를 하나의 dynamic shared library에 임베딩할 수 있다.</li>
+</ul>
+</li>
+<li>dynamic shared library를 만들기 위해 &lsquo;_cc.create_shared&rsquo;을 invoke하는 <code>fcompile</code>을 호출한다.<br>
+(Note1) C파일의 경우 컴파일 후  DSO module에 링킹한다.<br>
+(Note1) <code>_PackImportsToLLVM</code> 또는 <code>_PackImportsToC</code>의 사용 여부는 TVM에 LLVM을 활성화 하였는지에 달려있다. 두 함수는 같은 목적을 가진다.</li>
+</ol>
 <h3 id="under-the-hood-of-serialization-and-format-standard">Under the Hood of Serialization and Format Standard</h3>
-<h3 id="deserialization">Deserialization</h3>
+<p>serialization 작업은 <code>_PackImportsToLLVM</code> 또는 <code>_PackImportsToC</code>에서 이루어지며 두 함수는 serialization 작업을 위해 <code>SerializeModule</code>을 호출한다. TVM은 <code>SerializeModule</code>에서 <code>ModuleSerializer</code>라는 헬퍼 클래스가 구성되어 있다. 이 헬퍼클래스는 <code>module</code>을 인자로 받아 모듈 index생성 같은 초기화 작업을 진행한다. 그 후 module의 <code>SerializeModule</code>을 사용할 수 있다.</p>
+<ul>
+<li>(역자주) Helper class : 해당 애플리케이션이나 해당 클래스의 주요 목적이 아닌 일부 기능을 제공하는 데 사용되는 클래</li>
+</ul>
+<h4 id="moduleserializer-헬퍼-클래스">ModuleSerializer 헬퍼 클래스</h4>
+<p>다음의 코드는 <code>ModuleSerializer</code>를 구성하기 위해 사용된다.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">explicit</span> <span class="nf">ModuleSerializer</span><span class="p">(</span><span class="n">runtime</span><span class="o">::</span><span class="n">Module</span> <span class="n">mod</span><span class="p">)</span> <span class="o">:</span> <span class="n">mod_</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Init</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">private</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="n">Init</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">CreateModuleIndex</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="n">CreateImportTree</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol>
+<li>CreateModuleIndex()는 DFS를 이용하여 module import relationship을 조사하고 index를 생성한다.
+<ul>
+<li>root module의 index는 0이다. (본문 예시 참조)</li>
+</ul>
+</li>
+<li>인덱스 생성 후 CreateImportTree()는 import tree를 생성한다.
+<ul>
+<li>import tree는 exported library를 로드할 때 module import relationship을 복원하는데 사용된다.</li>
+<li>TVM은 import tree를 저장하기 위해 CSR format을 사용한다. 각 Row는 parent index를, child index들은 Row의 children index를 나태낸다. <code>import_tree_row_ptr_</code> 과 <code>import_tree_child_indices_</code>에서 이를 확인할 수 있다.</li>
+</ul>
+</li>
+</ol>
+<h4 id="serializemodule">SerializeModule</h4>
+<p>헬퍼 클래스에 의한 초기화 후 <code>SerializeModule</code>을 이용하여 직렬화를 수행 할 수 있다. <code>SerializeModule</code> 함수에서 serialization format을 하기와 같이 사용한다.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">binary_blob_size
+</span></span><span class="line"><span class="cl">binary_blob_type_key
+</span></span><span class="line"><span class="cl">binary_blob_logic
+</span></span><span class="line"><span class="cl">binary_blob_type_key
+</span></span><span class="line"><span class="cl">binary_blob_logic
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">_import_tree
+</span></span><span class="line"><span class="cl">_import_tree_logic
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>binary_blob_size : 직렬화 단계에서 수행할 blob의 갯수 (본문의 예제에서는 3 : LLVM module, CUDA module, _import_tree)</li>
+<li>binary_blob_type_key : 모듈 blob의 type (LLVM / C module은 <code>_lib</code>, CUDA는 <code>cuda</code>, <code>module-&gt;type_key()</code>로 값을 얻을 수 있음)</li>
+<li>binary_blob_logic : blob의 로직 핸들링 (대부분의 blob은 <code>SaveToBinary</code>함수(CUDA나 OpenCL), 그러나 LLVM/C module은 이것이 DSO모듈임을 나타내기 위해 <code>_lib</code>이라고만 적어놓음)
+<ul>
+<li>[Note1] virture function인 <code>SaveToBinary</code>를 구현해야하는지 여부는 모듈이 어떻게 사용되는지에 따라 다름</li>
+<li>[Note2] dynamic shared library를 로드할 때 필요한 데이타가 있다면 <code>SaveToBinary</code>를 구현해야함, 예를 들어 CUDA의 경우 dynamic shared library를 로드할 때 GPU Driver에게 바이너리 데이터를 전달 해야하므로 상기 가상함수를 구현해야함</li>
+<li>[Note3] DSO 같은 host module은 dynamic shared library를 로드 시 별도의 정보가 필요 없으므로 가상함수를 구현할 필요는 없다. 그러나 미래에 메타 데이터 기록이 필요할 경우가 있다면 가상 함수를 구현하면 된다.</li>
+</ul>
+</li>
+<li>_import_tree : import_tree를 저장(루트 모듈이 DSO 하나만 있고, 다른 모듈(import된 모듈)이 없다면 _import_tree는 필요 없음=기록할 트리가 없으므로)</li>
+<li>import_tree_logic : 그냥 스트림안에 <code>import_tree_row_ptr_</code> 과 <code>import_tree_child_indices_</code>를 적어 놓는다.</li>
+<li>마지막으로 상기 내용을 <code>runtime::symbol::tvm_ffi_library_bin</code> 심볼에 패킹 함</li>
+</ul>
+<h4 id="역자주">역자주</h4>
+<p>전체 직렬화 흐름 (export_library)의 흐름은 다음과 같다</p>
+<ol>
+<li>DSO 모듈 수집(예: LLVM, C 소스 모듈)</li>
+<li>DSO 모듈 저장(.o 또는 .cc로 저장)</li>
+<li>임포트된 모듈(CUDA, OpenCL 등) 확인 및 직렬화(_PackImportsToLLVM 또는 _PackImportsToC 함수로 처리)</li>
+<li>최종 컴파일 및 공유 라이브러리 생성(fcompile → _cc.create_shared() 사용)</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">#CPU + CUDA 모듈 직렬화 예시</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 1: 연산 정의</span>
+</span></span><span class="line"><span class="cl"><span class="n">n</span> <span class="o">=</span> <span class="n">te</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="s2">&#34;n&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">A</span> <span class="o">=</span> <span class="n">te</span><span class="o">.</span><span class="n">placeholder</span><span class="p">((</span><span class="n">n</span><span class="p">,),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&#34;A&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">B</span> <span class="o">=</span> <span class="n">te</span><span class="o">.</span><span class="n">compute</span><span class="p">((</span><span class="n">n</span><span class="p">,),</span> <span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&#34;B&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 2: 스케줄 정의</span>
+</span></span><span class="line"><span class="cl"><span class="n">s_cpu</span> <span class="o">=</span> <span class="n">te</span><span class="o">.</span><span class="n">create_schedule</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">op</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">s_cuda</span> <span class="o">=</span> <span class="n">te</span><span class="o">.</span><span class="n">create_schedule</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">op</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 3: CPU, CUDA 모듈 각각 빌드</span>
+</span></span><span class="line"><span class="cl"><span class="n">cpu_mod</span> <span class="o">=</span> <span class="n">tvm</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">s_cpu</span><span class="p">,</span> <span class="p">[</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">],</span> <span class="n">target</span><span class="o">=</span><span class="s2">&#34;llvm&#34;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&#34;cpu_add&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">cuda_mod</span> <span class="o">=</span> <span class="n">tvm</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">s_cuda</span><span class="p">,</span> <span class="p">[</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">],</span> <span class="n">target</span><span class="o">=</span><span class="s2">&#34;cuda&#34;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&#34;cuda_add&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 4: CPU 모듈에 CUDA 모듈을 import</span>
+</span></span><span class="line"><span class="cl"><span class="n">cpu_mod</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">cuda_mod</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 5: 하나의 라이브러리로 저장</span>
+</span></span><span class="line"><span class="cl"><span class="n">cpu_mod</span><span class="o">.</span><span class="n">export_library</span><span class="p">(</span><span class="s2">&#34;fused_module.so&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="deserialization">Deserialization</h3>
+<p>Deserialization의 시작 API는 <code>tvm.runtime.load</code>이다. 이 함수는 <code>_LoadFromFile</code>을 호출한다.(이는 <code>Module::LoadFromFile</code> 이다)
+예를 들어 배포 바이너리 <code>deploy.so</code>는 <code>dso_library.cc</code>의 <code>module.loadfile_so</code>을 호출한다. 하기 코드는 주요 구조를 나타낸다</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="c1">// Load the imported modules
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">library_bin</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">   <span class="n">lib</span><span class="o">-&gt;</span><span class="n">GetSymbol</span><span class="p">(</span><span class="n">runtime</span><span class="o">::</span><span class="n">symbol</span><span class="o">::</span><span class="n">tvm_ffi_library_bin</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="n">Module</span> <span class="n">root_mod</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">library_bin</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="n">root_mod</span> <span class="o">=</span> <span class="n">ProcessLibraryBin</span><span class="p">(</span><span class="n">library_bin</span><span class="p">,</span> <span class="n">lib</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="c1">// Only have one single DSO Module
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="n">root_mod</span> <span class="o">=</span> <span class="n">Module</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>deserialization동안 <code>runtime::symbol::tvm_ffi_library_bin</code>를 검사한다.(이전에 blob 정보를 여기다 packing하였다).
+만약 <code>runtime::symbol::tvm_ffi_library_bin</code>이 있다면 <code>ProcessLibraryBin</code>을 호출한다. 이 함수의 구조는 다음과 같다.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">READ</span><span class="p">(</span><span class="n">blob_size</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">READ</span><span class="p">(</span><span class="n">blob_type_key</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">blob_size</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">blob_type_key</span> <span class="o">==</span> <span class="s">&#34;_lib&#34;</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// construct dso module using lib
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">blob_type_key</span> <span class="o">==</span> <span class="s">&#34;_import_tree&#34;</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// READ(_import_tree_row_ptr)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// READ(_import_tree_child_indices)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// call module.loadbinary_blob_type_key, such as module.loadbinary_cuda
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// to restore.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// Using _import_tree_row_ptr and _import_tree_child_indices to
+</span></span></span><span class="line"><span class="cl"><span class="c1">// restore module import relationship. The first module is the
+</span></span></span><span class="line"><span class="cl"><span class="c1">// root module according to our invariance as said before.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">return</span> <span class="n">root_module</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>이후 root부터 심볼 탐색이 가능하도록 <code>ctx_address</code>를 <code>root_module</code>로 세팅함</p>
 <h2 id="devicetarget-interactions">Device/Target Interactions</h2>
+<p>본 문서는 TVM framework가 특정 device API와 어떻게 상호작용하는지 알기를 원하는 개발자나, 새로운 API 또는 새로운 하드웨어에 대한 지원을 구현하기 위한 사람을 위한 것이다. 새로운 런타임 환경을 위해 구현해야 하는 세 가지 주요 측면이 있다.</p>
+<ol>
+<li>Device API class : 특정 디바이스 또는 이것과 상호작용하기 위한 API를 제공한다. 이것은 디바이스 파라메터(메모리 사이즈, 스레드 갯수 등) 쿼링 또는 간단한 동작(호스트- 디바이스간 메모리 복사 등) 수행을 위한 공통의 인터페이스를 정의한다.</li>
+<li>Target Class : 함수가 실행될 장치에 대한 설명을 담고 있다. 이것은 target code generators과 optimization pass에서 사용된다.</li>
+<li>Target code generation : IRModule에서 1개이상의 PackedFunc으로 구성된 Module을 구성한다.(Module/PackedFunc는 part1 참조)</li>
+</ol>
 <h3 id="deviceapi">DeviceAPI</h3>
+<p><code>DeviceAPI</code>는 특정 하드웨어 장치 API에 대한 handle을 나타냄. (<code>CUDADeviceAPI</code> 은 CUDA 프레임워크를 통한 모든 상호작용을 핸들링함)<br>
+대부분의 <code>DeviceAPI</code>는 접근해야할 디바이스를 지정하기 위해 <code>device_id</code>를 인자로 받음. Python애서는 tvm.runtime.device() 함수를 이용하여 <code>device_id</code>에 접근 가능함 (예를 들어 <code>tvm.runtime.device('cuda',0)</code>은 CUDA API를 통해 물리적 디바이스 0에 접근 가능함).</p>
+<ul>
+<li>Attribute queries : <code>GetAttr</code>는 쿼리 된 다른 device-specific parameter들에 접근을 허락함(장치 이름, 스레드 갯수 등) 쿼리된 파라메터는 <a class="link" href="https://github.com/apache/tvm/blob/main/include/tvm/runtime/device_api.h"  target="_blank" rel="noopener"
+    >device_api.h</a> 내 <code>enum DeviceAttrKind</code>에 정의 되어 있음. 모든 쿼리 가능한 파라메가 모든 장치에서 지원되는 것은 아닙니다. 파라메터가 쿼리 되지 않았거나(Vulkan의 kMaxClockRate) 파라메터가 해당되지 않는 경우(CPU의 kWarpSize) 해당 쿼리는 <code>nullptr</code>를 리턴함</li>
+<li>Setting active device : <code>SetDevice</code>는 특정 디바이스를 활성화 상태로 세팅함. 타켓 코드 제너레이터에 의해 생성된 <code>PackedFunc</code>이 디바이스 실행을 요청할 경우, 이것은 활상화 디바이스에서 실행되어야 함.</li>
+<li>Memory management : 디바이스에서 메모리 할당 및 해제를 위한 유틸리티
+<ul>
+<li>Allocate data space : <code>AllocDataSpace</code>나 <code>FreeDataSpace</code>는 디바이스에서 메모리 공간을 할당 또는 해제함. 할당된 메모리는 연산자에게 입력 및 출력으로 제공될 수 있으며, 연산자 그래프의 주요 데이터 흐름을 구성. 이것은 호스트와 할당된 메모리 간의 데이터 전송이 가능해야 함. 리턴 value는 <code>void*</code>. 몇몇 구현은 메모리 주소를 리턴하는 반면 이것이 필수는 아니며, <code>void*</code>는 해당 주소를 생성한 장치 백엔드에서만 해석할 수 있는 opaque handle일 수 있다. <code>void*</code>는 CopyDataFromTo와 같은 다른 백엔드 전용 함수의 인수로 사용된다.</li>
+<li>Allocate work space : <code>AllocWorkspace</code>와 <code>FreeWorkspace</code>는 디바이스에서 메모리 공간을 할당 또는 해제함. data space와는 다르게 이것은 operator definition 내부에서 intermediate values 저장을 위해 사용되며 host device와 데이터 전송을 필요로 하지 않는다. <code>DeviceAPI</code> subclass가 이 방법을 구현하지 않는다면 해당 <code>DeviceAPI</code>는 이에 대응되는 <code>DataSpace</code> 함수들을 호출한다.</li>
+<li>Copy data : <code>CopyDataFromTo</code>는 데이터를 한곳에서 다른 곳으로 복사한다. 이 복사의 형태는 <code>dev_from</code>나 <code>dev_to</code> 파라메터에 의해 결정된다. 이의 구현은 CPU와 장치간 메모리 복사, 버퍼에서 단일 장치로 데이터 복사를 지원해야 한다. src/dst 위치가 CPU에 있는 경우 해당 <code>void*</code>은 memcpy로 전달할 수 있는 CPU 주소를 나타냄.  src/dst 위치가 디바이스에 있는 경우 해당 <code>void*</code>은 이전에 AllocDataSpace 또는 AllocWorkspace에서 생성된 주소이다.</li>
+<li>이러한 복사는 특정 <code>TVMStreamHandle</code>에서 실행되도록 대기열에 저장된다. 그러나 <code>CopyDataFromTo</code> 호출이 완료된 후에도 CPU 버퍼가 유효하거나 액세스할 수 있다고 가정해서는 안 됩니다.</li>
+</ul>
+</li>
+<li>Execution stream management : 명령을 실행하는데 사용되는 병렬 실행 스트림인 <code>TVMStreamHandle</code>을 핸들링하는데 사용되는 유틸
+<ul>
+<li>Create stream : <code>CreateStream</code>과 <code>FreeStream</code>은 실행 스트림의 핸들을 할당/해제하여야 한다. 만약 디바이스가 command queue 사이즈가 1이면 CreateStream은 nullptr을 반환한다.</li>
+<li>Set active stream : <code>SetStream</code>은 스트림을 활성화해야 한다. 타켓 코드 제너레이터에 의해 생성된 <code>PackedFunc</code>이 디바이스 실행을 요청할 경우, 그 작업은 활성화 된 스트림에 제출 되어야 한다.</li>
+<li>Synchronize to CPU : <code>StreamSync</code>은 실행 스트림을 CPU와 동기화 해야한다. StreamSync 함수 호출은, 그 호출 이전에 제출된 모든 메모리 전송과 연산이 완료된 후에야 반환되어야 한다.</li>
+<li>Synchronize between streams : <code>SyncStreamFromTo</code> 은 source/destination 스트림 간 synchronization barrier를 도입해야 한다. 즉 SyncStreamFromTo 명령을 통해 source 스트림이 완료될 때 까지 dest 스트림 진행을 멈출 수 있다.</li>
+<li>(역자주) source 스트림은 먼저 실행된 스트림이고 dest은 나중에 실행된 스트림이다. 두 스트림간 데이터 동기화, 의존성 해결을 위해 한 스트림이 완료된 후 다음 스트림을 실행 할 수 있음</li>
+</ul>
+</li>
+</ul>
+<h4 id="신규-deviceapi-등록-절차">신규 DeviceAPI 등록 절차</h4>
+<p>새로운 디바이스가 TVM에서 사용되려면 신규 DeviceAPI를 등록해야 함</p>
+<ol>
+<li>새로운 DeviceAPI를 인스턴스화하고 포인터를 반환하는 함수를 만듭니다</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">FooDeviceAPI</span><span class="o">*</span> <span class="n">FooDeviceAPI</span><span class="o">::</span><span class="n">Global</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">static</span> <span class="n">FooDeviceAPI</span> <span class="n">inst</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="o">&amp;</span><span class="n">inst</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>TVM registry에 함수를 등록합니다.</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">TVM_FFI_REGISTER_GLOBAL</span><span class="p">(</span><span class="s">&#34;device_api.foo&#34;</span><span class="p">).</span><span class="n">set_body_typed</span><span class="p">(</span><span class="n">FooDeviceAPI</span><span class="o">::</span><span class="n">Global</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// device_api.foo는 TVM registry에 등록된 이름
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>새로운 DeviceAPI를 위한 엔트리를 <a class="link" href="https://github.com/apache/tvm/blob/main/include/tvm/runtime/base.h"  target="_blank" rel="noopener"
+    >base.h</a> 내부의 enum <code>TVMDeviceExtType</code>에 추가한다. 그 값은 <code>DLDeviceType::kDLExtDev</code>보다 크고 <code>DeviceAPIManager::kMaxDeviceAPI</code> 보다 작은 사용되지 않은 값이어야 한다.</li>
+<li><a class="link" href="https://github.com/apache/tvm/blob/main/include/tvm/runtime/device_api.h"  target="_blank" rel="noopener"
+    >device_api.h</a> 내부 <code>DeviceName</code>에 enum값을 string으로 변환하기 위한 case 문을 추가해라. 이 string 값은 <code>TVM_FFI_REGISTER_GLOBAL</code>에 주어진 이름과 같아야 한다.</li>
+<li>새로운 enum값을 위해 엔트리들을 tvm.runtime.Device의 <code>DEVICE_TYPE_TO_NAME</code>과 <code>DEVICE_NAME_TO_TYPE</code> dictionaries에 추가하라.</li>
+</ol>
+<h4 id="역자해석">역자해석</h4>
+<ol>
+<li>DeviceAPI 클래스 구현</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="c1">// foo_device_api.cc
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;tvm/runtime/device_api.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;tvm/runtime/registry.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">namespace</span> <span class="n">tvm</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">namespace</span> <span class="n">runtime</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">FooDeviceAPI</span> <span class="o">:</span> <span class="k">public</span> <span class="n">DeviceAPI</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"> <span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="n">SetDevice</span><span class="p">(</span><span class="n">DLDevice</span> <span class="n">dev</span><span class="p">)</span> <span class="k">override</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Set Foo device: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">dev</span><span class="p">.</span><span class="n">device_id</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span><span class="o">*</span> <span class="nf">AllocDataSpace</span><span class="p">(</span><span class="n">DLDevice</span> <span class="n">dev</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">nbytes</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">alignment</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                       <span class="n">DLDataType</span> <span class="n">type_hint</span><span class="p">)</span> <span class="k">override</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Alloc Foo device memory</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">malloc</span><span class="p">(</span><span class="n">nbytes</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="nf">FreeDataSpace</span><span class="p">(</span><span class="n">DLDevice</span> <span class="n">dev</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">)</span> <span class="k">override</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Free Foo device memory</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">free</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="nf">CopyDataFromTo</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">from</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">to</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                      <span class="k">const</span> <span class="n">DLDevice</span><span class="o">&amp;</span> <span class="n">dev_from</span><span class="p">,</span> <span class="k">const</span> <span class="n">DLDevice</span><span class="o">&amp;</span> <span class="n">dev_to</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                      <span class="n">DLDataType</span> <span class="n">type_hint</span><span class="p">,</span> <span class="n">TVMStreamHandle</span> <span class="n">stream</span><span class="p">)</span> <span class="k">override</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Copy data on Foo device</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">memcpy</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">from</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="nf">StreamSync</span><span class="p">(</span><span class="n">DLDevice</span> <span class="n">dev</span><span class="p">,</span> <span class="n">TVMStreamHandle</span> <span class="n">stream</span><span class="p">)</span> <span class="k">override</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Stream sync on Foo device</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">static</span> <span class="n">FooDeviceAPI</span><span class="o">*</span> <span class="nf">Global</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">static</span> <span class="n">FooDeviceAPI</span> <span class="n">inst</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="o">&amp;</span><span class="n">inst</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">}</span>  <span class="c1">// namespace runtime
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>  <span class="c1">// namespace tvm
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>레지스트리 등록</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">TVM_REGISTER_GLOBAL</span><span class="p">(</span><span class="s">&#34;device_api.foo&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span><span class="n">set_body_typed</span><span class="p">(</span><span class="n">tvm</span><span class="o">::</span><span class="n">runtime</span><span class="o">::</span><span class="n">FooDeviceAPI</span><span class="o">::</span><span class="n">Global</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="3">
+<li>TVMDeviceExtType에 enum 추가 (include/tvm/runtime/c_runtime_api.h)</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">enum</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 기존 값들 ...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">kDLExtDev</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>   <span class="c1">// 시작점
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">kDLFoo</span> <span class="o">=</span> <span class="mi">13</span><span class="p">,</span>      <span class="c1">// 새로운 Foo 디바이스
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="n">TVMDeviceExtType</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="4">
+<li>DeviceName()에 enum -&gt; 문자열 변환 추가 (device_api.h)</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="kr">inline</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="nf">DeviceName</span><span class="p">(</span><span class="n">DLDeviceType</span> <span class="n">type</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">switch</span> <span class="p">(</span><span class="n">type</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 기존 장치들
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">case</span> <span class="nl">kDLCPU</span><span class="p">:</span> <span class="k">return</span> <span class="s">&#34;cpu&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="nl">kDLCUDA</span><span class="p">:</span> <span class="k">return</span> <span class="s">&#34;cuda&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 새 장치 추가
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">case</span> <span class="nl">kDLFoo</span><span class="p">:</span> <span class="k">return</span> <span class="s">&#34;foo&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">default</span><span class="o">:</span> <span class="k">return</span> <span class="s">&#34;unknown&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="5">
+<li>Python 딕셔너리 등록 (python/tvm/runtime/device.py)</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">DEVICE_TYPE_TO_NAME</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&#34;foo&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">DEVICE_NAME_TO_TYPE</span><span class="p">[</span><span class="s2">&#34;foo&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">13</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="6">
+<li>등록 후 Python 사용</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">tvm</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">dev</span> <span class="o">=</span> <span class="n">tvm</span><span class="o">.</span><span class="n">runtime</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&#34;foo&#34;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">dev</span><span class="p">)</span>  <span class="c1"># &lt;tvm.runtime.Device foo(0)&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>note) TVM은 DeviceAPIManager를 통해 장치별 구현을 자동으로 선택합니다.</li>
+<li>note) void*로 반환된 핸들은 CopyDataFromTo, StreamSync 등 TVM 백엔드가 해석하므로, 메모리 주소일 필요는 없습니다.</li>
+<li>note) DeviceAPI는 최소 SetDevice, AllocDataSpace, FreeDataSpace, CopyDataFromTo, StreamSync만 구현해도 동작 가능하지만, 고급 기능을 위해 CreateStream, SyncStreamFromTo, AllocWorkspace 등을 추가 구현할 수 있습니다.</li>
+</ul>
 <h3 id="target-definition">Target Definition</h3>
-<h3 id="target-code-generators">Target Code Generators</h3>
-
+<p><code>Target</code> object는 physical device와 그것의 hardware/driver제한사항 및 capabilities에 대한 properties의 룩업테이블이다.
+<code>Target</code>은 optimization과 code generation 단계 모두에서 접근이 가능하다.
+같은 <code>Target</code> 클래스가 모든 런타임 대상(runtime target)에서 사용되지만, 각 런타임 대상마다 고유한 옵션을 추가해야 할 수 있습니다.</p>
+<h4 id="신규-target_kind-등록">신규 TARGET_KIND 등록</h4>
+<p><a class="link" href="https://github.com/apache/tvm/blob/main/src/target/target_kind.cc"  target="_blank" rel="noopener"
+    >target_kind.cc</a>내부에 새로운 <code>TVM_REGISTER_TARGET_KIND</code>를 사용해 새로운 타겟 선언</p>
+<ul>
+<li>새로운 타켓의 string name과 타겟이 실행될 장치의 <code>TVMDeviceExtType</code>과 <code>DLDeviceType</code> enum 값을 전달
+일반적으로 일반적으로 타겟 이름과 디바이스 이름은 일치하지만(&ldquo;cuda&rdquo; 타겟은 &ldquo;kDLCUDA&rdquo;) 하나의 물리 디바이스에서 서로 다른 코드 생성 타겟을 사용할 수 있기 때문에 예외도 있다. (&ldquo;llvm&quot;과 &ldquo;c&rdquo; 타겟은 둘 다 kDLCPU 디바이스 유형에서 실행)</li>
+</ul>
+<h4 id="타겟-옵션-설정">타겟 옵션 설정</h4>
+<p>특정 target kind를 위한 옵션은 <code>add_attr_option</code> 함수를 통해 추가할 수 있다.(디폴트 값 설정 가능)
+Target parser도 <code>set_target_parser</code>로 추가 가능</p>
+<ul>
+<li>다른 파라메터에 동적으로 기반하거나 장치 속성에서 쿼리된 파라메터를 처리가능</li>
+</ul>
+<h4 id="target-객체-생성">Target 객체 생성</h4>
+<p>상기 argument definition은 타겟의 string description을 unpack할 수 있는 parser를 정의한다.  이것은 C++의 <code>Target::Target(const String&amp;)</code> constructor에 의해 완료된다(JSON-formatted string을 수용할 수 있으며 <code>tvm.target.Target</code> 파이썬 object를 통해 호출됨).</p>
+<ul>
+<li>예를 들어 tvm.target.Target(&rsquo;{&ldquo;kind&rdquo;: &ldquo;cuda&rdquo;, &ldquo;max_num_threads&rdquo;: 1024}&rsquo;)은 max_num_threads를 오버라이딩하는 cuda 객체를 생성</li>
+</ul>
+<h4 id="target-속성-접근">Target 속성 접근</h4>
+<p>code generator에서 타겟 속성은 c++의 <code>arget-&gt;GetAttr&lt;T&gt;(param_name)</code> 또는 파이선의 <code>target.attrs</code> dictionary를 통해 접근 할 수 있다.</p>
+<h4 id="역자-주">역자 주</h4>
+<ol>
+<li>FooDeviceAPI를 위한 &ldquo;foo&rdquo; 타겟을 등록한다고 하면 다음처럼 구현</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">TVM_REGISTER_TARGET_KIND</span><span class="p">(</span><span class="s">&#34;foo&#34;</span><span class="p">,</span> <span class="n">kDLFoo</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">.</span><span class="n">add_attr_option</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&#34;max_threads_per_block&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">.</span><span class="n">add_attr_option</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&#34;shared_memory_per_block&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">.</span><span class="n">add_attr_option</span><span class="o">&lt;</span><span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="s">&#34;libs&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">.</span><span class="n">set_default_keys</span><span class="p">({</span><span class="s">&#34;foo&#34;</span><span class="p">,</span> <span class="s">&#34;gpu&#34;</span><span class="p">});</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>등록된 타겟을 python에서 다음과 같이 사용가능하다.</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">tvm</span> <span class="kn">import</span> <span class="n">target</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">t</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">Target</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;kind&#34;</span><span class="p">:</span> <span class="s2">&#34;foo&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;max_threads_per_block&#34;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;shared_memory_per_block&#34;</span><span class="p">:</span> <span class="mi">49152</span>
+</span></span><span class="line"><span class="cl"><span class="p">})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>  <span class="c1"># foo</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&#34;max_threads_per_block&#34;</span><span class="p">])</span>  <span class="c1"># 256</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="target-code-generators">Target Code Generators</h3>
+<p>code generator는 최적화된 IRModule을 입력받아 executable representation으로 변환한다. 각 code generator는 TVM framework에서 사용되기 위해서 등록되어야 하며 이는 <code>target.build.foo</code> 라는 이름의 함수를 등록함으로써 이루어진다(foo는 앞서 TVM_REGISTER_TARGET_KIND에서 사용한 타겟 이름과 같아야 함)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">tvm</span><span class="o">::</span><span class="n">runtime</span><span class="o">::</span><span class="n">Module</span> <span class="n">GeneratorFooCode</span><span class="p">(</span><span class="n">IRModule</span> <span class="n">mod</span><span class="p">,</span> <span class="n">Target</span> <span class="n">target</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">TVM_FFI_REGISTER_GLOBAL</span><span class="p">(</span><span class="s">&#34;target.build.foo&#34;</span><span class="p">).</span><span class="n">set_body_typed</span><span class="p">(</span><span class="n">GeneratorFooCode</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>code generator는 2개의 인수를 취한다.</p>
+<ul>
+<li><code>IRModule</code> : 컴파일할 중간 표현 모듈</li>
+<li><code>Target</code> : 해당 코드가 실행될 디바이스에 대한 정보
+컴파일 환경과 코드의 동작 환경이 다를 수 있으므로 코드 생성 시점에 실제 하드웨어 디바이스에 접근하거나 쿼리해서 파라메터를 받아 오지 말고 <code>Target</code>에 저장된 파라메터를 사용해야 함.
+input <code>IRModule</code> 내부 각 함수는 output <code>runtime::Module</code>에서 이름으로 접근가능해야 한다.</li>
+</ul>
+<h3 id="역자주-1">역자주</h3>
+<ol>
+<li>code generator 예시 : GeneratorFooCode</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;tvm/ir/module.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;tvm/runtime/module.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;tvm/runtime/registry.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;tvm/target/codegen.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;tvm/tir/stmt_functor.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;tvm/tir/function.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;tvm/codegen/codegen_c.h&gt;  // CodeGenC 사용</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">using</span> <span class="k">namespace</span> <span class="n">tvm</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">using</span> <span class="k">namespace</span> <span class="n">tvm</span><span class="o">::</span><span class="n">runtime</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">using</span> <span class="k">namespace</span> <span class="n">tvm</span><span class="o">::</span><span class="n">tir</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">runtime</span><span class="o">::</span><span class="n">Module</span> <span class="n">GeneratorFooCode</span><span class="p">(</span><span class="n">IRModule</span> <span class="n">mod</span><span class="p">,</span> <span class="n">Target</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 1. C 코드 생성기 초기화
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">auto</span> <span class="n">cg</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">CodeGenC</span><span class="o">&gt;</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="n">cg</span><span class="o">-&gt;</span><span class="n">Init</span><span class="p">(</span><span class="n">target</span><span class="p">);</span>  <span class="c1">// 타겟 정보 전달
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 2. IRModule 내 함수들을 순회하며 추가
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="nl">kv</span> <span class="p">:</span> <span class="n">mod</span><span class="o">-&gt;</span><span class="n">functions</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="k">auto</span><span class="o">*</span> <span class="n">n</span> <span class="o">=</span> <span class="n">kv</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">as</span><span class="o">&lt;</span><span class="n">PrimFuncNode</span><span class="o">&gt;</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">PrimFunc</span> <span class="n">f</span> <span class="o">=</span> <span class="n">GetRef</span><span class="o">&lt;</span><span class="n">PrimFunc</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">cg</span><span class="o">-&gt;</span><span class="n">AddFunction</span><span class="p">(</span><span class="n">f</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// 3. 생성된 C 코드 문자열 얻기
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">c_code</span> <span class="o">=</span> <span class="n">cg</span><span class="o">-&gt;</span><span class="n">Finish</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// 4. 코드를 로그로 출력 (디버깅용)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;[FooCodeGen] Generated C Code:</span><span class="se">\n</span><span class="s">&#34;</span> <span class="o">&lt;&lt;</span> <span class="n">c_code</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// 5. DSO 모듈로 빌드하는 대신, 그냥 소스 코드 모듈로 래핑해서 반환
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">return</span> <span class="n">codegen</span><span class="o">::</span><span class="n">CreateCSourceModule</span><span class="p">(</span><span class="n">c_code</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="p">{},</span> <span class="s">&#34;foo&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 등록
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">TVM_REGISTER_GLOBAL</span><span class="p">(</span><span class="s">&#34;target.build.foo&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">.</span><span class="n">set_body_typed</span><span class="p">(</span><span class="n">GeneratorFooCode</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="2">
+<li>상기 코드에 대한 사용 예시</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">tvm</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">tvm</span> <span class="kn">import</span> <span class="n">relay</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">x</span> <span class="o">=</span> <span class="n">relay</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="s2">&#34;x&#34;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&#34;float32&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">y</span> <span class="o">=</span> <span class="n">relay</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">func</span> <span class="o">=</span> <span class="n">relay</span><span class="o">.</span><span class="n">Function</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">y</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">mod</span> <span class="o">=</span> <span class="n">tvm</span><span class="o">.</span><span class="n">IRModule</span><span class="o">.</span><span class="n">from_expr</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># foo 타겟으로 빌드</span>
+</span></span><span class="line"><span class="cl"><span class="k">with</span> <span class="n">tvm</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">PassContext</span><span class="p">(</span><span class="n">opt_level</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">lib</span> <span class="o">=</span> <span class="n">relay</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&#34;foo&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 생성된 C 코드를 확인</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">lib</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="s2">&#34;foo&#34;</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
 </section>
 
     
